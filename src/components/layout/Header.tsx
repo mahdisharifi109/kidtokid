@@ -165,7 +165,7 @@ export function Header() {
 
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2">
-          <span className="text-xl font-bold text-k2k-pink md:text-2xl">Kid to Kid</span>
+          <img src="/logo.png" alt="Kid to Kid" className="h-8 md:h-10" />
         </Link>
 
         {/* Catalogue Dropdown - Desktop */}

@@ -9,10 +9,9 @@ export function Footer() {
         <div className="grid gap-8 md:grid-cols-4">
           {/* Logo and Description */}
           <div className="col-span-2">
-            <h3 className="mb-4 text-2xl font-bold">
-              <span className="text-k2k-pink">Kid to Kid</span>{" "}
-              <span className="text-k2k-blue">Telheiras</span>
-            </h3>
+            <div className="mb-4">
+              <img src="/logo.png" alt="Kid to Kid" className="h-10" />
+            </div>
             <p className="mb-4 text-sm text-muted-foreground">
               Loja de roupa e artigos de crianças em segunda mão. Compre e venda com confiança!
             </p>
