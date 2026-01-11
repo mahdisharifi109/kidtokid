@@ -1,0 +1,46 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // Funções auxiliares
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isImageType() {
+      return request.resource.contentType.matches('image/.*');
+    }
+    
+    function isValidSize() {
+      return request.resource.size < 5 * 1024 * 1024; // 5MB max
+    }
+    
+    // Regras para imagens de produtos
+    match /products/{productId}/{fileName} {
+      // Qualquer pessoa pode ler imagens de produtos
+      allow read: if true;
+      
+      // Apenas utilizadores autenticados podem fazer upload
+      allow write: if isAuthenticated() && isImageType() && isValidSize();
+      
+      // Apenas utilizadores autenticados podem eliminar
+      allow delete: if isAuthenticated();
+    }
+    
+    // Regras para avatares de utilizadores
+    match /avatars/{userId} {
+      // Qualquer pessoa pode ver avatares
+      allow read: if true;
+      
+      // Utilizadores podem fazer upload do próprio avatar
+      allow write: if isAuthenticated() && 
+        request.auth.uid == userId && 
+        isImageType() && 
+        isValidSize();
+      
+      // Utilizadores podem eliminar o próprio avatar
+      allow delete: if isAuthenticated() && request.auth.uid == userId;
+    }
+  }
+}

@@ -1,0 +1,68 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Funções auxiliares
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+    
+    // Regras para produtos
+    match /products/{productId} {
+      // Qualquer pessoa pode ler produtos
+      allow read: if true;
+      
+      // Apenas utilizadores autenticados podem criar/editar/eliminar
+      // Em produção, adicione verificação de admin
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+      allow delete: if isAuthenticated();
+    }
+    
+    // Regras para utilizadores
+    match /users/{userId} {
+      // Utilizadores podem ler o próprio perfil
+      allow read: if isAuthenticated() && isOwner(userId);
+      
+      // Utilizadores podem criar/atualizar o próprio perfil
+      allow create: if isAuthenticated() && isOwner(userId);
+      allow update: if isAuthenticated() && isOwner(userId);
+      
+      // Não permitir eliminar perfis
+      allow delete: if false;
+    }
+    
+    // Regras para encomendas
+    match /orders/{orderId} {
+      // Utilizadores podem ler as próprias encomendas
+      allow read: if isAuthenticated() && 
+        resource.data.userId == request.auth.uid;
+      
+      // Utilizadores podem criar encomendas
+      allow create: if isAuthenticated() && 
+        request.resource.data.userId == request.auth.uid;
+      
+      // Apenas admins podem atualizar encomendas
+      // Em produção, adicione verificação de admin
+      allow update: if isAuthenticated();
+      
+      // Não permitir eliminar encomendas
+      allow delete: if false;
+    }
+    
+    // Regras para favoritos
+    match /favorites/{favoriteId} {
+      allow read: if isAuthenticated() && 
+        resource.data.userId == request.auth.uid;
+      allow create: if isAuthenticated() && 
+        request.resource.data.userId == request.auth.uid;
+      allow delete: if isAuthenticated() && 
+        resource.data.userId == request.auth.uid;
+    }
+  }
+}
