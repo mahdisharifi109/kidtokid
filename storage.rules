@@ -1,46 +1,123 @@
 rules_version = '2';
 
+// ===========================================
+// 🗄️ STORAGE SECURITY RULES - KID TO KID
+// ===========================================
+// Última atualização: Janeiro 2026
+
 service firebase.storage {
   match /b/{bucket}/o {
     
-    // Funções auxiliares
+    // ========================================
+    // 📋 FUNÇÕES AUXILIARES
+    // ========================================
+    
     function isAuthenticated() {
       return request.auth != null;
     }
     
-    function isImageType() {
-      return request.resource.contentType.matches('image/.*');
+    function isAdmin() {
+      return request.auth != null && request.auth.token.admin == true;
     }
     
-    function isValidSize() {
-      return request.resource.size < 5 * 1024 * 1024; // 5MB max
+    function isStaff() {
+      return request.auth != null && 
+             (request.auth.token.admin == true || request.auth.token.moderator == true);
     }
     
-    // Regras para imagens de produtos
+    function isValidImage() {
+      return request.resource.contentType.matches('image/.*') &&
+             request.resource.size < 5 * 1024 * 1024; // 5MB máximo
+    }
+    
+    function isValidDocument() {
+      return request.resource.contentType.matches('application/pdf') &&
+             request.resource.size < 10 * 1024 * 1024; // 10MB máximo
+    }
+    
+    // ========================================
+    // 🖼️ IMAGENS DE PRODUTOS
+    // ========================================
     match /products/{productId}/{fileName} {
-      // Qualquer pessoa pode ler imagens de produtos
       allow read: if true;
-      
-      // Apenas utilizadores autenticados podem fazer upload
-      allow write: if isAuthenticated() && isImageType() && isValidSize();
-      
-      // Apenas utilizadores autenticados podem eliminar
+      // DESENVOLVIMENTO: Permitir upload
+      allow create, update: if isAuthenticated() && isValidImage();
       allow delete: if isAuthenticated();
     }
     
-    // Regras para avatares de utilizadores
-    match /avatars/{userId} {
-      // Qualquer pessoa pode ver avatares
+    // ========================================
+    // 📂 IMAGENS DE CATEGORIAS
+    // ========================================
+    match /categories/{categoryId}/{fileName} {
       allow read: if true;
-      
-      // Utilizadores podem fazer upload do próprio avatar
+      allow write: if isAuthenticated() && isValidImage();
+    }
+    
+    // ========================================
+    // 👤 AVATARES DE UTILIZADORES
+    // ========================================
+    match /users/{userId}/avatar/{fileName} {
+      allow read: if true;
+      allow create, update: if request.auth != null && 
+                               request.auth.uid == userId &&
+                               isValidImage() &&
+                               request.resource.size < 2 * 1024 * 1024;
+      allow delete: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Compatibilidade com estrutura antiga
+    match /avatars/{userId} {
+      allow read: if true;
       allow write: if isAuthenticated() && 
         request.auth.uid == userId && 
-        isImageType() && 
-        isValidSize();
-      
-      // Utilizadores podem eliminar o próprio avatar
+        isValidImage();
       allow delete: if isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    // ========================================
+    // 🏪 BANNERS / SLIDERS
+    // ========================================
+    match /banners/{fileName} {
+      allow read: if true;
+      allow write: if isAuthenticated() && isValidImage();
+    }
+    
+    match /sliders/{fileName} {
+      allow read: if true;
+      allow write: if isAuthenticated() && isValidImage();
+    }
+    
+    // ========================================
+    // 📧 ANEXOS DE CONTACTO
+    // ========================================
+    match /contacts/{contactId}/{fileName} {
+      allow create: if (isValidImage() || isValidDocument()) &&
+                       request.resource.size < 5 * 1024 * 1024;
+      allow read: if isStaff();
+      allow delete: if isAdmin();
+    }
+    
+    // ========================================
+    // 📦 DOCUMENTOS DE ENCOMENDAS
+    // ========================================
+    match /orders/{orderId}/{fileName} {
+      allow read, write: if isAuthenticated();
+    }
+    
+    // ========================================
+    // 🔒 FICHEIROS TEMPORÁRIOS
+    // ========================================
+    match /temp/{userId}/{fileName} {
+      allow read, write: if request.auth != null && 
+                            request.auth.uid == userId &&
+                            request.resource.size < 10 * 1024 * 1024;
+    }
+    
+    // ========================================
+    // 📊 BACKUPS
+    // ========================================
+    match /backups/{path=**} {
+      allow read, write: if false;
     }
   }
 }

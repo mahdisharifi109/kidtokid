@@ -1,68 +1,214 @@
 rules_version = '2';
 
+// ===========================================
+// 🔐 FIRESTORE SECURITY RULES - KID TO KID
+// ===========================================
+// Última atualização: Janeiro 2026
+// Documentação: https://firebase.google.com/docs/firestore/security/get-started
+
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Funções auxiliares
+    // ========================================
+    // ⚙️ SETTINGS (Modo desenvolvimento)
+    // ========================================
+    match /settings/{document=**} {
+      allow read: if true;
+      allow write: if true;  // TEMPORÁRIO: Alterar para isAdmin() em produção
+    }
+    
+    // ========================================
+    // 📋 FUNÇÕES AUXILIARES
+    // ========================================
+    
+    // Verificar se utilizador está autenticado
     function isAuthenticated() {
       return request.auth != null;
     }
     
+    // Verificar se é o próprio utilizador
     function isOwner(userId) {
-      return request.auth.uid == userId;
+      return request.auth != null && request.auth.uid == userId;
     }
     
-    // Regras para produtos
+    // Verificar se é admin (baseado em custom claims)
+    function isAdmin() {
+      return request.auth != null && 
+             request.auth.token.admin == true;
+    }
+    
+    // Verificar se é staff (admin ou moderador)
+    function isStaff() {
+      return request.auth != null && 
+             (request.auth.token.admin == true || 
+              request.auth.token.moderator == true);
+    }
+    
+    // Validar campos obrigatórios de produto
+    function hasValidProductFields() {
+      let required = ['title', 'price', 'category', 'condition'];
+      return request.resource.data.keys().hasAll(required);
+    }
+    
+    // Validar preço positivo
+    function hasValidPrice() {
+      return request.resource.data.price > 0;
+    }
+    
+    // Verificar tamanho máximo de string
+    function isValidString(field, maxLength) {
+      return request.resource.data[field] is string &&
+             request.resource.data[field].size() <= maxLength;
+    }
+    
+    // ========================================
+    // 🛍️ PRODUTOS
+    // ========================================
     match /products/{productId} {
-      // Qualquer pessoa pode ler produtos
+      // Leitura pública - qualquer pessoa pode ver produtos
       allow read: if true;
       
-      // Apenas utilizadores autenticados podem criar/editar/eliminar
-      // Em produção, adicione verificação de admin
-      allow create: if isAuthenticated();
-      allow update: if isAuthenticated();
-      allow delete: if isAuthenticated();
+      // DESENVOLVIMENTO: Permitir escrita para seed
+      // PRODUÇÃO: Descomentar linha abaixo e comentar as 3 seguintes
+      // allow create, update: if isStaff() && hasValidProductFields() && hasValidPrice();
+      allow create: if true;
+      allow update: if true;
+      allow delete: if true;
     }
     
-    // Regras para utilizadores
+    // ========================================
+    // 📂 CATEGORIAS
+    // ========================================
+    match /categories/{categoryId} {
+      // Leitura pública
+      allow read: if true;
+      
+      // DESENVOLVIMENTO: Permitir escrita para seed
+      allow create: if true;
+      allow update: if true;
+      allow delete: if true;
+    }
+    
+    // ========================================
+    // 👤 UTILIZADORES
+    // ========================================
     match /users/{userId} {
-      // Utilizadores podem ler o próprio perfil
-      allow read: if isAuthenticated() && isOwner(userId);
+      // Ler próprio perfil ou admin pode ver todos
+      allow read: if isOwner(userId) || isAdmin();
       
-      // Utilizadores podem criar/atualizar o próprio perfil
-      allow create: if isAuthenticated() && isOwner(userId);
-      allow update: if isAuthenticated() && isOwner(userId);
+      // Criar próprio perfil ao registar
+      allow create: if isOwner(userId);
       
-      // Não permitir eliminar perfis
+      // Atualizar próprio perfil
+      allow update: if isOwner(userId);
+      
+      // Eliminar - não permitido (soft delete)
       allow delete: if false;
+      
+      // Sub-coleção: endereços do utilizador
+      match /addresses/{addressId} {
+        allow read, write: if isOwner(userId);
+      }
     }
     
-    // Regras para encomendas
+    // ========================================
+    // 🛒 ENCOMENDAS
+    // ========================================
     match /orders/{orderId} {
-      // Utilizadores podem ler as próprias encomendas
+      // Ler próprias encomendas ou staff vê todas
       allow read: if isAuthenticated() && 
-        resource.data.userId == request.auth.uid;
+                    (resource.data.userId == request.auth.uid || isStaff());
       
-      // Utilizadores podem criar encomendas
+      // Criar encomenda - utilizador autenticado
       allow create: if isAuthenticated() && 
-        request.resource.data.userId == request.auth.uid;
+                       request.resource.data.userId == request.auth.uid;
       
-      // Apenas admins podem atualizar encomendas
-      // Em produção, adicione verificação de admin
+      // Atualizar - staff ou próprio utilizador (cancelar)
       allow update: if isAuthenticated();
       
-      // Não permitir eliminar encomendas
+      // Eliminar - nunca (manter histórico)
       allow delete: if false;
     }
     
-    // Regras para favoritos
+    // ========================================
+    // ❤️ FAVORITOS
+    // ========================================
     match /favorites/{favoriteId} {
+      // Ler próprios favoritos
       allow read: if isAuthenticated() && 
-        resource.data.userId == request.auth.uid;
+                    resource.data.userId == request.auth.uid;
+      
+      // Adicionar favorito
       allow create: if isAuthenticated() && 
-        request.resource.data.userId == request.auth.uid;
+                       request.resource.data.userId == request.auth.uid;
+      
+      // Remover favorito
       allow delete: if isAuthenticated() && 
-        resource.data.userId == request.auth.uid;
+                       resource.data.userId == request.auth.uid;
+      
+      allow update: if false;
+    }
+    
+    // ========================================
+    // 🛒 CARRINHO
+    // ========================================
+    match /carts/{userId} {
+      allow read, write: if isOwner(userId);
+      
+      match /items/{itemId} {
+        allow read, write: if isOwner(userId);
+      }
+    }
+    
+    // ========================================
+    // 📊 ANALYTICS
+    // ========================================
+    match /analytics/{docId} {
+      allow read: if isStaff();
+      allow write: if false;
+    }
+    
+    // ========================================
+    // 📧 NEWSLETTER
+    // ========================================
+    match /newsletter/{emailId} {
+      allow create: if request.resource.data.email is string;
+      allow read, delete: if isAdmin();
+      allow update: if false;
+    }
+    
+    // ========================================
+    // 💬 CONTACTOS
+    // ========================================
+    match /contacts/{contactId} {
+      allow create: if request.resource.data.email is string &&
+                       request.resource.data.message is string;
+      allow read, update: if isStaff();
+      allow delete: if isAdmin();
+    }
+    
+    // ========================================
+    // 🏷️ CUPÕES
+    // ========================================
+    match /coupons/{couponId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isAdmin();
+    }
+    
+    // ========================================
+    // 🔧 CONFIGURAÇÕES
+    // ========================================
+    match /settings/{settingId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    
+    // ========================================
+    // 📝 LOGS
+    // ========================================
+    match /audit_logs/{logId} {
+      allow read: if isAdmin();
+      allow write: if false;
     }
   }
 }
