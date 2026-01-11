@@ -10,11 +10,22 @@ export interface IProduct {
   condition: ProductCondition
   images: string[]
   category: string
+  subcategory?: string
   gender?: "menina" | "menino" | "unisex"
+  color?: string
+  season?: string
   stock: number
   isReserved: boolean
   description?: string
   createdAt: Date
+}
+
+export interface ICategory {
+  id: string
+  name: string
+  icon: string
+  color: string
+  image?: string
 }
 
 export interface ICartItem {
