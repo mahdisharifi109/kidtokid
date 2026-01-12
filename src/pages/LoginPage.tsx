@@ -97,7 +97,7 @@ export default function LoginPage() {
           {/* Logo */}
           <div className="text-center mb-8">
             <img src="/logo.png" alt="Kid to Kid" className="h-12 mx-auto mb-4" />
-            <h1 className="text-xl font-semibold text-gray-800">Entrar na sua conta</h1>
+            <h1 className="text-xl font-semibold text-k2k-pink">Entrar na sua conta</h1>
           </div>
 
           {/* Formulário */}

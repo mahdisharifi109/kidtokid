@@ -140,7 +140,7 @@ export default function CategoryPage() {
 
         {/* Header */}
         <div className="mb-4 sm:mb-6 flex items-center justify-between gap-2">
-          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">{categoryNames[slug]}</h1>
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-k2k-pink">{categoryNames[slug]}</h1>
           <Button variant="outline" className="md:hidden bg-transparent text-xs sm:text-sm" onClick={() => setShowFilters(!showFilters)}>
             <Filter className="mr-1.5 sm:mr-2 h-3.5 w-3.5 sm:h-4 sm:w-4" />
             Filtros

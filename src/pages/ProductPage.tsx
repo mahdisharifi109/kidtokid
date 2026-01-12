@@ -198,7 +198,7 @@ export default function ProductPage() {
 
         {/* Related Products */}
         <section className="mt-8 sm:mt-12 md:mt-16">
-          <h2 className="mb-4 sm:mb-6 text-lg sm:text-xl md:text-2xl font-bold">Produtos Relacionados</h2>
+          <h2 className="mb-4 sm:mb-6 text-lg sm:text-xl md:text-2xl font-bold text-k2k-pink">Produtos Relacionados</h2>
           <div className="grid grid-cols-2 gap-2 sm:gap-3 md:gap-4 sm:grid-cols-3 lg:grid-cols-4">
             {relatedProducts.map((p) => (
               <ProductCard key={p.id} product={p} onAddToCart={addToCart} />

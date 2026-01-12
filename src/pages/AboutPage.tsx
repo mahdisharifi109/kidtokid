@@ -29,7 +29,7 @@ export default function AboutPage() {
 
         {/* Arrume e Ganhe Section */}
         <div className="mb-10 sm:mb-12 md:mb-16 bg-k2k-gray rounded-lg p-6 sm:p-8">
-          <h2 className="mb-4 sm:mb-6 text-xl sm:text-2xl md:text-3xl font-bold text-center">Arrume e Ganhe</h2>
+          <h2 className="mb-4 sm:mb-6 text-xl sm:text-2xl md:text-3xl font-bold text-center text-k2k-pink">Arrume e Ganhe</h2>
           <div className="grid gap-6 md:grid-cols-2">
             <div>
               <p className="mb-4 text-sm sm:text-base text-muted-foreground">
@@ -56,7 +56,7 @@ export default function AboutPage() {
 
         {/* Promoções */}
         <div className="mb-10 sm:mb-12 md:mb-16">
-          <h2 className="mb-4 sm:mb-6 text-xl sm:text-2xl md:text-3xl font-bold">Promoções Especiais</h2>
+          <h2 className="mb-4 sm:mb-6 text-xl sm:text-2xl md:text-3xl font-bold text-k2k-pink">Promoções Especiais</h2>
           <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
             <Card className="p-6 border-k2k-pink border-2">
               <h3 className="mb-3 text-lg font-bold text-k2k-pink">Laços de todas as cores</h3>
@@ -77,7 +77,7 @@ export default function AboutPage() {
 
         {/* Contact Info */}
         <div className="mb-10 sm:mb-12 md:mb-16">
-          <h2 className="mb-4 sm:mb-6 text-xl sm:text-2xl md:text-3xl font-bold">Visite-nos</h2>
+          <h2 className="mb-4 sm:mb-6 text-xl sm:text-2xl md:text-3xl font-bold text-k2k-pink">Visite-nos</h2>
           <div className="grid gap-6 md:grid-cols-2">
             <Card className="p-6">
               <div className="space-y-4">
@@ -167,7 +167,7 @@ export default function AboutPage() {
 
         {/* Values */}
         <div>
-          <h2 className="mb-4 sm:mb-6 text-xl sm:text-2xl md:text-3xl font-bold">Os Nossos Valores</h2>
+          <h2 className="mb-4 sm:mb-6 text-xl sm:text-2xl md:text-3xl font-bold text-k2k-pink">Os Nossos Valores</h2>
           <div className="grid gap-3 sm:gap-4 md:gap-6 sm:grid-cols-2 md:grid-cols-3">
             {[
               {

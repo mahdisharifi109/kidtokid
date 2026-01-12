@@ -25,7 +25,7 @@ export default function CartPage() {
       <div className="min-h-screen bg-white">
         <Header />
         <main className="container mx-auto px-4 py-16 text-center">
-          <h1 className="mb-4 text-3xl font-bold">Carrinho Vazio</h1>
+          <h1 className="mb-4 text-3xl font-bold text-k2k-pink">Carrinho Vazio</h1>
           <p className="mb-8 text-muted-foreground">Ainda não adicionou produtos ao carrinho.</p>
           <Link to="/">
             <Button className="bg-k2k-pink hover:bg-k2k-pink/90">Continuar a Comprar</Button>
@@ -41,7 +41,7 @@ export default function CartPage() {
       <Header />
 
       <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8">
-        <h1 className="mb-4 sm:mb-6 md:mb-8 text-xl sm:text-2xl md:text-3xl font-bold">Carrinho de Compras</h1>
+        <h1 className="mb-4 sm:mb-6 md:mb-8 text-xl sm:text-2xl md:text-3xl font-bold text-k2k-pink">Carrinho de Compras</h1>
 
         <div className="grid gap-4 sm:gap-6 md:gap-8 lg:grid-cols-3">
           {/* Cart Items */}

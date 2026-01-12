@@ -47,7 +47,7 @@ export default function HomePage() {
 
         {/* Products Section */}
         <section>
-          <h2 className="mb-4 sm:mb-6 text-lg sm:text-xl md:text-2xl font-bold text-center">Produtos em Destaque</h2>
+          <h2 className="mb-4 sm:mb-6 text-lg sm:text-xl md:text-2xl font-bold text-center text-k2k-pink">Produtos em Destaque</h2>
           {isLoading ? (
             <div className="flex justify-center py-12">
               <div className="h-8 w-8 animate-spin rounded-full border-4 border-k2k-pink border-t-transparent" />

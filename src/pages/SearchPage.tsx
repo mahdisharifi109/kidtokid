@@ -42,7 +42,7 @@ export default function SearchPage() {
 
       <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8">
         <div className="mb-4 sm:mb-6">
-          <h1 className="mb-1 sm:mb-2 text-xl sm:text-2xl md:text-3xl font-bold">Resultados da Pesquisa</h1>
+          <h1 className="mb-1 sm:mb-2 text-xl sm:text-2xl md:text-3xl font-bold text-k2k-pink">Resultados da Pesquisa</h1>
           <p className="text-sm sm:text-base text-muted-foreground">
             {isLoading ? "A pesquisar..." : `${results.length} resultados para "${query}"`}
           </p>

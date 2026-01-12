@@ -126,7 +126,7 @@ export default function RegisterPage() {
           {/* Logo */}
           <div className="text-center mb-8">
             <img src="/logo.png" alt="Kid to Kid" className="h-12 mx-auto mb-4" />
-            <h1 className="text-xl font-semibold text-gray-800">Criar conta</h1>
+            <h1 className="text-xl font-semibold text-k2k-pink">Criar conta</h1>
             <p className="text-sm text-gray-500 mt-1">Junte-se à nossa comunidade</p>
           </div>
 
