@@ -14,7 +14,6 @@ const catalogo = {
   menina: {
     id: "menina",
     nome: "Menina",
-    icon: "menina",
     subcategorias: [
       { id: "vestidos", nome: "Vestidos", items: ["Vestidos de festa", "Vestidos casual", "Vestidos de verão"] },
       { id: "tops", nome: "Tops e T-shirts", items: ["T-shirts", "Blusas", "Tops"] },
@@ -26,7 +25,6 @@ const catalogo = {
   menino: {
     id: "menino",
     nome: "Menino",
-    icon: "menino",
     subcategorias: [
       { id: "tshirts", nome: "T-shirts e Polos", items: ["T-shirts", "Polos", "Camisolas"] },
       { id: "calcas", nome: "Calças", items: ["Calças de ganga", "Calças de treino", "Chinos"] },
@@ -38,7 +36,6 @@ const catalogo = {
   bebe: {
     id: "bebe",
     nome: "Bebé",
-    icon: "bebe",
     subcategorias: [
       { id: "babygrows", nome: "Babygrows", items: ["Babygrows lisos", "Babygrows estampados", "Bodies"] },
       { id: "conjuntos", nome: "Conjuntos", items: ["Conjuntos de 2 peças", "Conjuntos de 3 peças"] },
@@ -49,7 +46,6 @@ const catalogo = {
   calcado: {
     id: "calcado",
     nome: "Calçado",
-    icon: "calcado",
     subcategorias: [
       { id: "tenis", nome: "Ténis", items: ["Ténis desportivos", "Sapatilhas casual"] },
       { id: "botas", nome: "Botas", items: ["Botas de inverno", "Botas de chuva", "Botins"] },
@@ -60,7 +56,6 @@ const catalogo = {
   brinquedos: {
     id: "brinquedos",
     nome: "Brinquedos",
-    icon: "brinquedos",
     subcategorias: [
       { id: "peluches", nome: "Peluches", items: ["Peluches pequenos", "Peluches grandes"] },
       { id: "jogos", nome: "Jogos", items: ["Jogos de tabuleiro", "Puzzles", "Jogos educativos"] },
@@ -71,7 +66,6 @@ const catalogo = {
   equipamentos: {
     id: "equipamentos",
     nome: "Equipamentos",
-    icon: "equipamentos",
     subcategorias: [
       { id: "carrinhos", nome: "Carrinhos", items: ["Carrinhos de passeio", "Carrinhos duo", "Acessórios"] },
       { id: "cadeiras", nome: "Cadeiras Auto", items: ["Grupo 0", "Grupo 1", "Grupo 2/3"] },
@@ -82,7 +76,6 @@ const catalogo = {
   maternidade: {
     id: "maternidade",
     nome: "Maternidade",
-    icon: "maternidade",
     subcategorias: [
       { id: "roupa", nome: "Roupa Grávida", items: ["Calças", "Vestidos", "Tops"] },
       { id: "amamentacao", nome: "Amamentação", items: ["Soutiens", "Almofadas", "Bombas"] },
@@ -220,7 +213,6 @@ export function Header() {
                       setIsCatalogueOpen(false)
                     }}
                   >
-                    <span className="text-xl">{cat.icon}</span>
                     <span className="flex-1 text-sm font-medium">{cat.nome}</span>
                     <ChevronRight className="h-4 w-4 text-gray-400" />
                   </div>
@@ -411,7 +403,6 @@ export function Header() {
                 to={`/categoria/${cat.id}`}
                 className="flex items-center gap-1.5 whitespace-nowrap text-sm font-medium text-gray-700 hover:text-k2k-blue transition-colors"
               >
-                <span>{cat.icon}</span>
                 <span>{cat.nome}</span>
               </Link>
             ))}
@@ -447,7 +438,6 @@ export function Header() {
                 className="flex items-center gap-3 rounded-lg p-3 hover:bg-gray-100"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
-                <span className="text-xl">{cat.icon}</span>
                 <span className="font-medium">{cat.nome}</span>
               </Link>
             ))}
