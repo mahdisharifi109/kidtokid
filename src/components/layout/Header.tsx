@@ -14,7 +14,7 @@ const catalogo = {
   menina: {
     id: "menina",
     nome: "Menina",
-    icon: "👧",
+    icon: "menina",
     subcategorias: [
       { id: "vestidos", nome: "Vestidos", items: ["Vestidos de festa", "Vestidos casual", "Vestidos de verão"] },
       { id: "tops", nome: "Tops e T-shirts", items: ["T-shirts", "Blusas", "Tops"] },
@@ -26,7 +26,7 @@ const catalogo = {
   menino: {
     id: "menino",
     nome: "Menino",
-    icon: "👦",
+    icon: "menino",
     subcategorias: [
       { id: "tshirts", nome: "T-shirts e Polos", items: ["T-shirts", "Polos", "Camisolas"] },
       { id: "calcas", nome: "Calças", items: ["Calças de ganga", "Calças de treino", "Chinos"] },
@@ -38,7 +38,7 @@ const catalogo = {
   bebe: {
     id: "bebe",
     nome: "Bebé",
-    icon: "👶",
+    icon: "bebe",
     subcategorias: [
       { id: "babygrows", nome: "Babygrows", items: ["Babygrows lisos", "Babygrows estampados", "Bodies"] },
       { id: "conjuntos", nome: "Conjuntos", items: ["Conjuntos de 2 peças", "Conjuntos de 3 peças"] },
@@ -49,7 +49,7 @@ const catalogo = {
   calcado: {
     id: "calcado",
     nome: "Calçado",
-    icon: "👟",
+    icon: "calcado",
     subcategorias: [
       { id: "tenis", nome: "Ténis", items: ["Ténis desportivos", "Sapatilhas casual"] },
       { id: "botas", nome: "Botas", items: ["Botas de inverno", "Botas de chuva", "Botins"] },
@@ -60,7 +60,7 @@ const catalogo = {
   brinquedos: {
     id: "brinquedos",
     nome: "Brinquedos",
-    icon: "🧸",
+    icon: "brinquedos",
     subcategorias: [
       { id: "peluches", nome: "Peluches", items: ["Peluches pequenos", "Peluches grandes"] },
       { id: "jogos", nome: "Jogos", items: ["Jogos de tabuleiro", "Puzzles", "Jogos educativos"] },
@@ -71,7 +71,7 @@ const catalogo = {
   equipamentos: {
     id: "equipamentos",
     nome: "Equipamentos",
-    icon: "🍼",
+    icon: "equipamentos",
     subcategorias: [
       { id: "carrinhos", nome: "Carrinhos", items: ["Carrinhos de passeio", "Carrinhos duo", "Acessórios"] },
       { id: "cadeiras", nome: "Cadeiras Auto", items: ["Grupo 0", "Grupo 1", "Grupo 2/3"] },
@@ -82,7 +82,7 @@ const catalogo = {
   maternidade: {
     id: "maternidade",
     nome: "Maternidade",
-    icon: "🤰",
+    icon: "maternidade",
     subcategorias: [
       { id: "roupa", nome: "Roupa Grávida", items: ["Calças", "Vestidos", "Tops"] },
       { id: "amamentacao", nome: "Amamentação", items: ["Soutiens", "Almofadas", "Bombas"] },
@@ -158,7 +158,7 @@ export function Header() {
       {/* Top Bar */}
       <div className="hidden border-b bg-gray-50 md:block">
         <div className="container mx-auto flex items-center justify-between px-4 py-1.5 text-xs text-gray-600">
-          <span>🚚 Portes grátis em compras acima de €60</span>
+          <span>Portes grátis em compras superiores a 60€</span>
           <div className="flex items-center gap-4">
             <Link to="/ajuda" className="hover:text-k2k-pink">Ajuda</Link>
             <span className="text-gray-300">|</span>

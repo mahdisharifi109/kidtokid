@@ -59,14 +59,14 @@ export default function AboutPage() {
           <h2 className="mb-4 sm:mb-6 text-xl sm:text-2xl md:text-3xl font-bold">Promoções Especiais</h2>
           <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
             <Card className="p-6 border-k2k-pink border-2">
-              <h3 className="mb-3 text-lg font-bold text-k2k-pink">🎀 Laços de todas as cores</h3>
+              <h3 className="mb-3 text-lg font-bold text-k2k-pink">Laços de todas as cores</h3>
               <p className="text-sm sm:text-base text-muted-foreground">
                 Um laço para cada conjunto! Na Kid to Kid temos laços de todas as cores. 
                 Escolha entre um laço grande, pequeno, com bolinhas ou liso. Laços a partir de 2,99€.
               </p>
             </Card>
             <Card className="p-6 border-k2k-blue border-2">
-              <h3 className="mb-3 text-lg font-bold text-k2k-blue">📚 Clube do Livro</h3>
+              <h3 className="mb-3 text-lg font-bold text-k2k-blue">Clube do Livro</h3>
               <p className="text-sm sm:text-base text-muted-foreground">
                 O Clube do Livro oferece aos seus clientes um livro por mês. Receba um livro grátis até 2€ 
                 todos os meses, com qualquer compra. Obrigatória a apresentação do cartão. 1 Cartão por família.

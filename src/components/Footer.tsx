@@ -90,10 +90,10 @@ export function Footer() {
           <div className="text-center sm:text-left">
             <h4 className="mb-3 md:mb-4 font-semibold text-sm md:text-base">Informações</h4>
             <ul className="space-y-1.5 md:space-y-2 text-xs md:text-sm text-muted-foreground">
-              <li>📦 Portes Grátis acima de €60</li>
-              <li>🚚 €3,99 em compras acima de €39,99</li>
-              <li>✅ Artigos verificados</li>
-              <li>💚 Moda sustentável</li>
+              <li className="flex items-center gap-2"><span className="text-k2k-pink">•</span> Portes Grátis acima de 60€</li>
+              <li className="flex items-center gap-2"><span className="text-k2k-pink">•</span> 3,99€ em compras acima de 39,99€</li>
+              <li className="flex items-center gap-2"><span className="text-k2k-pink">•</span> Artigos verificados</li>
+              <li className="flex items-center gap-2"><span className="text-k2k-pink">•</span> Moda sustentável</li>
             </ul>
           </div>
         </div>
