@@ -1,226 +1,279 @@
 import { useState } from "react"
-import { collection, addDoc, getDocs, deleteDoc, doc, Timestamp, writeBatch } from "firebase/firestore"
-import { db } from "@/src/lib/firebase"
-import { generateAllProducts, CATEGORIES } from "@/src/data/productsData"
+import { Header } from "@/src/components/layout/Header"
+import { Footer } from "@/src/components/Footer"
 import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
+import { addProduct, getAllProducts, deleteProduct } from "@/src/services/productService"
+import { toast } from "sonner"
+import type { IProduct } from "@/src/types"
+
+// Produtos de exemplo para popular a base de dados
+const sampleProducts: Omit<IProduct, "id">[] = [
+  {
+    title: "Vestido de Verão Floral",
+    brand: "Zara Kids",
+    price: 12.99,
+    originalPrice: 29.99,
+    size: "4-5A",
+    condition: "good",
+    images: ["https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?w=400"],
+    category: "menina",
+    gender: "menina",
+    stock: 1,
+    isReserved: false,
+    description: "Vestido florido em excelente estado. Perfeito para o verão!",
+    createdAt: new Date(),
+  },
+  {
+    title: "Calças de Ganga Azul",
+    brand: "H&M",
+    price: 8.50,
+    size: "6-7A",
+    condition: "used",
+    images: ["https://images.unsplash.com/photo-1473966968600-fa801b869a1a?w=400"],
+    category: "menino",
+    gender: "menino",
+    stock: 1,
+    isReserved: false,
+    description: "Calças de ganga clássicas, muito confortáveis.",
+    createdAt: new Date(),
+  },
+  {
+    title: "Casaco de Inverno Rosa",
+    brand: "Gap Kids",
+    price: 22.00,
+    originalPrice: 49.99,
+    size: "8-9A",
+    condition: "good",
+    images: ["https://images.unsplash.com/photo-1544923246-77307dd628b5?w=400"],
+    category: "menina",
+    gender: "menina",
+    stock: 1,
+    isReserved: false,
+    description: "Casaco quente e confortável para o inverno.",
+    createdAt: new Date(),
+  },
+  {
+    title: "T-Shirt Listrada",
+    brand: "Next",
+    price: 5.99,
+    size: "3-4A",
+    condition: "new",
+    images: ["https://images.unsplash.com/photo-1519238263530-99bdd11df2ea?w=400"],
+    category: "menino",
+    gender: "menino",
+    stock: 1,
+    isReserved: false,
+    description: "T-shirt nova com etiqueta. Nunca usada!",
+    createdAt: new Date(),
+  },
+  {
+    title: "Sapatilhas Brancas",
+    brand: "Nike",
+    price: 18.00,
+    originalPrice: 45.00,
+    size: "28",
+    condition: "good",
+    images: ["https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400"],
+    category: "calcado",
+    gender: "unisex",
+    stock: 1,
+    isReserved: false,
+    description: "Sapatilhas em bom estado, muito confortáveis.",
+    createdAt: new Date(),
+  },
+  {
+    title: "Babygrow Estampado",
+    brand: "Chicco",
+    price: 6.50,
+    size: "6-9M",
+    condition: "good",
+    images: ["https://images.unsplash.com/photo-1522771930-78848d9293e8?w=400"],
+    category: "bebe",
+    gender: "unisex",
+    stock: 1,
+    isReserved: false,
+    description: "Babygrow fofo com estampado de animais.",
+    createdAt: new Date(),
+  },
+  {
+    title: "Peluche Urso Grande",
+    brand: "Steiff",
+    price: 15.00,
+    originalPrice: 35.00,
+    size: "Grande",
+    condition: "good",
+    images: ["https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400"],
+    category: "brinquedos",
+    gender: "unisex",
+    stock: 1,
+    isReserved: false,
+    description: "Peluche macio e fofo, em excelente estado.",
+    createdAt: new Date(),
+  },
+  {
+    title: "Carrinho de Bebé Trio",
+    brand: "Chicco",
+    price: 150.00,
+    originalPrice: 450.00,
+    size: "Universal",
+    condition: "good",
+    images: ["https://images.unsplash.com/photo-1591088398332-8a7791972843?w=400"],
+    category: "equipamentos",
+    gender: "unisex",
+    stock: 1,
+    isReserved: false,
+    description: "Carrinho trio completo: alcofa, ovo e cadeira de passeio.",
+    createdAt: new Date(),
+  },
+  {
+    title: "Saia Plissada Azul",
+    brand: "Mayoral",
+    price: 9.99,
+    size: "5-6A",
+    condition: "new",
+    images: ["https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=400"],
+    category: "menina",
+    gender: "menina",
+    stock: 1,
+    isReserved: false,
+    description: "Saia elegante, perfeita para ocasiões especiais.",
+    createdAt: new Date(),
+  },
+  {
+    title: "Polo Verde",
+    brand: "Ralph Lauren",
+    price: 14.00,
+    originalPrice: 55.00,
+    size: "7-8A",
+    condition: "good",
+    images: ["https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=400"],
+    category: "menino",
+    gender: "menino",
+    stock: 1,
+    isReserved: false,
+    description: "Polo clássico em excelente estado.",
+    createdAt: new Date(),
+  },
+]
 
 export default function AdminSeedPage() {
-  const [loading, setLoading] = useState(false)
-  const [progress, setProgress] = useState("")
-  const [stats, setStats] = useState<Record<string, number>>({})
+  const [isLoading, setIsLoading] = useState(false)
+  const [products, setProducts] = useState<IProduct[]>([])
 
-  // Popular base de dados com produtos
-  const seedProducts = async () => {
-    setLoading(true)
-    setProgress("A gerar produtos...")
-    
+  const handleSeedProducts = async () => {
+    setIsLoading(true)
     try {
-      const products = generateAllProducts()
-      const productsRef = collection(db, "products")
-      
-      // Usar batches para melhor performance (max 500 por batch)
-      const batchSize = 500
-      let totalAdded = 0
-      const categoryStats: Record<string, number> = {}
-      
-      for (let i = 0; i < products.length; i += batchSize) {
-        const batch = writeBatch(db)
-        const chunk = products.slice(i, i + batchSize)
-        
-        for (const product of chunk) {
-          const docRef = doc(productsRef)
-          batch.set(docRef, {
-            ...product,
-            createdAt: Timestamp.fromDate(product.createdAt),
-          })
-          
-          // Contar por categoria
-          categoryStats[product.category] = (categoryStats[product.category] || 0) + 1
-        }
-        
-        await batch.commit()
-        totalAdded += chunk.length
-        setProgress(`A adicionar produtos... ${totalAdded}/${products.length}`)
+      for (const product of sampleProducts) {
+        await addProduct(product)
       }
-      
-      setStats(categoryStats)
-      setProgress(`✅ Concluído! ${totalAdded} produtos adicionados.`)
+      toast.success(`${sampleProducts.length} produtos adicionados com sucesso!`)
+      loadProducts()
     } catch (error) {
-      console.error("Erro ao popular base de dados:", error)
-      setProgress(`❌ Erro: ${error}`)
+      console.error("Erro ao adicionar produtos:", error)
+      toast.error("Erro ao adicionar produtos")
     } finally {
-      setLoading(false)
+      setIsLoading(false)
     }
   }
 
-  // Popular categorias
-  const seedCategories = async () => {
-    setLoading(true)
-    setProgress("A adicionar categorias...")
-    
+  const loadProducts = async () => {
     try {
-      const categoriesRef = collection(db, "categories")
-      
-      for (const category of CATEGORIES) {
-        await addDoc(categoriesRef, category)
+      const allProducts = await getAllProducts()
+      setProducts(allProducts)
+    } catch (error) {
+      console.error("Erro ao carregar produtos:", error)
+    }
+  }
+
+  const handleDeleteAll = async () => {
+    if (!confirm("Tem a certeza que quer apagar TODOS os produtos?")) return
+    
+    setIsLoading(true)
+    try {
+      for (const product of products) {
+        await deleteProduct(product.id)
       }
-      
-      setProgress(`✅ ${CATEGORIES.length} categorias adicionadas!`)
+      toast.success("Todos os produtos foram apagados")
+      setProducts([])
     } catch (error) {
-      console.error("Erro ao adicionar categorias:", error)
-      setProgress(`❌ Erro: ${error}`)
+      console.error("Erro ao apagar produtos:", error)
+      toast.error("Erro ao apagar produtos")
     } finally {
-      setLoading(false)
+      setIsLoading(false)
     }
   }
-
-  // Limpar produtos
-  const clearProducts = async () => {
-    if (!confirm("Tem certeza que deseja apagar TODOS os produtos?")) return
-    
-    setLoading(true)
-    setProgress("A apagar produtos...")
-    
-    try {
-      const productsRef = collection(db, "products")
-      const snapshot = await getDocs(productsRef)
-      
-      const batchSize = 500
-      let deleted = 0
-      
-      for (let i = 0; i < snapshot.docs.length; i += batchSize) {
-        const batch = writeBatch(db)
-        const chunk = snapshot.docs.slice(i, i + batchSize)
-        
-        for (const docSnap of chunk) {
-          batch.delete(doc(db, "products", docSnap.id))
-        }
-        
-        await batch.commit()
-        deleted += chunk.length
-        setProgress(`A apagar... ${deleted}/${snapshot.docs.length}`)
-      }
-      
-      setProgress(`✅ ${deleted} produtos apagados!`)
-      setStats({})
-    } catch (error) {
-      console.error("Erro ao apagar:", error)
-      setProgress(`❌ Erro: ${error}`)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  // Contar produtos
-  const countProducts = async () => {
-    setLoading(true)
-    setProgress("A contar produtos...")
-    
-    try {
-      const productsRef = collection(db, "products")
-      const snapshot = await getDocs(productsRef)
-      
-      const categoryStats: Record<string, number> = {}
-      snapshot.docs.forEach((doc) => {
-        const data = doc.data()
-        categoryStats[data.category] = (categoryStats[data.category] || 0) + 1
-      })
-      
-      setStats(categoryStats)
-      setProgress(`Total: ${snapshot.docs.length} produtos`)
-    } catch (error) {
-      console.error("Erro:", error)
-      setProgress(`❌ Erro: ${error}`)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const totalProducts = Object.values(stats).reduce((a, b) => a + b, 0)
 
   return (
-    <div className="container mx-auto py-8 px-4">
-      <h1 className="text-3xl font-bold mb-8">🔧 Admin - Popular Base de Dados</h1>
-      
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
-        <Button 
-          onClick={seedProducts} 
-          disabled={loading}
-          className="h-20 text-lg"
-        >
-          {loading ? "A processar..." : "🚀 Popular Produtos"}
-        </Button>
-        
-        <Button 
-          onClick={seedCategories} 
-          disabled={loading}
-          variant="secondary"
-          className="h-20 text-lg"
-        >
-          📁 Adicionar Categorias
-        </Button>
-        
-        <Button 
-          onClick={countProducts} 
-          disabled={loading}
-          variant="outline"
-          className="h-20 text-lg"
-        >
-          📊 Contar Produtos
-        </Button>
-        
-        <Button 
-          onClick={clearProducts} 
-          disabled={loading}
-          variant="destructive"
-          className="h-20 text-lg"
-        >
-          🗑️ Apagar Tudo
-        </Button>
-      </div>
-      
-      {progress && (
-        <Card className="p-4 mb-8">
-          <p className="text-lg font-medium">{progress}</p>
-        </Card>
-      )}
-      
-      {totalProducts > 0 && (
-        <Card className="p-6">
-          <h2 className="text-xl font-bold mb-4">📈 Estatísticas ({totalProducts} produtos)</h2>
-          <div className="grid gap-2 md:grid-cols-3 lg:grid-cols-4">
-            {Object.entries(stats).sort((a, b) => b[1] - a[1]).map(([category, count]) => {
-              const cat = CATEGORIES.find(c => c.id === category)
-              return (
-                <div 
-                  key={category} 
-                  className="flex items-center justify-between p-3 bg-muted rounded-lg"
-                >
-                  <span className="flex items-center gap-2">
-                    <span>{cat?.icon || "📦"}</span>
-                    <span className="capitalize">{cat?.name || category}</span>
-                  </span>
-                  <span className="font-bold">{count}</span>
+    <div className="min-h-screen bg-gray-50">
+      <Header />
+
+      <main className="container mx-auto px-4 py-8">
+        <div className="max-w-2xl mx-auto">
+          <h1 className="text-2xl font-bold mb-6">Administração - Produtos</h1>
+          
+          <div className="bg-white rounded-lg shadow-sm border p-6 space-y-6">
+            <div>
+              <h2 className="font-semibold mb-2">Adicionar Produtos de Exemplo</h2>
+              <p className="text-sm text-gray-500 mb-4">
+                Clique no botão abaixo para adicionar {sampleProducts.length} produtos de exemplo à base de dados Firebase.
+              </p>
+              <Button 
+                onClick={handleSeedProducts} 
+                disabled={isLoading}
+                className="bg-k2k-pink hover:bg-k2k-pink/90"
+              >
+                {isLoading ? "A adicionar..." : `Adicionar ${sampleProducts.length} Produtos`}
+              </Button>
+            </div>
+
+            <hr />
+
+            <div>
+              <h2 className="font-semibold mb-2">Ver Produtos</h2>
+              <Button 
+                variant="outline" 
+                onClick={loadProducts}
+                disabled={isLoading}
+              >
+                Carregar Produtos
+              </Button>
+              
+              {products.length > 0 && (
+                <div className="mt-4">
+                  <p className="text-sm text-gray-500 mb-2">{products.length} produtos na base de dados:</p>
+                  <ul className="text-sm space-y-1 max-h-60 overflow-y-auto">
+                    {products.map((p) => (
+                      <li key={p.id} className="flex justify-between items-center py-1 border-b">
+                        <span>{p.title} - €{p.price.toFixed(2)}</span>
+                        <span className="text-gray-400 text-xs">{p.category}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-              )
-            })}
+              )}
+            </div>
+
+            <hr />
+
+            <div>
+              <h2 className="font-semibold mb-2 text-red-600">Zona de Perigo</h2>
+              <Button 
+                variant="destructive" 
+                onClick={handleDeleteAll}
+                disabled={isLoading || products.length === 0}
+              >
+                Apagar Todos os Produtos
+              </Button>
+            </div>
           </div>
-        </Card>
-      )}
-      
-      <Card className="p-6 mt-8 bg-blue-50">
-        <h3 className="font-bold text-lg mb-2">ℹ️ Instruções</h3>
-        <ol className="list-decimal list-inside space-y-2 text-sm">
-          <li>Clique em <strong>"Popular Produtos"</strong> para adicionar ~800 produtos à base de dados</li>
-          <li>Clique em <strong>"Adicionar Categorias"</strong> para criar as 12 categorias</li>
-          <li>Use <strong>"Contar Produtos"</strong> para ver as estatísticas</li>
-          <li>Use <strong>"Apagar Tudo"</strong> apenas se quiser recomeçar do zero</li>
-        </ol>
-        <p className="mt-4 text-sm text-muted-foreground">
-          Os produtos são gerados automaticamente com marcas reais, preços realistas e descrições em português.
-        </p>
-      </Card>
+
+          <p className="text-center mt-6 text-sm text-gray-400">
+            Esta página é apenas para administração. Remova-a em produção.
+          </p>
+        </div>
+      </main>
+
+      <Footer />
     </div>
   )
 }

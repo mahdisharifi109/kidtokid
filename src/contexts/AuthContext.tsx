@@ -1,37 +1,62 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
-import type { IUser } from "@/src/types"
+import type { User } from "firebase/auth"
 import {
-  signIn,
-  signUp,
-  signOut,
-  signInWithGoogle,
   onAuthChange,
+  loginWithEmail,
+  loginWithGoogle,
+  loginWithFacebook,
+  registerWithEmail,
+  logout as firebaseLogout,
   resetPassword,
+  getUserData,
+  getAuthErrorMessage,
+  type UserData,
 } from "@/src/services/authService"
 
 interface AuthContextType {
-  user: IUser | null
-  loading: boolean
-  error: string | null
-  login: (email: string, password: string) => Promise<void>
-  register: (email: string, password: string, displayName?: string) => Promise<void>
-  loginWithGoogle: () => Promise<void>
+  user: User | null
+  userData: UserData | null
+  isLoading: boolean
+  isAuthenticated: boolean
+  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>
+  loginGoogle: () => Promise<{ success: boolean; error?: string }>
+  loginFacebook: () => Promise<{ success: boolean; error?: string }>
+  register: (
+    email: string,
+    password: string,
+    firstName: string,
+    lastName: string,
+    phone?: string,
+    newsletter?: boolean
+  ) => Promise<{ success: boolean; error?: string }>
   logout: () => Promise<void>
-  forgotPassword: (email: string) => Promise<void>
-  clearError: () => void
+  sendPasswordReset: (email: string) => Promise<{ success: boolean; error?: string }>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<IUser | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [user, setUser] = useState<User | null>(null)
+  const [userData, setUserData] = useState<UserData | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    const unsubscribe = onAuthChange((user) => {
-      setUser(user)
-      setLoading(false)
+    const unsubscribe = onAuthChange(async (firebaseUser) => {
+      setUser(firebaseUser)
+      
+      if (firebaseUser) {
+        // Carregar dados adicionais do utilizador
+        try {
+          const data = await getUserData(firebaseUser.uid)
+          setUserData(data)
+        } catch (error) {
+          console.error("Erro ao carregar dados do utilizador:", error)
+        }
+      } else {
+        setUserData(null)
+      }
+      
+      setIsLoading(false)
     })
 
     return () => unsubscribe()
@@ -39,111 +64,89 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (email: string, password: string) => {
     try {
-      setError(null)
-      setLoading(true)
-      const user = await signIn(email, password)
-      setUser(user)
-    } catch (err: any) {
-      setError(getErrorMessage(err.code))
-      throw err
-    } finally {
-      setLoading(false)
+      await loginWithEmail(email, password)
+      return { success: true }
+    } catch (error: unknown) {
+      const errorCode = (error as { code?: string }).code || ""
+      return { success: false, error: getAuthErrorMessage(errorCode) }
     }
   }
 
-  const register = async (email: string, password: string, displayName?: string) => {
+  const loginGoogle = async () => {
     try {
-      setError(null)
-      setLoading(true)
-      const user = await signUp(email, password, displayName)
-      setUser(user)
-    } catch (err: any) {
-      setError(getErrorMessage(err.code))
-      throw err
-    } finally {
-      setLoading(false)
+      await loginWithGoogle()
+      return { success: true }
+    } catch (error: unknown) {
+      const errorCode = (error as { code?: string }).code || ""
+      return { success: false, error: getAuthErrorMessage(errorCode) }
     }
   }
 
-  const loginWithGoogle = async () => {
+  const loginFacebook = async () => {
     try {
-      setError(null)
-      setLoading(true)
-      const user = await signInWithGoogle()
-      setUser(user)
-    } catch (err: any) {
-      setError(getErrorMessage(err.code))
-      throw err
-    } finally {
-      setLoading(false)
+      await loginWithFacebook()
+      return { success: true }
+    } catch (error: unknown) {
+      const errorCode = (error as { code?: string }).code || ""
+      return { success: false, error: getAuthErrorMessage(errorCode) }
+    }
+  }
+
+  const register = async (
+    email: string,
+    password: string,
+    firstName: string,
+    lastName: string,
+    phone?: string,
+    newsletter?: boolean
+  ) => {
+    try {
+      await registerWithEmail(email, password, firstName, lastName, phone, newsletter)
+      return { success: true }
+    } catch (error: unknown) {
+      const errorCode = (error as { code?: string }).code || ""
+      return { success: false, error: getAuthErrorMessage(errorCode) }
     }
   }
 
   const logout = async () => {
     try {
-      setError(null)
-      await signOut()
-      setUser(null)
-    } catch (err: any) {
-      setError(getErrorMessage(err.code))
-      throw err
+      await firebaseLogout()
+    } catch (error) {
+      console.error("Erro ao fazer logout:", error)
     }
   }
 
-  const forgotPassword = async (email: string) => {
+  const sendPasswordReset = async (email: string) => {
     try {
-      setError(null)
       await resetPassword(email)
-    } catch (err: any) {
-      setError(getErrorMessage(err.code))
-      throw err
+      return { success: true }
+    } catch (error: unknown) {
+      const errorCode = (error as { code?: string }).code || ""
+      return { success: false, error: getAuthErrorMessage(errorCode) }
     }
   }
 
-  const clearError = () => setError(null)
+  const value: AuthContextType = {
+    user,
+    userData,
+    isLoading,
+    isAuthenticated: !!user,
+    login,
+    loginGoogle,
+    loginFacebook,
+    register,
+    logout,
+    sendPasswordReset,
+  }
 
-  return (
-    <AuthContext.Provider
-      value={{
-        user,
-        loading,
-        error,
-        login,
-        register,
-        loginWithGoogle,
-        logout,
-        forgotPassword,
-        clearError,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
-  )
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 
 export function useAuth() {
   const context = useContext(AuthContext)
   if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider")
+    throw new Error("useAuth deve ser usado dentro de um AuthProvider")
   }
   return context
-}
-
-// Mensagens de erro em português
-function getErrorMessage(errorCode: string): string {
-  const errorMessages: Record<string, string> = {
-    "auth/email-already-in-use": "Este email já está registado.",
-    "auth/invalid-email": "O email introduzido não é válido.",
-    "auth/operation-not-allowed": "Operação não permitida.",
-    "auth/weak-password": "A password deve ter pelo menos 6 caracteres.",
-    "auth/user-disabled": "Esta conta foi desativada.",
-    "auth/user-not-found": "Não existe uma conta com este email.",
-    "auth/wrong-password": "Password incorreta.",
-    "auth/invalid-credential": "Credenciais inválidas.",
-    "auth/too-many-requests": "Demasiadas tentativas. Tente novamente mais tarde.",
-    "auth/popup-closed-by-user": "A janela de login foi fechada.",
-    "auth/network-request-failed": "Erro de ligação. Verifique a sua internet.",
-  }
-
-  return errorMessages[errorCode] || "Ocorreu um erro. Tente novamente."
 }

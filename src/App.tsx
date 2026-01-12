@@ -10,6 +10,8 @@ const AboutPage = lazy(() => import('./pages/AboutPage'))
 const CategoryPage = lazy(() => import('./pages/CategoryPage'))
 const ProductPage = lazy(() => import('./pages/ProductPage'))
 const SearchPage = lazy(() => import('./pages/SearchPage'))
+const LoginPage = lazy(() => import('./pages/LoginPage'))
+const RegisterPage = lazy(() => import('./pages/RegisterPage'))
 const AdminSeedPage = lazy(() => import('./pages/AdminSeedPage'))
 
 // Loading component
@@ -32,6 +34,8 @@ function App() {
         <Route path="/categoria/:slug" element={<CategoryPage />} />
         <Route path="/produto/:id" element={<ProductPage />} />
         <Route path="/pesquisa" element={<SearchPage />} />
+        <Route path="/entrar" element={<LoginPage />} />
+        <Route path="/registar" element={<RegisterPage />} />
         <Route path="/admin/seed" element={<AdminSeedPage />} />
       </Routes>
     </Suspense>

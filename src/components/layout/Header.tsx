@@ -1,11 +1,13 @@
 import type React from "react"
-import { Search, ShoppingCart, User, Heart, ChevronDown, ChevronRight, Menu, X } from "lucide-react"
+import { Search, ShoppingCart, User, Heart, ChevronDown, ChevronRight, Menu, X, LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useCart } from "@/src/contexts/CartContext"
 import { useFavorites } from "@/src/contexts/FavoritesContext"
+import { useAuth } from "@/src/contexts/AuthContext"
 import { useState, useRef, useEffect } from "react"
 import { useNavigate, Link } from "react-router-dom"
+import { toast } from "sonner"
 
 // Catálogo estruturado estilo Vinted
 const catalogo = {
@@ -93,12 +95,24 @@ const tamanhos = ["0-3M", "3-6M", "6-12M", "12-18M", "18-24M", "2-3A", "3-4A", "
 export function Header() {
   const { totalItems } = useCart()
   const { favorites } = useFavorites()
+  const { user, isAuthenticated, logout } = useAuth()
   const [searchQuery, setSearchQuery] = useState("")
   const [isCatalogueOpen, setIsCatalogueOpen] = useState(false)
   const [activeCategory, setActiveCategory] = useState<string | null>(null)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
   const catalogueRef = useRef<HTMLDivElement>(null)
+  const userMenuRef = useRef<HTMLDivElement>(null)
   const navigate = useNavigate()
+
+  const handleLogout = async () => {
+    await logout()
+    setIsUserMenuOpen(false)
+    toast.success("Sessão terminada", {
+      description: "Até breve!",
+    })
+    navigate("/")
+  }
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
@@ -107,12 +121,15 @@ export function Header() {
     }
   }
 
-  // Fechar menu ao clicar fora
+  // Fechar menus ao clicar fora
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (catalogueRef.current && !catalogueRef.current.contains(event.target as Node)) {
         setIsCatalogueOpen(false)
         setActiveCategory(null)
+      }
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setIsUserMenuOpen(false)
       }
     }
 
@@ -279,9 +296,72 @@ export function Header() {
 
         {/* Right Actions */}
         <div className="ml-auto flex items-center gap-1">
-          <Button variant="ghost" size="icon" className="hidden md:inline-flex" aria-label="Perfil">
-            <User className="h-5 w-5" />
-          </Button>
+          {/* User Menu */}
+          <div className="relative hidden md:block" ref={userMenuRef}>
+            {isAuthenticated ? (
+              <>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="relative"
+                  aria-label="Menu do utilizador"
+                  onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                >
+                  {user?.photoURL ? (
+                    <img
+                      src={user.photoURL}
+                      alt="Foto de perfil"
+                      className="h-7 w-7 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-k2k-pink text-xs font-bold text-white">
+                      {user?.displayName?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || "U"}
+                    </div>
+                  )}
+                </Button>
+                {isUserMenuOpen && (
+                  <div className="absolute right-0 top-full mt-2 w-56 rounded-lg border bg-white py-2 shadow-xl">
+                    <div className="border-b px-4 py-2">
+                      <p className="text-sm font-medium text-gray-900 truncate">
+                        {user?.displayName || "Utilizador"}
+                      </p>
+                      <p className="text-xs text-gray-500 truncate">{user?.email}</p>
+                    </div>
+                    <Link
+                      to="/minha-conta"
+                      className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      onClick={() => setIsUserMenuOpen(false)}
+                    >
+                      <User className="h-4 w-4" />
+                      Minha Conta
+                    </Link>
+                    <Link
+                      to="/encomendas"
+                      className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      onClick={() => setIsUserMenuOpen(false)}
+                    >
+                      <ShoppingCart className="h-4 w-4" />
+                      As Minhas Encomendas
+                    </Link>
+                    <hr className="my-1" />
+                    <button
+                      onClick={handleLogout}
+                      className="flex w-full items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      Terminar Sessão
+                    </button>
+                  </div>
+                )}
+              </>
+            ) : (
+              <Link to="/entrar">
+                <Button variant="ghost" size="icon" aria-label="Entrar">
+                  <User className="h-5 w-5" />
+                </Button>
+              </Link>
+            )}
+          </div>
 
           <Link to="/favoritos">
             <Button variant="ghost" size="icon" className="relative" aria-label="Favoritos">
@@ -304,10 +384,6 @@ export function Header() {
               )}
             </Button>
           </Link>
-
-          <Button className="ml-2 hidden bg-k2k-pink hover:bg-k2k-pink/90 md:inline-flex" asChild>
-            <Link to="/vender">Vender</Link>
-          </Button>
         </div>
       </div>
 
@@ -380,6 +456,74 @@ export function Header() {
           <hr className="my-4" />
 
           <div className="space-y-1">
+            {isAuthenticated ? (
+              <>
+                {/* Informações do utilizador logado */}
+                <div className="flex items-center gap-3 rounded-lg bg-gray-50 p-3 mb-2">
+                  {user?.photoURL ? (
+                    <img
+                      src={user.photoURL}
+                      alt="Foto de perfil"
+                      className="h-10 w-10 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-k2k-pink text-sm font-bold text-white">
+                      {user?.displayName?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || "U"}
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-gray-900 truncate">
+                      {user?.displayName || "Utilizador"}
+                    </p>
+                    <p className="text-xs text-gray-500 truncate">{user?.email}</p>
+                  </div>
+                </div>
+                <Link
+                  to="/minha-conta"
+                  className="flex items-center gap-3 rounded-lg p-3 hover:bg-gray-100"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <User className="h-5 w-5" />
+                  <span className="font-medium">Minha Conta</span>
+                </Link>
+                <Link
+                  to="/encomendas"
+                  className="flex items-center gap-3 rounded-lg p-3 hover:bg-gray-100"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <ShoppingCart className="h-5 w-5" />
+                  <span className="font-medium">As Minhas Encomendas</span>
+                </Link>
+                <button
+                  onClick={() => {
+                    handleLogout()
+                    setIsMobileMenuOpen(false)
+                  }}
+                  className="flex w-full items-center gap-3 rounded-lg p-3 text-red-600 hover:bg-red-50"
+                >
+                  <LogOut className="h-5 w-5" />
+                  <span className="font-medium">Terminar Sessão</span>
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  to="/entrar"
+                  className="flex items-center gap-3 rounded-lg p-3 hover:bg-gray-100"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <User className="h-5 w-5" />
+                  <span className="font-medium">Entrar</span>
+                </Link>
+                <Link
+                  to="/registar"
+                  className="flex items-center gap-3 rounded-lg p-3 hover:bg-gray-100 text-k2k-pink"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <span className="font-medium">Criar Conta</span>
+                </Link>
+              </>
+            )}
             <Link
               to="/sobre"
               className="block rounded-lg p-3 hover:bg-gray-100"
@@ -394,14 +538,6 @@ export function Header() {
             >
               Ajuda
             </Link>
-          </div>
-
-          <div className="mt-6">
-            <Button className="w-full bg-k2k-pink hover:bg-k2k-pink/90" asChild>
-              <Link to="/vender" onClick={() => setIsMobileMenuOpen(false)}>
-                Vender
-              </Link>
-            </Button>
           </div>
         </div>
       </div>

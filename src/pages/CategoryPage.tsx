@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { useParams, Link } from "react-router-dom"
 import { Header } from "@/src/components/layout/Header"
 import { Footer } from "@/src/components/Footer"
@@ -9,15 +9,16 @@ import { Label } from "@/components/ui/label"
 import { Slider } from "@/components/ui/slider"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Filter } from "lucide-react"
-import { generateMockProducts } from "@/src/lib/mockData"
+import { getProductsByCategory, getAllProducts } from "@/src/services/productService"
 import { useCart } from "@/src/contexts/CartContext"
-import type { ProductCondition } from "@/src/types"
+import type { ProductCondition, IProduct } from "@/src/types"
 
 const categoryNames: Record<string, string> = {
   brinquedos: "Brinquedos",
   babygrows: "Babygrows",
   menina: "Roupa Menina",
   menino: "Roupa Menino",
+  bebe: "Bebé",
   calcado: "Calçado",
   maternidade: "Maternidade",
   puericultura: "Puericultura",
@@ -32,13 +33,35 @@ export default function CategoryPage() {
   const { addToCart } = useCart()
   const [showFilters, setShowFilters] = useState(false)
   const [sortBy, setSortBy] = useState("newest")
+  const [products, setProducts] = useState<IProduct[]>([])
+  const [isLoading, setIsLoading] = useState(true)
 
   // Filters
   const [selectedConditions, setSelectedConditions] = useState<ProductCondition[]>([])
-  const [priceRange, setPriceRange] = useState([0, 50])
+  const [priceRange, setPriceRange] = useState([0, 100])
   const [selectedSizes, setSelectedSizes] = useState<string[]>([])
 
-  const products = useMemo(() => generateMockProducts(slug, 60), [slug])
+  // Carregar produtos do Firebase
+  useEffect(() => {
+    async function loadProducts() {
+      setIsLoading(true)
+      try {
+        let fetchedProducts: IProduct[]
+        if (slug) {
+          fetchedProducts = await getProductsByCategory(slug)
+        } else {
+          fetchedProducts = await getAllProducts()
+        }
+        setProducts(fetchedProducts)
+      } catch (error) {
+        console.error("Erro ao carregar produtos:", error)
+        setProducts([])
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    loadProducts()
+  }, [slug])
 
   const filteredProducts = useMemo(() => {
     let filtered = [...products]
@@ -105,29 +128,29 @@ export default function CategoryPage() {
     <div className="min-h-screen bg-white">
       <Header />
 
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8">
         {/* Breadcrumb */}
-        <div className="mb-6 text-sm text-muted-foreground">
+        <div className="mb-4 sm:mb-6 text-xs sm:text-sm text-muted-foreground">
           <Link to="/" className="hover:text-k2k-pink">
             Início
           </Link>
-          <span className="mx-2">/</span>
+          <span className="mx-1 sm:mx-2">/</span>
           <span>{categoryNames[slug]}</span>
         </div>
 
         {/* Header */}
-        <div className="mb-6 flex items-center justify-between">
-          <h1 className="text-2xl font-bold md:text-3xl">{categoryNames[slug]}</h1>
-          <Button variant="outline" className="md:hidden bg-transparent" onClick={() => setShowFilters(!showFilters)}>
-            <Filter className="mr-2 h-4 w-4" />
+        <div className="mb-4 sm:mb-6 flex items-center justify-between gap-2">
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">{categoryNames[slug]}</h1>
+          <Button variant="outline" className="md:hidden bg-transparent text-xs sm:text-sm" onClick={() => setShowFilters(!showFilters)}>
+            <Filter className="mr-1.5 sm:mr-2 h-3.5 w-3.5 sm:h-4 sm:w-4" />
             Filtros
           </Button>
         </div>
 
-        <div className="flex gap-8">
+        <div className="flex flex-col md:flex-row gap-4 md:gap-8">
           {/* Sidebar Filters */}
-          <aside className={`w-64 shrink-0 ${showFilters ? "block" : "hidden md:block"}`}>
-            <div className="sticky top-24 space-y-6 rounded-lg border bg-white p-6">
+          <aside className={`w-full md:w-64 shrink-0 ${showFilters ? "block" : "hidden md:block"}`}>
+            <div className="sticky top-24 space-y-4 md:space-y-6 rounded-lg border bg-white p-4 md:p-6">
               <div className="flex items-center justify-between">
                 <h2 className="font-semibold">Filtros</h2>
                 <Button variant="ghost" size="sm" onClick={clearFilters}>
@@ -187,12 +210,12 @@ export default function CategoryPage() {
           </aside>
 
           {/* Products Grid */}
-          <div className="flex-1">
+          <div className="flex-1 min-w-0">
             {/* Sort and Results Count */}
-            <div className="mb-6 flex items-center justify-between">
-              <p className="text-sm text-muted-foreground">{filteredProducts.length} produtos encontrados</p>
+            <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <p className="text-xs sm:text-sm text-muted-foreground">{filteredProducts.length} produtos encontrados</p>
               <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="w-45">
+                <SelectTrigger className="w-full sm:w-45 text-xs sm:text-sm h-9 sm:h-10">
                   <SelectValue placeholder="Ordenar por" />
                 </SelectTrigger>
                 <SelectContent>
@@ -204,16 +227,22 @@ export default function CategoryPage() {
             </div>
 
             {/* Products */}
-            <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
-              {filteredProducts.map((product) => (
-                <ProductCard key={product.id} product={product} onAddToCart={addToCart} />
-              ))}
-            </div>
+            {isLoading ? (
+              <div className="flex justify-center py-12">
+                <div className="h-8 w-8 animate-spin rounded-full border-4 border-k2k-pink border-t-transparent" />
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-2 sm:gap-3 md:gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                {filteredProducts.map((product) => (
+                  <ProductCard key={product.id} product={product} onAddToCart={addToCart} />
+                ))}
+              </div>
+            )}
 
-            {filteredProducts.length === 0 && (
-              <div className="py-12 text-center">
-                <p className="text-muted-foreground">Nenhum produto encontrado com esses filtros.</p>
-                <Button onClick={clearFilters} className="mt-4">
+            {!isLoading && filteredProducts.length === 0 && (
+              <div className="py-8 sm:py-12 text-center">
+                <p className="text-sm sm:text-base text-muted-foreground">Nenhum produto encontrado.</p>
+                <Button onClick={clearFilters} className="mt-3 sm:mt-4">
                   Limpar Filtros
                 </Button>
               </div>

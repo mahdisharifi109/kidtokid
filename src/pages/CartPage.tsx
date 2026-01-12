@@ -40,18 +40,18 @@ export default function CartPage() {
     <div className="min-h-screen bg-white">
       <Header />
 
-      <main className="container mx-auto px-4 py-8">
-        <h1 className="mb-8 text-3xl font-bold">Carrinho de Compras</h1>
+      <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8">
+        <h1 className="mb-4 sm:mb-6 md:mb-8 text-xl sm:text-2xl md:text-3xl font-bold">Carrinho de Compras</h1>
 
-        <div className="grid gap-8 lg:grid-cols-3">
+        <div className="grid gap-4 sm:gap-6 md:gap-8 lg:grid-cols-3">
           {/* Cart Items */}
           <div className="lg:col-span-2">
             <div className="space-y-4">
               {items.map((item) => (
-                <Card key={item.product.id} className="p-4 transition-shadow hover:shadow-md">
-                  <div className="flex gap-4">
+                <Card key={item.product.id} className="p-2 sm:p-3 md:p-4 transition-shadow hover:shadow-md">
+                  <div className="flex gap-2 sm:gap-3 md:gap-4">
                     {/* Product Image */}
-                    <div className="h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-k2k-gray">
+                    <div className="h-16 w-16 sm:h-20 sm:w-20 md:h-24 md:w-24 shrink-0 overflow-hidden rounded-lg bg-k2k-gray">
                       <img
                         src={item.product.images[0] || "/placeholder.svg"}
                         alt={item.product.title}
@@ -60,11 +60,11 @@ export default function CartPage() {
                     </div>
 
                     {/* Product Details */}
-                    <div className="flex flex-1 flex-col justify-between">
+                    <div className="flex flex-1 flex-col justify-between min-w-0">
                       <div>
-                        <h3 className="font-medium">{item.product.title}</h3>
-                        <p className="text-sm text-muted-foreground">{item.product.brand}</p>
-                        <p className="text-sm text-muted-foreground">
+                        <h3 className="font-medium text-sm sm:text-base line-clamp-1">{item.product.title}</h3>
+                        <p className="text-xs sm:text-sm text-muted-foreground">{item.product.brand}</p>
+                        <p className="text-[10px] sm:text-xs md:text-sm text-muted-foreground hidden sm:block">
                           Tamanho: {item.product.size} • Estado:{" "}
                           {item.product.condition === "new"
                             ? "Novo"
@@ -74,39 +74,40 @@ export default function CartPage() {
                         </p>
                       </div>
 
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
+                      <div className="flex items-center justify-between mt-2 sm:mt-0">
+                        <div className="flex items-center gap-1 sm:gap-2">
                           <Button
                             variant="outline"
                             size="icon"
-                            className="h-8 w-8 bg-transparent"
+                            className="h-6 w-6 sm:h-8 sm:w-8 bg-transparent"
                             onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
                             disabled={item.quantity <= 1}
                           >
-                            <Minus className="h-4 w-4" />
+                            <Minus className="h-3 w-3 sm:h-4 sm:w-4" />
                           </Button>
-                          <span className="w-8 text-center">{item.quantity}</span>
+                          <span className="w-6 sm:w-8 text-center text-sm">{item.quantity}</span>
                           <Button
                             variant="outline"
                             size="icon"
-                            className="h-8 w-8 bg-transparent"
+                            className="h-6 w-6 sm:h-8 sm:w-8 bg-transparent"
                             onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
                             disabled={item.product.stock <= item.quantity}
                           >
-                            <Plus className="h-4 w-4" />
+                            <Plus className="h-3 w-3 sm:h-4 sm:w-4" />
                           </Button>
                         </div>
 
-                        <div className="flex items-center gap-4">
-                          <span className="font-bold text-k2k-pink">
+                        <div className="flex items-center gap-2 sm:gap-4">
+                          <span className="font-bold text-k2k-pink text-sm sm:text-base">
                             €{(item.product.price * item.quantity).toFixed(2)}
                           </span>
                           <Button
                             variant="ghost"
                             size="icon"
+                            className="h-6 w-6 sm:h-8 sm:w-8"
                             onClick={() => handleRemove(item.product.id, item.product.title)}
                           >
-                            <Trash2 className="h-4 w-4" />
+                            <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
                           </Button>
                         </div>
                       </div>

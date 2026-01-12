@@ -1,121 +1,193 @@
 import {
-  signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
-  signOut as firebaseSignOut,
-  signInWithPopup,
-  GoogleAuthProvider,
-  onAuthStateChanged,
-  updateProfile,
+  signInWithEmailAndPassword,
+  signOut,
   sendPasswordResetEmail,
+  updateProfile,
+  GoogleAuthProvider,
+  FacebookAuthProvider,
+  signInWithPopup,
+  onAuthStateChanged,
   type User,
 } from "firebase/auth"
-import { doc, setDoc, getDoc, Timestamp } from "firebase/firestore"
+import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore"
 import { auth, db } from "@/src/lib/firebase"
-import type { IUser } from "@/src/types"
 
-const USERS_COLLECTION = "users"
+// Providers para login social
+const googleProvider = new GoogleAuthProvider()
+const facebookProvider = new FacebookAuthProvider()
 
-// Converter Firebase User para IUser
-async function convertToIUser(firebaseUser: User): Promise<IUser> {
-  const userDoc = await getDoc(doc(db, USERS_COLLECTION, firebaseUser.uid))
-  const userData = userDoc.data()
-
-  return {
-    id: firebaseUser.uid,
-    email: firebaseUser.email || "",
-    displayName: firebaseUser.displayName || userData?.displayName,
-    photoURL: firebaseUser.photoURL || userData?.photoURL,
-    createdAt: userData?.createdAt?.toDate() || new Date(),
-  }
+// Interface para dados do utilizador
+export interface UserData {
+  uid: string
+  email: string | null
+  displayName: string | null
+  firstName?: string
+  lastName?: string
+  phone?: string
+  photoURL: string | null
+  createdAt?: Date
+  newsletter?: boolean
 }
 
-// Criar documento do utilizador no Firestore
-async function createUserDocument(user: User): Promise<void> {
-  const userRef = doc(db, USERS_COLLECTION, user.uid)
-  const userDoc = await getDoc(userRef)
-
-  if (!userDoc.exists()) {
-    await setDoc(userRef, {
-      email: user.email,
-      displayName: user.displayName || null,
-      photoURL: user.photoURL || null,
-      createdAt: Timestamp.now(),
-    })
-  }
-}
-
-// Registar novo utilizador
-export async function signUp(
+// Criar conta com email e password
+export const registerWithEmail = async (
   email: string,
   password: string,
-  displayName?: string
-): Promise<IUser> {
-  const userCredential = await createUserWithEmailAndPassword(auth, email, password)
-  
-  if (displayName) {
-    await updateProfile(userCredential.user, { displayName })
+  firstName: string,
+  lastName: string,
+  phone?: string,
+  newsletter?: boolean
+): Promise<User> => {
+  try {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password)
+    const user = userCredential.user
+
+    // Atualizar o perfil com o nome
+    await updateProfile(user, {
+      displayName: `${firstName} ${lastName}`,
+    })
+
+    // Guardar dados adicionais no Firestore
+    await setDoc(doc(db, "users", user.uid), {
+      uid: user.uid,
+      email: user.email,
+      firstName,
+      lastName,
+      displayName: `${firstName} ${lastName}`,
+      phone: phone || null,
+      photoURL: null,
+      newsletter: newsletter || false,
+      createdAt: serverTimestamp(),
+    })
+
+    return user
+  } catch (error) {
+    throw error
   }
-  
-  await createUserDocument(userCredential.user)
-  return convertToIUser(userCredential.user)
 }
 
-// Iniciar sessão com email e password
-export async function signIn(email: string, password: string): Promise<IUser> {
-  const userCredential = await signInWithEmailAndPassword(auth, email, password)
-  return convertToIUser(userCredential.user)
+// Login com email e password
+export const loginWithEmail = async (email: string, password: string): Promise<User> => {
+  try {
+    const userCredential = await signInWithEmailAndPassword(auth, email, password)
+    return userCredential.user
+  } catch (error) {
+    throw error
+  }
 }
 
-// Iniciar sessão com Google
-export async function signInWithGoogle(): Promise<IUser> {
-  const provider = new GoogleAuthProvider()
-  const userCredential = await signInWithPopup(auth, provider)
-  await createUserDocument(userCredential.user)
-  return convertToIUser(userCredential.user)
+// Login com Google
+export const loginWithGoogle = async (): Promise<User> => {
+  try {
+    const result = await signInWithPopup(auth, googleProvider)
+    const user = result.user
+
+    // Verificar se é um novo utilizador e guardar no Firestore
+    const userDoc = await getDoc(doc(db, "users", user.uid))
+    if (!userDoc.exists()) {
+      const nameParts = user.displayName?.split(" ") || ["", ""]
+      await setDoc(doc(db, "users", user.uid), {
+        uid: user.uid,
+        email: user.email,
+        firstName: nameParts[0],
+        lastName: nameParts.slice(1).join(" "),
+        displayName: user.displayName,
+        phone: user.phoneNumber,
+        photoURL: user.photoURL,
+        newsletter: false,
+        createdAt: serverTimestamp(),
+      })
+    }
+
+    return user
+  } catch (error) {
+    throw error
+  }
 }
 
-// Terminar sessão
-export async function signOut(): Promise<void> {
-  await firebaseSignOut(auth)
+// Login com Facebook
+export const loginWithFacebook = async (): Promise<User> => {
+  try {
+    const result = await signInWithPopup(auth, facebookProvider)
+    const user = result.user
+
+    // Verificar se é um novo utilizador e guardar no Firestore
+    const userDoc = await getDoc(doc(db, "users", user.uid))
+    if (!userDoc.exists()) {
+      const nameParts = user.displayName?.split(" ") || ["", ""]
+      await setDoc(doc(db, "users", user.uid), {
+        uid: user.uid,
+        email: user.email,
+        firstName: nameParts[0],
+        lastName: nameParts.slice(1).join(" "),
+        displayName: user.displayName,
+        phone: user.phoneNumber,
+        photoURL: user.photoURL,
+        newsletter: false,
+        createdAt: serverTimestamp(),
+      })
+    }
+
+    return user
+  } catch (error) {
+    throw error
+  }
+}
+
+// Logout
+export const logout = async (): Promise<void> => {
+  try {
+    await signOut(auth)
+  } catch (error) {
+    throw error
+  }
 }
 
 // Recuperar password
-export async function resetPassword(email: string): Promise<void> {
-  await sendPasswordResetEmail(auth, email)
+export const resetPassword = async (email: string): Promise<void> => {
+  try {
+    await sendPasswordResetEmail(auth, email)
+  } catch (error) {
+    throw error
+  }
 }
 
-// Obter utilizador atual
-export function getCurrentUser(): User | null {
-  return auth.currentUser
-}
-
-// Observar alterações de autenticação
-export function onAuthChange(callback: (user: IUser | null) => void): () => void {
-  return onAuthStateChanged(auth, async (firebaseUser) => {
-    if (firebaseUser) {
-      const user = await convertToIUser(firebaseUser)
-      callback(user)
-    } else {
-      callback(null)
+// Obter dados do utilizador do Firestore
+export const getUserData = async (uid: string): Promise<UserData | null> => {
+  try {
+    const userDoc = await getDoc(doc(db, "users", uid))
+    if (userDoc.exists()) {
+      return userDoc.data() as UserData
     }
-  })
+    return null
+  } catch (error) {
+    throw error
+  }
 }
 
-// Atualizar perfil do utilizador
-export async function updateUserProfile(
-  displayName?: string,
-  photoURL?: string
-): Promise<void> {
-  const user = auth.currentUser
-  if (!user) throw new Error("Utilizador não autenticado")
+// Listener para mudanças no estado de autenticação
+export const onAuthChange = (callback: (user: User | null) => void) => {
+  return onAuthStateChanged(auth, callback)
+}
 
-  const updates: { displayName?: string; photoURL?: string } = {}
-  if (displayName) updates.displayName = displayName
-  if (photoURL) updates.photoURL = photoURL
+// Traduzir erros do Firebase para português
+export const getAuthErrorMessage = (errorCode: string): string => {
+  const errorMessages: Record<string, string> = {
+    "auth/email-already-in-use": "Este email já está registado. Tente fazer login.",
+    "auth/invalid-email": "O email introduzido não é válido.",
+    "auth/operation-not-allowed": "Operação não permitida.",
+    "auth/weak-password": "A password é demasiado fraca. Use pelo menos 6 caracteres.",
+    "auth/user-disabled": "Esta conta foi desativada.",
+    "auth/user-not-found": "Não existe nenhuma conta com este email.",
+    "auth/wrong-password": "Password incorreta.",
+    "auth/invalid-credential": "Email ou password incorretos.",
+    "auth/too-many-requests": "Demasiadas tentativas. Tente novamente mais tarde.",
+    "auth/network-request-failed": "Erro de rede. Verifique a sua ligação à internet.",
+    "auth/popup-closed-by-user": "O popup foi fechado antes de completar o login.",
+    "auth/cancelled-popup-request": "Operação cancelada.",
+    "auth/account-exists-with-different-credential": "Já existe uma conta com este email mas com outro método de login.",
+  }
 
-  await updateProfile(user, updates)
-
-  // Atualizar também no Firestore
-  const userRef = doc(db, USERS_COLLECTION, user.uid)
-  await setDoc(userRef, updates, { merge: true })
+  return errorMessages[errorCode] || "Ocorreu um erro. Tente novamente."
 }

@@ -5,82 +5,71 @@ import { CategoryCard } from "./CategoryCard"
 const categories = [
   {
     name: "Brinquedos",
-    productCount: 1267,
     href: "/categoria/brinquedos",
-    imageSrc: "/colorful-kids-toys.png",
+    imageSrc: "https://images.pexels.com/photos/3661193/pexels-photo-3661193.jpeg?auto=compress&cs=tinysrgb&w=600",
   },
   {
     name: "Babygrows",
-    productCount: 1563,
     href: "/categoria/babygrows",
-    imageSrc: "/baby-clothes-onesie.jpg",
+    imageSrc: "https://images.pexels.com/photos/6849550/pexels-photo-6849550.jpeg?auto=compress&cs=tinysrgb&w=600",
   },
   {
     name: "Menina",
-    productCount: 14075,
     href: "/categoria/menina",
-    imageSrc: "/diverse-girls-clothing.png",
+    imageSrc: "https://images.pexels.com/photos/5693889/pexels-photo-5693889.jpeg?auto=compress&cs=tinysrgb&w=600",
   },
   {
     name: "Menino",
-    productCount: 10724,
     href: "/categoria/menino",
-    imageSrc: "/boys-clothing.png",
+    imageSrc: "https://images.pexels.com/photos/5693891/pexels-photo-5693891.jpeg?auto=compress&cs=tinysrgb&w=600",
   },
   {
     name: "Calçado",
-    productCount: 2351,
     href: "/categoria/calcado",
-    imageSrc: "/kids-shoes-sneakers.jpg",
+    imageSrc: "https://images.pexels.com/photos/1598508/pexels-photo-1598508.jpeg?auto=compress&cs=tinysrgb&w=600",
   },
   {
     name: "Maternidade",
-    productCount: 175,
     href: "/categoria/maternidade",
-    imageSrc: "/maternity-clothes.jpg",
+    imageSrc: "https://images.pexels.com/photos/3875225/pexels-photo-3875225.jpeg?auto=compress&cs=tinysrgb&w=600",
   },
   {
     name: "Puericultura",
-    productCount: 337,
     href: "/categoria/puericultura",
-    imageSrc: "/baby-care-products.png",
+    imageSrc: "https://images.pexels.com/photos/3845456/pexels-photo-3845456.jpeg?auto=compress&cs=tinysrgb&w=600",
   },
   {
     name: "Equipamentos",
-    productCount: 209,
     href: "/categoria/equipamentos",
-    imageSrc: "/baby-equipment-stroller.jpg",
+    imageSrc: "https://images.pexels.com/photos/4473871/pexels-photo-4473871.jpeg?auto=compress&cs=tinysrgb&w=600",
   },
   {
     name: "Acessórios",
-    productCount: 366,
     href: "/categoria/acessorios",
-    imageSrc: "/kids-accessories.jpg",
+    imageSrc: "https://images.pexels.com/photos/6203797/pexels-photo-6203797.jpeg?auto=compress&cs=tinysrgb&w=600",
   },
   {
     name: "Agasalhos",
-    productCount: 387,
     href: "/categoria/agasalhos",
-    imageSrc: "/kids-winter-coats-jackets.jpg",
+    imageSrc: "https://images.pexels.com/photos/6347888/pexels-photo-6347888.jpeg?auto=compress&cs=tinysrgb&w=600",
   },
   {
     name: "Praia",
-    productCount: 520,
     href: "/categoria/praia",
-    imageSrc: "/kids-beach-swimwear.jpg",
+    imageSrc: "https://images.pexels.com/photos/5623066/pexels-photo-5623066.jpeg?auto=compress&cs=tinysrgb&w=600",
   },
   {
     name: "Carnaval / Halloween",
-    productCount: 79,
     href: "/categoria/carnaval",
-    imageSrc: "/kids-carnival-costumes.jpg",
+    imageSrc: "https://images.pexels.com/photos/5765832/pexels-photo-5765832.jpeg?auto=compress&cs=tinysrgb&w=600",
   },
 ]
 
 export function CategoryGrid() {
   return (
-    <section className="mb-12">
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+    <section className="mb-8 md:mb-12">
+      <h2 className="mb-4 md:mb-6 text-xl md:text-2xl font-bold text-center">Categorias</h2>
+      <div className="grid grid-cols-2 gap-2 sm:gap-3 md:gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
         {categories.map((category) => (
           <CategoryCard
             key={category.name}
