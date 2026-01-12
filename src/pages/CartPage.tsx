@@ -25,10 +25,10 @@ export default function CartPage() {
       <div className="min-h-screen bg-white">
         <Header />
         <main className="container mx-auto px-4 py-16 text-center">
-          <h1 className="mb-4 text-3xl font-bold text-k2k-pink">Carrinho Vazio</h1>
+          <h1 className="mb-4 text-3xl font-bold text-k2k-blue">Carrinho Vazio</h1>
           <p className="mb-8 text-muted-foreground">Ainda não adicionou produtos ao carrinho.</p>
           <Link to="/">
-            <Button className="bg-k2k-pink hover:bg-k2k-pink/90">Continuar a Comprar</Button>
+            <Button className="bg-k2k-blue hover:bg-k2k-blue/90">Continuar a Comprar</Button>
           </Link>
         </main>
         <Footer />
@@ -41,7 +41,7 @@ export default function CartPage() {
       <Header />
 
       <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8">
-        <h1 className="mb-4 sm:mb-6 md:mb-8 text-xl sm:text-2xl md:text-3xl font-bold text-k2k-pink">Carrinho de Compras</h1>
+        <h1 className="mb-4 sm:mb-6 md:mb-8 text-xl sm:text-2xl md:text-3xl font-bold text-k2k-blue">Carrinho de Compras</h1>
 
         <div className="grid gap-4 sm:gap-6 md:gap-8 lg:grid-cols-3">
           {/* Cart Items */}
@@ -98,7 +98,7 @@ export default function CartPage() {
                         </div>
 
                         <div className="flex items-center gap-2 sm:gap-4">
-                          <span className="font-bold text-k2k-pink text-sm sm:text-base">
+                          <span className="font-bold text-k2k-blue text-sm sm:text-base">
                             €{(item.product.price * item.quantity).toFixed(2)}
                           </span>
                           <Button
@@ -140,12 +140,12 @@ export default function CartPage() {
 
               <div className="my-4 flex justify-between text-lg font-bold">
                 <span>Total</span>
-                <span className="text-k2k-pink">
+                <span className="text-k2k-blue">
                   €{(totalPrice + (totalPrice >= 60 ? 0 : 3.99)).toFixed(2)}
                 </span>
               </div>
 
-              <Button className="w-full bg-k2k-pink hover:bg-k2k-pink/90">Finalizar Compra</Button>
+              <Button className="w-full bg-k2k-blue hover:bg-k2k-blue/90">Finalizar Compra</Button>
 
               <div className="mt-4 rounded-lg bg-k2k-gray p-4 text-center text-sm">
                 {totalPrice >= 60 ? (
@@ -165,3 +165,4 @@ export default function CartPage() {
     </div>
   )
 }
+

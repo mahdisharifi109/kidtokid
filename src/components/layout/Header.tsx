@@ -160,9 +160,9 @@ export function Header() {
         <div className="container mx-auto flex items-center justify-between px-4 py-1.5 text-xs text-gray-600">
           <span>Portes grátis em compras superiores a 60€</span>
           <div className="flex items-center gap-4">
-            <Link to="/ajuda" className="hover:text-k2k-pink">Ajuda</Link>
+            <Link to="/ajuda" className="hover:text-k2k-blue">Ajuda</Link>
             <span className="text-gray-300">|</span>
-            <Link to="/sobre" className="hover:text-k2k-pink">Sobre nós</Link>
+            <Link to="/sobre" className="hover:text-k2k-blue">Sobre nós</Link>
           </div>
         </div>
       </div>
@@ -211,7 +211,7 @@ export function Header() {
                     key={cat.id}
                     className={`flex cursor-pointer items-center gap-3 border-l-[3px] px-4 py-3 transition-colors ${
                       activeCategory === cat.id
-                        ? "border-l-k2k-pink bg-white"
+                        ? "border-l-k2k-blue bg-white"
                         : "border-l-transparent hover:bg-white"
                     }`}
                     onMouseEnter={() => setActiveCategory(cat.id)}
@@ -237,7 +237,7 @@ export function Header() {
                         <div key={sub.id}>
                           <Link
                             to={`/categoria/${activeCategoryData.id}?sub=${sub.id}`}
-                            className="mb-2 block text-sm font-semibold text-gray-900 hover:text-k2k-pink"
+                            className="mb-2 block text-sm font-semibold text-gray-900 hover:text-k2k-blue"
                             onClick={() => setIsCatalogueOpen(false)}
                           >
                             {sub.nome}
@@ -247,7 +247,7 @@ export function Header() {
                               <li key={item}>
                                 <Link
                                   to={`/categoria/${activeCategoryData.id}?sub=${sub.id}&item=${encodeURIComponent(item)}`}
-                                  className="text-sm text-gray-600 hover:text-k2k-pink"
+                                  className="text-sm text-gray-600 hover:text-k2k-blue"
                                   onClick={() => setIsCatalogueOpen(false)}
                                 >
                                   {item}
@@ -266,7 +266,7 @@ export function Header() {
                         <Link
                           key={tam}
                           to={`/categoria/${activeCategoryData.id}?size=${tam}`}
-                          className="rounded bg-gray-100 px-2 py-1 text-xs text-gray-700 hover:bg-k2k-pink hover:text-white"
+                          className="rounded bg-gray-100 px-2 py-1 text-xs text-gray-700 hover:bg-k2k-blue hover:text-white"
                           onClick={() => setIsCatalogueOpen(false)}
                         >
                           {tam}
@@ -314,7 +314,7 @@ export function Header() {
                       className="h-7 w-7 rounded-full object-cover"
                     />
                   ) : (
-                    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-k2k-pink text-xs font-bold text-white">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-k2k-blue text-xs font-bold text-white">
                       {user?.displayName?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || "U"}
                     </div>
                   )}
@@ -367,7 +367,7 @@ export function Header() {
             <Button variant="ghost" size="icon" className="relative" aria-label="Favoritos">
               <Heart className="h-5 w-5" />
               {favorites.length > 0 && (
-                <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-k2k-pink text-[10px] text-white">
+                <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-k2k-blue text-[10px] text-white">
                   {favorites.length}
                 </span>
               )}
@@ -378,7 +378,7 @@ export function Header() {
             <Button variant="ghost" size="icon" className="relative" aria-label="Carrinho">
               <ShoppingCart className="h-5 w-5" />
               {totalItems > 0 && (
-                <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-k2k-pink text-[10px] text-white">
+                <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-k2k-blue text-[10px] text-white">
                   {totalItems}
                 </span>
               )}
@@ -409,7 +409,7 @@ export function Header() {
               <Link
                 key={cat.id}
                 to={`/categoria/${cat.id}`}
-                className="flex items-center gap-1.5 whitespace-nowrap text-sm font-medium text-gray-700 hover:text-k2k-pink transition-colors"
+                className="flex items-center gap-1.5 whitespace-nowrap text-sm font-medium text-gray-700 hover:text-k2k-blue transition-colors"
               >
                 <span>{cat.icon}</span>
                 <span>{cat.nome}</span>
@@ -431,7 +431,7 @@ export function Header() {
         }`}
       >
         <div className="flex items-center justify-between border-b p-4">
-          <span className="text-lg font-bold text-k2k-pink">Kid to Kid</span>
+          <span className="text-lg font-bold text-k2k-blue">Kid to Kid</span>
           <Button variant="ghost" size="icon" onClick={() => setIsMobileMenuOpen(false)}>
             <X className="h-5 w-5" />
           </Button>
@@ -467,7 +467,7 @@ export function Header() {
                       className="h-10 w-10 rounded-full object-cover"
                     />
                   ) : (
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-k2k-pink text-sm font-bold text-white">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-k2k-blue text-sm font-bold text-white">
                       {user?.displayName?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || "U"}
                     </div>
                   )}
@@ -517,7 +517,7 @@ export function Header() {
                 </Link>
                 <Link
                   to="/registar"
-                  className="flex items-center gap-3 rounded-lg p-3 hover:bg-gray-100 text-k2k-pink"
+                  className="flex items-center gap-3 rounded-lg p-3 hover:bg-gray-100 text-k2k-blue"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   <span className="font-medium">Criar Conta</span>
@@ -544,3 +544,4 @@ export function Header() {
     </header>
   )
 }
+

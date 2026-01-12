@@ -46,7 +46,7 @@ export default function ProductPage() {
       <div className="min-h-screen bg-white">
         <Header />
         <div className="flex justify-center py-20">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-k2k-pink border-t-transparent" />
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-k2k-blue border-t-transparent" />
         </div>
         <Footer />
       </div>
@@ -78,11 +78,11 @@ export default function ProductPage() {
       <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8">
         {/* Breadcrumb */}
         <div className="mb-4 sm:mb-6 text-xs sm:text-sm text-muted-foreground overflow-x-auto whitespace-nowrap scrollbar-hide">
-          <Link to="/" className="hover:text-k2k-pink">
+          <Link to="/" className="hover:text-k2k-blue">
             Início
           </Link>
           <span className="mx-1 sm:mx-2">/</span>
-          <Link to={`/categoria/${product.category}`} className="hover:text-k2k-pink capitalize">
+          <Link to={`/categoria/${product.category}`} className="hover:text-k2k-blue capitalize">
             {product.category}
           </Link>
           <span className="mx-1 sm:mx-2">/</span>
@@ -106,7 +106,7 @@ export default function ProductPage() {
                     key={idx}
                     onClick={() => setSelectedImage(idx)}
                     className={`aspect-square overflow-hidden rounded-md sm:rounded-lg border-2 ${
-                      selectedImage === idx ? "border-k2k-pink" : "border-transparent"
+                      selectedImage === idx ? "border-k2k-blue" : "border-transparent"
                     }`}
                   >
                     <img
@@ -127,7 +127,7 @@ export default function ProductPage() {
             <p className="mb-3 sm:mb-4 text-base sm:text-lg text-muted-foreground">{product.brand}</p>
 
             <div className="mb-4 sm:mb-6 flex items-center gap-2 sm:gap-4 flex-wrap">
-              <span className="text-2xl sm:text-3xl font-bold text-k2k-pink">€{product.price.toFixed(2)}</span>
+              <span className="text-2xl sm:text-3xl font-bold text-k2k-blue">€{product.price.toFixed(2)}</span>
               {product.originalPrice && (
                 <span className="text-base sm:text-xl text-muted-foreground line-through">€{product.originalPrice.toFixed(2)}</span>
               )}
@@ -158,7 +158,7 @@ export default function ProductPage() {
 
             <Button
               size="lg"
-              className="mb-3 sm:mb-4 w-full bg-k2k-pink text-white hover:bg-k2k-pink/90 text-sm sm:text-base h-11 sm:h-12"
+              className="mb-3 sm:mb-4 w-full bg-k2k-blue text-white hover:bg-k2k-blue/90 text-sm sm:text-base h-11 sm:h-12"
               disabled={isSoldOut}
               onClick={() => addToCart(product)}
             >
@@ -198,7 +198,7 @@ export default function ProductPage() {
 
         {/* Related Products */}
         <section className="mt-8 sm:mt-12 md:mt-16">
-          <h2 className="mb-4 sm:mb-6 text-lg sm:text-xl md:text-2xl font-bold text-k2k-pink">Produtos Relacionados</h2>
+          <h2 className="mb-4 sm:mb-6 text-lg sm:text-xl md:text-2xl font-bold text-k2k-blue">Produtos Relacionados</h2>
           <div className="grid grid-cols-2 gap-2 sm:gap-3 md:gap-4 sm:grid-cols-3 lg:grid-cols-4">
             {relatedProducts.map((p) => (
               <ProductCard key={p.id} product={p} onAddToCart={addToCart} />
@@ -211,3 +211,4 @@ export default function ProductPage() {
     </div>
   )
 }
+

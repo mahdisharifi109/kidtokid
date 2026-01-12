@@ -27,3 +27,4 @@ export function CategoryCard({ name, href, imageSrc }: CategoryCardProps) {
     </Link>
   )
 }
+

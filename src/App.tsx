@@ -18,7 +18,7 @@ const AdminSeedPage = lazy(() => import('./pages/AdminSeedPage'))
 function PageLoader() {
   return (
     <div className="flex min-h-screen items-center justify-center">
-      <Loader2 className="h-8 w-8 animate-spin text-k2k-pink" />
+      <Loader2 className="h-8 w-8 animate-spin text-k2k-blue" />
     </div>
   )
 }
@@ -43,3 +43,4 @@ function App() {
 }
 
 export default App
+

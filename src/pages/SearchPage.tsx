@@ -42,7 +42,7 @@ export default function SearchPage() {
 
       <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8">
         <div className="mb-4 sm:mb-6">
-          <h1 className="mb-1 sm:mb-2 text-xl sm:text-2xl md:text-3xl font-bold text-k2k-pink">Resultados da Pesquisa</h1>
+          <h1 className="mb-1 sm:mb-2 text-xl sm:text-2xl md:text-3xl font-bold text-k2k-blue">Resultados da Pesquisa</h1>
           <p className="text-sm sm:text-base text-muted-foreground">
             {isLoading ? "A pesquisar..." : `${results.length} resultados para "${query}"`}
           </p>
@@ -50,7 +50,7 @@ export default function SearchPage() {
 
         {isLoading ? (
           <div className="flex justify-center py-12">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-k2k-pink border-t-transparent" />
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-k2k-blue border-t-transparent" />
           </div>
         ) : results.length > 0 ? (
           <div className="grid grid-cols-2 gap-2 sm:gap-3 md:gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
@@ -72,3 +72,4 @@ export default function SearchPage() {
     </div>
   )
 }
+

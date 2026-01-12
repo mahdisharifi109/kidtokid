@@ -20,7 +20,7 @@ export default function AboutPage() {
             />
           </div>
           <h1 className="mb-3 sm:mb-4 text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold">
-            <span className="text-k2k-pink">Kid to Kid</span> Braga
+            <span className="text-k2k-blue">Kid to Kid</span> Braga
           </h1>
           <p className="mx-auto max-w-3xl text-sm sm:text-base md:text-lg text-muted-foreground px-2">
             Compramos & Vendemos o que deixou de servir aos seus filhos. Loja de roupa e artigos de crianças em segunda mão.
@@ -29,7 +29,7 @@ export default function AboutPage() {
 
         {/* Arrume e Ganhe Section */}
         <div className="mb-10 sm:mb-12 md:mb-16 bg-k2k-gray rounded-lg p-6 sm:p-8">
-          <h2 className="mb-4 sm:mb-6 text-xl sm:text-2xl md:text-3xl font-bold text-center text-k2k-pink">Arrume e Ganhe</h2>
+          <h2 className="mb-4 sm:mb-6 text-xl sm:text-2xl md:text-3xl font-bold text-center text-k2k-blue">Arrume e Ganhe</h2>
           <div className="grid gap-6 md:grid-cols-2">
             <div>
               <p className="mb-4 text-sm sm:text-base text-muted-foreground">
@@ -41,7 +41,7 @@ export default function AboutPage() {
               </p>
             </div>
             <div>
-              <h3 className="mb-3 font-semibold text-k2k-pink">O que mais precisamos:</h3>
+              <h3 className="mb-3 font-semibold text-k2k-blue">O que mais precisamos:</h3>
               <ul className="space-y-2 text-sm sm:text-base text-muted-foreground">
                 <li>• Roupa de rapaz dos 6 aos 12 anos</li>
                 <li>• Andarilhos e Parques</li>
@@ -56,10 +56,10 @@ export default function AboutPage() {
 
         {/* Promoções */}
         <div className="mb-10 sm:mb-12 md:mb-16">
-          <h2 className="mb-4 sm:mb-6 text-xl sm:text-2xl md:text-3xl font-bold text-k2k-pink">Promoções Especiais</h2>
+          <h2 className="mb-4 sm:mb-6 text-xl sm:text-2xl md:text-3xl font-bold text-k2k-blue">Promoções Especiais</h2>
           <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
-            <Card className="p-6 border-k2k-pink border-2">
-              <h3 className="mb-3 text-lg font-bold text-k2k-pink">Laços de todas as cores</h3>
+            <Card className="p-6 border-k2k-blue border-2">
+              <h3 className="mb-3 text-lg font-bold text-k2k-blue">Laços de todas as cores</h3>
               <p className="text-sm sm:text-base text-muted-foreground">
                 Um laço para cada conjunto! Na Kid to Kid temos laços de todas as cores. 
                 Escolha entre um laço grande, pequeno, com bolinhas ou liso. Laços a partir de 2,99€.
@@ -77,12 +77,12 @@ export default function AboutPage() {
 
         {/* Contact Info */}
         <div className="mb-10 sm:mb-12 md:mb-16">
-          <h2 className="mb-4 sm:mb-6 text-xl sm:text-2xl md:text-3xl font-bold text-k2k-pink">Visite-nos</h2>
+          <h2 className="mb-4 sm:mb-6 text-xl sm:text-2xl md:text-3xl font-bold text-k2k-blue">Visite-nos</h2>
           <div className="grid gap-6 md:grid-cols-2">
             <Card className="p-6">
               <div className="space-y-4">
                 <div className="flex items-start gap-3">
-                  <MapPin className="h-5 w-5 text-k2k-pink shrink-0 mt-1" />
+                  <MapPin className="h-5 w-5 text-k2k-blue shrink-0 mt-1" />
                   <div>
                     <h4 className="font-semibold">Morada</h4>
                     <p className="text-sm text-muted-foreground">
@@ -94,27 +94,27 @@ export default function AboutPage() {
                       href="https://www.google.com/maps/place/Kid+To+Kid+Braga/@41.550932,-8.4201418,17z"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-sm text-k2k-pink hover:underline mt-1 inline-block"
+                      className="text-sm text-k2k-blue hover:underline mt-1 inline-block"
                     >
                       Ver no Google Maps →
                     </a>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <Phone className="h-5 w-5 text-k2k-pink shrink-0 mt-1" />
+                  <Phone className="h-5 w-5 text-k2k-blue shrink-0 mt-1" />
                   <div>
                     <h4 className="font-semibold">Telefone</h4>
-                    <a href="tel:+351253215379" className="text-sm text-muted-foreground hover:text-k2k-pink">
+                    <a href="tel:+351253215379" className="text-sm text-muted-foreground hover:text-k2k-blue">
                       +351 253 215 379
                     </a>
                     <p className="text-xs text-muted-foreground">(chamada para rede fixa nacional)</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <Mail className="h-5 w-5 text-k2k-pink shrink-0 mt-1" />
+                  <Mail className="h-5 w-5 text-k2k-blue shrink-0 mt-1" />
                   <div>
                     <h4 className="font-semibold">Email</h4>
-                    <a href="mailto:info@kidtokid.pt" className="text-sm text-muted-foreground hover:text-k2k-pink">
+                    <a href="mailto:info@kidtokid.pt" className="text-sm text-muted-foreground hover:text-k2k-blue">
                       info@kidtokid.pt
                     </a>
                   </div>
@@ -123,7 +123,7 @@ export default function AboutPage() {
             </Card>
             <Card className="p-6">
               <div className="flex items-start gap-3">
-                <Clock className="h-5 w-5 text-k2k-pink shrink-0 mt-1" />
+                <Clock className="h-5 w-5 text-k2k-blue shrink-0 mt-1" />
                 <div>
                   <h4 className="font-semibold mb-3">Horário</h4>
                   <div className="space-y-1 text-sm">
@@ -167,7 +167,7 @@ export default function AboutPage() {
 
         {/* Values */}
         <div>
-          <h2 className="mb-4 sm:mb-6 text-xl sm:text-2xl md:text-3xl font-bold text-k2k-pink">Os Nossos Valores</h2>
+          <h2 className="mb-4 sm:mb-6 text-xl sm:text-2xl md:text-3xl font-bold text-k2k-blue">Os Nossos Valores</h2>
           <div className="grid gap-3 sm:gap-4 md:gap-6 sm:grid-cols-2 md:grid-cols-3">
             {[
               {
@@ -189,7 +189,7 @@ export default function AboutPage() {
               },
             ].map((value, idx) => (
               <Card key={idx} className="p-4 sm:p-5 md:p-6">
-                <h3 className="mb-2 sm:mb-3 text-base sm:text-lg md:text-xl font-bold text-k2k-pink">{value.title}</h3>
+                <h3 className="mb-2 sm:mb-3 text-base sm:text-lg md:text-xl font-bold text-k2k-blue">{value.title}</h3>
                 <p className="text-sm sm:text-base text-muted-foreground">{value.description}</p>
               </Card>
             ))}
@@ -201,3 +201,4 @@ export default function AboutPage() {
     </div>
   )
 }
+

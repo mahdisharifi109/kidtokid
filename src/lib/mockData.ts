@@ -68,3 +68,4 @@ export function generateMockProducts(category?: string, count = 20): IProduct[] 
 }
 
 export const allProducts = generateMockProducts("menina", 100)
+

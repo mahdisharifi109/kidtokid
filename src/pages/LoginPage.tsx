@@ -82,7 +82,7 @@ export default function LoginPage() {
   if (authLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="h-6 w-6 animate-spin rounded-full border-2 border-k2k-pink border-t-transparent" />
+        <div className="h-6 w-6 animate-spin rounded-full border-2 border-k2k-blue border-t-transparent" />
       </div>
     )
   }
@@ -97,7 +97,7 @@ export default function LoginPage() {
           {/* Logo */}
           <div className="text-center mb-8">
             <img src="/logo.png" alt="Kid to Kid" className="h-12 mx-auto mb-4" />
-            <h1 className="text-xl font-semibold text-k2k-pink">Entrar na sua conta</h1>
+            <h1 className="text-xl font-semibold text-k2k-blue">Entrar na sua conta</h1>
           </div>
 
           {/* Formulário */}
@@ -127,7 +127,7 @@ export default function LoginPage() {
                   </Label>
                   <Link
                     to="/recuperar-password"
-                    className="text-xs text-k2k-pink hover:underline"
+                    className="text-xs text-k2k-blue hover:underline"
                   >
                     Esqueceu?
                   </Link>
@@ -169,7 +169,7 @@ export default function LoginPage() {
 
               <Button
                 type="submit"
-                className="w-full bg-k2k-pink hover:bg-k2k-pink/90 text-white"
+                className="w-full bg-k2k-blue hover:bg-k2k-blue/90 text-white"
                 disabled={isLoading}
               >
                 {isLoading ? "A entrar..." : "Entrar"}
@@ -220,7 +220,7 @@ export default function LoginPage() {
           {/* Link criar conta */}
           <p className="text-center mt-6 text-sm text-gray-600">
             Ainda não tem conta?{" "}
-            <Link to="/registar" className="text-k2k-pink font-medium hover:underline">
+            <Link to="/registar" className="text-k2k-blue font-medium hover:underline">
               Criar conta
             </Link>
           </p>
@@ -236,3 +236,4 @@ export default function LoginPage() {
     </div>
   )
 }
+

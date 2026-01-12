@@ -191,3 +191,4 @@ export const getAuthErrorMessage = (errorCode: string): string => {
 
   return errorMessages[errorCode] || "Ocorreu um erro. Tente novamente."
 }
+

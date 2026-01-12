@@ -220,7 +220,7 @@ export default function AdminSeedPage() {
               <Button 
                 onClick={handleSeedProducts} 
                 disabled={isLoading}
-                className="bg-k2k-pink hover:bg-k2k-pink/90"
+                className="bg-k2k-blue hover:bg-k2k-blue/90"
               >
                 {isLoading ? "A adicionar..." : `Adicionar ${sampleProducts.length} Produtos`}
               </Button>
@@ -277,3 +277,4 @@ export default function AdminSeedPage() {
     </div>
   )
 }
+

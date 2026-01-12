@@ -111,7 +111,7 @@ export default function RegisterPage() {
   if (authLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="h-6 w-6 animate-spin rounded-full border-2 border-k2k-pink border-t-transparent" />
+        <div className="h-6 w-6 animate-spin rounded-full border-2 border-k2k-blue border-t-transparent" />
       </div>
     )
   }
@@ -126,7 +126,7 @@ export default function RegisterPage() {
           {/* Logo */}
           <div className="text-center mb-8">
             <img src="/logo.png" alt="Kid to Kid" className="h-12 mx-auto mb-4" />
-            <h1 className="text-xl font-semibold text-k2k-pink">Criar conta</h1>
+            <h1 className="text-xl font-semibold text-k2k-blue">Criar conta</h1>
             <p className="text-sm text-gray-500 mt-1">Junte-se à nossa comunidade</p>
           </div>
 
@@ -262,11 +262,11 @@ export default function RegisterPage() {
                   />
                   <Label htmlFor="acceptTerms" className="text-sm text-gray-600 cursor-pointer leading-tight">
                     Aceito os{" "}
-                    <Link to="/termos" className="text-k2k-pink hover:underline">
+                    <Link to="/termos" className="text-k2k-blue hover:underline">
                       Termos
                     </Link>{" "}
                     e{" "}
-                    <Link to="/privacidade" className="text-k2k-pink hover:underline">
+                    <Link to="/privacidade" className="text-k2k-blue hover:underline">
                       Política de Privacidade
                     </Link>
                   </Label>
@@ -289,7 +289,7 @@ export default function RegisterPage() {
 
               <Button
                 type="submit"
-                className="w-full bg-k2k-pink hover:bg-k2k-pink/90 text-white mt-2"
+                className="w-full bg-k2k-blue hover:bg-k2k-blue/90 text-white mt-2"
                 disabled={isLoading}
               >
                 {isLoading ? "A criar conta..." : "Criar conta"}
@@ -340,7 +340,7 @@ export default function RegisterPage() {
           {/* Link entrar */}
           <p className="text-center mt-6 text-sm text-gray-600">
             Já tem conta?{" "}
-            <Link to="/entrar" className="text-k2k-pink font-medium hover:underline">
+            <Link to="/entrar" className="text-k2k-blue font-medium hover:underline">
               Entrar
             </Link>
           </p>
@@ -351,3 +351,4 @@ export default function RegisterPage() {
     </div>
   )
 }
+

@@ -44,7 +44,7 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
         className="absolute right-1.5 top-1.5 sm:right-2 sm:top-2 z-10 rounded-full bg-white/90 p-1.5 sm:p-2 shadow-md transition-all hover:scale-110"
         aria-label={favorite ? "Remover dos favoritos" : "Adicionar aos favoritos"}
       >
-        <Heart className={cn("h-3.5 w-3.5 sm:h-4 sm:w-4", favorite && "fill-k2k-pink text-k2k-pink")} />
+        <Heart className={cn("h-3.5 w-3.5 sm:h-4 sm:w-4", favorite && "fill-k2k-blue text-k2k-blue")} />
       </button>
 
       {/* Image */}
@@ -69,7 +69,7 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
 
         {/* Title */}
         <Link to={`/produto/${product.id}`}>
-          <h3 className="mt-0.5 sm:mt-1 line-clamp-2 text-xs sm:text-sm font-medium hover:text-k2k-pink min-h-[2.5em]">{product.title}</h3>
+          <h3 className="mt-0.5 sm:mt-1 line-clamp-2 text-xs sm:text-sm font-medium hover:text-k2k-blue min-h-[2.5em]">{product.title}</h3>
         </Link>
 
         {/* Size & Condition */}
@@ -81,7 +81,7 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
 
         {/* Price */}
         <div className="mt-2 sm:mt-3 flex items-center gap-1 sm:gap-2 flex-wrap">
-          <span className="text-sm sm:text-base md:text-lg font-bold text-k2k-pink">€{product.price.toFixed(2)}</span>
+          <span className="text-sm sm:text-base md:text-lg font-bold text-k2k-blue">€{product.price.toFixed(2)}</span>
           {hasDiscount && (
             <span className="text-[10px] sm:text-xs md:text-sm text-muted-foreground line-through">€{product.originalPrice?.toFixed(2)}</span>
           )}
@@ -90,7 +90,7 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
 
       <CardFooter className="p-2 sm:p-3 md:p-4 pt-0">
         <Button
-          className="w-full bg-k2k-pink text-white transition-all hover:bg-k2k-pink/90 hover:scale-105 text-xs sm:text-sm h-8 sm:h-9 md:h-10"
+          className="w-full bg-k2k-blue text-white transition-all hover:bg-k2k-blue/90 hover:scale-105 text-xs sm:text-sm h-8 sm:h-9 md:h-10"
           disabled={isSoldOut}
           onClick={handleAddToCart}
         >
@@ -108,3 +108,4 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
     </Card>
   )
 }
+

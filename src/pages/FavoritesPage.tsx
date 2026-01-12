@@ -17,8 +17,8 @@ export default function FavoritesPage() {
 
       <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8">
         <div className="mb-4 sm:mb-6 md:mb-8 flex items-center gap-2 sm:gap-3">
-          <Heart className="h-6 w-6 sm:h-8 sm:w-8 fill-k2k-pink text-k2k-pink" />
-          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-k2k-pink">Os Meus Favoritos</h1>
+          <Heart className="h-6 w-6 sm:h-8 sm:w-8 fill-k2k-blue text-k2k-blue" />
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-k2k-blue">Os Meus Favoritos</h1>
         </div>
 
         {favorites.length > 0 ? (
@@ -38,7 +38,7 @@ export default function FavoritesPage() {
               Adicione produtos aos favoritos para os encontrar facilmente mais tarde
             </p>
             <Link to="/">
-              <Button className="bg-k2k-pink hover:bg-k2k-pink/90">Explorar Produtos</Button>
+              <Button className="bg-k2k-blue hover:bg-k2k-blue/90">Explorar Produtos</Button>
             </Link>
           </div>
         )}
@@ -48,3 +48,4 @@ export default function FavoritesPage() {
     </div>
   )
 }
+

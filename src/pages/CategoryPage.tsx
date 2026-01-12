@@ -131,7 +131,7 @@ export default function CategoryPage() {
       <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8">
         {/* Breadcrumb */}
         <div className="mb-4 sm:mb-6 text-xs sm:text-sm text-muted-foreground">
-          <Link to="/" className="hover:text-k2k-pink">
+          <Link to="/" className="hover:text-k2k-blue">
             Início
           </Link>
           <span className="mx-1 sm:mx-2">/</span>
@@ -140,7 +140,7 @@ export default function CategoryPage() {
 
         {/* Header */}
         <div className="mb-4 sm:mb-6 flex items-center justify-between gap-2">
-          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-k2k-pink">{categoryNames[slug]}</h1>
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-k2k-blue">{categoryNames[slug]}</h1>
           <Button variant="outline" className="md:hidden bg-transparent text-xs sm:text-sm" onClick={() => setShowFilters(!showFilters)}>
             <Filter className="mr-1.5 sm:mr-2 h-3.5 w-3.5 sm:h-4 sm:w-4" />
             Filtros
@@ -199,7 +199,7 @@ export default function CategoryPage() {
                       variant={selectedSizes.includes(size) ? "default" : "outline"}
                       size="sm"
                       onClick={() => toggleSize(size)}
-                      className={selectedSizes.includes(size) ? "bg-k2k-pink" : ""}
+                      className={selectedSizes.includes(size) ? "bg-k2k-blue" : ""}
                     >
                       {size}
                     </Button>
@@ -229,7 +229,7 @@ export default function CategoryPage() {
             {/* Products */}
             {isLoading ? (
               <div className="flex justify-center py-12">
-                <div className="h-8 w-8 animate-spin rounded-full border-4 border-k2k-pink border-t-transparent" />
+                <div className="h-8 w-8 animate-spin rounded-full border-4 border-k2k-blue border-t-transparent" />
               </div>
             ) : (
               <div className="grid grid-cols-2 gap-2 sm:gap-3 md:gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
@@ -255,3 +255,4 @@ export default function CategoryPage() {
     </div>
   )
 }
+

@@ -68,7 +68,7 @@ const categories = [
 export function CategoryGrid() {
   return (
     <section className="mb-8 md:mb-12">
-      <h2 className="mb-4 md:mb-6 text-xl md:text-2xl font-bold text-center text-k2k-pink">Categorias</h2>
+      <h2 className="mb-4 md:mb-6 text-xl md:text-2xl font-bold text-center text-k2k-blue">Categorias</h2>
       <div className="grid grid-cols-2 gap-2 sm:gap-3 md:gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
         {categories.map((category) => (
           <CategoryCard
@@ -83,3 +83,4 @@ export function CategoryGrid() {
     </section>
   )
 }
+

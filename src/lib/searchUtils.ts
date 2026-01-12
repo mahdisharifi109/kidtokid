@@ -16,3 +16,4 @@ export function searchProducts(products: IProduct[], query: string): IProduct[] 
     return titleMatch || brandMatch || categoryMatch || sizeMatch
   })
 }
+

@@ -203,3 +203,4 @@ export async function searchProducts(searchTerm: string): Promise<IProduct[]> {
       product.category.toLowerCase().includes(lowerSearchTerm)
   )
 }
+
