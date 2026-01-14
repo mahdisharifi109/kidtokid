@@ -150,8 +150,7 @@ export function Header() {
     <header className="sticky top-0 z-50 w-full bg-white shadow-sm">
       {/* Top Bar */}
       <div className="hidden border-b bg-gray-50 md:block">
-        <div className="container mx-auto flex items-center justify-between px-4 py-1.5 text-xs text-gray-600">
-          <span>Portes grátis em compras superiores a 60€</span>
+        <div className="container mx-auto flex items-center justify-end px-4 py-1.5 text-xs text-gray-600">
           <div className="flex items-center gap-4">
             <Link to="/ajuda" className="hover:text-k2k-blue">Ajuda</Link>
             <span className="text-gray-300">|</span>

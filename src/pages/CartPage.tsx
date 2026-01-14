@@ -51,7 +51,7 @@ export default function CartPage() {
                 <Card key={item.product.id} className="p-2 sm:p-3 md:p-4 transition-shadow hover:shadow-md">
                   <div className="flex gap-2 sm:gap-3 md:gap-4">
                     {/* Product Image */}
-                    <div className="h-16 w-16 sm:h-20 sm:w-20 md:h-24 md:w-24 shrink-0 overflow-hidden rounded-lg bg-k2k-gray">
+                    <div className="h-16 w-16 sm:h-20 sm:w-20 md:h-24 md:w-24 shrink-0 overflow-hidden rounded-lg">
                       <img
                         src={item.product.images[0] || "/placeholder.svg"}
                         alt={item.product.title}
@@ -147,7 +147,7 @@ export default function CartPage() {
 
               <Button className="w-full bg-k2k-blue hover:bg-k2k-blue/90">Finalizar Compra</Button>
 
-              <div className="mt-4 rounded-lg bg-k2k-gray p-4 text-center text-sm">
+              <div className="mt-4 rounded-lg border p-4 text-center text-sm">
                 {totalPrice >= 60 ? (
                   <p className="font-medium text-green-600">Portes grátis aplicados!</p>
                 ) : (

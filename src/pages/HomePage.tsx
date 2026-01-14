@@ -39,12 +39,6 @@ export default function HomePage() {
         {/* Category Grid */}
         <CategoryGrid />
 
-        {/* Shipping Info */}
-        <section className="mb-6 md:mb-8 rounded-lg bg-k2k-gray p-4 sm:p-6 text-center">
-          <p className="text-xs sm:text-sm font-medium">Portes Grátis em compras superiores a €60,00 para Portugal Continental.</p>
-          <p className="text-xs sm:text-sm text-muted-foreground">3,99€ em compras superiores a 39,99€</p>
-        </section>
-
         {/* Products Section */}
         <section>
           <h2 className="mb-4 sm:mb-6 text-lg sm:text-xl md:text-2xl font-bold text-center text-k2k-blue">Produtos em Destaque</h2>

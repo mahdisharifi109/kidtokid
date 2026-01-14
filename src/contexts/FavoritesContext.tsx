@@ -2,13 +2,16 @@
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 import type { IProduct } from "@/src/types"
+import { useAuth } from "@/src/contexts/AuthContext"
+import { toast } from "sonner"
 
 interface FavoritesContextType {
   favorites: IProduct[]
-  addToFavorites: (product: IProduct) => void
+  addToFavorites: (product: IProduct) => boolean
   removeFromFavorites: (productId: string) => void
   isFavorite: (productId: string) => boolean
-  toggleFavorite: (product: IProduct) => void
+  toggleFavorite: (product: IProduct) => boolean
+  requiresAuth: boolean
 }
 
 const FavoritesContext = createContext<FavoritesContextType | undefined>(undefined)
@@ -16,34 +19,53 @@ const FavoritesContext = createContext<FavoritesContextType | undefined>(undefin
 export function FavoritesProvider({ children }: { children: ReactNode }) {
   const [favorites, setFavorites] = useState<IProduct[]>([])
   const [isLoaded, setIsLoaded] = useState(false)
+  const { isAuthenticated, user } = useAuth()
 
-  // Load favorites from localStorage on mount
+  // Load favorites from localStorage on mount (per user)
   useEffect(() => {
-    const stored = localStorage.getItem("k2k-favorites")
-    if (stored) {
-      try {
-        setFavorites(JSON.parse(stored))
-      } catch (e) {
-        console.error("Failed to load favorites", e)
+    if (isAuthenticated && user) {
+      const stored = localStorage.getItem(`k2k-favorites-${user.uid}`)
+      if (stored) {
+        try {
+          setFavorites(JSON.parse(stored))
+        } catch (e) {
+          console.error("Failed to load favorites", e)
+        }
+      } else {
+        setFavorites([])
       }
+    } else {
+      setFavorites([])
     }
     setIsLoaded(true)
-  }, [])
+  }, [isAuthenticated, user])
 
   // Save favorites to localStorage whenever they change
   useEffect(() => {
-    if (isLoaded) {
-      localStorage.setItem("k2k-favorites", JSON.stringify(favorites))
+    if (isLoaded && isAuthenticated && user) {
+      localStorage.setItem(`k2k-favorites-${user.uid}`, JSON.stringify(favorites))
     }
-  }, [favorites, isLoaded])
+  }, [favorites, isLoaded, isAuthenticated, user])
 
-  const addToFavorites = (product: IProduct) => {
+  const addToFavorites = (product: IProduct): boolean => {
+    if (!isAuthenticated) {
+      toast.error("Precisa de iniciar sessão", {
+        description: "Faça login ou crie uma conta para adicionar aos favoritos.",
+        action: {
+          label: "Entrar",
+          onClick: () => window.location.href = "/entrar"
+        }
+      })
+      return false
+    }
+
     setFavorites((current) => {
       if (current.some((p) => p.id === product.id)) {
         return current
       }
       return [...current, product]
     })
+    return true
   }
 
   const removeFromFavorites = (productId: string) => {
@@ -54,12 +76,24 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
     return favorites.some((p) => p.id === productId)
   }
 
-  const toggleFavorite = (product: IProduct) => {
+  const toggleFavorite = (product: IProduct): boolean => {
+    if (!isAuthenticated) {
+      toast.error("Precisa de iniciar sessão", {
+        description: "Faça login ou crie uma conta para adicionar aos favoritos.",
+        action: {
+          label: "Entrar",
+          onClick: () => window.location.href = "/entrar"
+        }
+      })
+      return false
+    }
+
     if (isFavorite(product.id)) {
       removeFromFavorites(product.id)
     } else {
       addToFavorites(product)
     }
+    return true
   }
 
   return (
@@ -70,6 +104,7 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
         removeFromFavorites,
         isFavorite,
         toggleFavorite,
+        requiresAuth: !isAuthenticated,
       }}
     >
       {children}

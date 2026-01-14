@@ -2,23 +2,38 @@
 
 import { createContext, useContext, useState, useCallback, type ReactNode } from "react"
 import type { IProduct, ICartItem } from "@/src/types"
+import { useAuth } from "@/src/contexts/AuthContext"
+import { toast } from "sonner"
 
 interface CartContextType {
   items: ICartItem[]
-  addToCart: (product: IProduct) => void
+  addToCart: (product: IProduct) => boolean
   removeFromCart: (productId: string) => void
   updateQuantity: (productId: string, quantity: number) => void
   clearCart: () => void
   totalItems: number
   totalPrice: number
+  requiresAuth: boolean
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined)
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<ICartItem[]>([])
+  const { isAuthenticated } = useAuth()
 
-  const addToCart = useCallback((product: IProduct) => {
+  const addToCart = useCallback((product: IProduct): boolean => {
+    if (!isAuthenticated) {
+      toast.error("Precisa de iniciar sessão", {
+        description: "Faça login ou crie uma conta para adicionar produtos ao carrinho.",
+        action: {
+          label: "Entrar",
+          onClick: () => window.location.href = "/entrar"
+        }
+      })
+      return false
+    }
+
     setItems((currentItems) => {
       const existingItem = currentItems.find((item) => item.product.id === product.id)
 
@@ -29,7 +44,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
       return [...currentItems, { product, quantity: 1 }]
     })
-  }, [])
+    return true
+  }, [isAuthenticated])
 
   const removeFromCart = useCallback((productId: string) => {
     setItems((currentItems) => currentItems.filter((item) => item.product.id !== productId))
@@ -66,6 +82,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         clearCart,
         totalItems,
         totalPrice,
+        requiresAuth: !isAuthenticated,
       }}
     >
       {children}

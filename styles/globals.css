@@ -121,7 +121,16 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: 'Open Sans', sans-serif;
   }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Nunito', sans-serif;
+  }
+}
+
+/* Container consistente para alinhar todo o conteúdo */
+.container {
+  max-width: 1250px !important;
 }
 
 /* Custom Colors for Kid to Kid */
