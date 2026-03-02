@@ -1,4 +1,4 @@
-import { Navigate, useLocation } from "react-router-dom"
+import { Navigate, useLocation, useNavigate } from "react-router-dom"
 import { useAuth } from "@/src/contexts/AuthContext"
 import { Loader2, ShieldX } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -21,6 +21,7 @@ interface AdminRouteProps {
 export function AdminRoute({ children }: AdminRouteProps) {
   const { isAuthenticated, isAdmin, isLoading } = useAuth()
   const location = useLocation()
+  const navigate = useNavigate()
 
   // Mostrar loading enquanto verifica autenticação e permissões
   if (isLoading) {
@@ -63,8 +64,8 @@ export function AdminRoute({ children }: AdminRouteProps) {
               Voltar
             </Button>
             <Button 
-              onClick={() => window.location.href = "/"}
-              className="w-full bg-k2k-blue hover:bg-k2k-blue/90"
+              onClick={() => navigate("/")}
+              className="w-full bg-k2k-blue hover:bg-k2k-blue/90 text-white"
             >
               Ir para a Página Inicial
             </Button>

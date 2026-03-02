@@ -36,7 +36,7 @@ export function Footer() {
       setNewsletterEmail("")
     } catch (error: unknown) {
       const code = (error as { code?: string })?.code
-      if (code === "permission-denied" || code === "already-exists") {
+      if (code === "permission-denied") {
         toast.info("Este email já está subscrito!")
         setNewsletterEmail("")
       } else {

@@ -93,6 +93,7 @@ export function HeroSlider() {
         size="icon"
         className="absolute left-3 sm:left-5 top-1/2 -translate-y-1/2 bg-white/70 backdrop-blur-sm hover:bg-white/90 h-9 w-9 sm:h-11 sm:w-11 rounded-full shadow-md transition-all"
         onClick={goToPrevious}
+        aria-label="Slide anterior"
       >
         <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" />
       </Button>
@@ -101,6 +102,7 @@ export function HeroSlider() {
         size="icon"
         className="absolute right-3 sm:right-5 top-1/2 -translate-y-1/2 bg-white/70 backdrop-blur-sm hover:bg-white/90 h-9 w-9 sm:h-11 sm:w-11 rounded-full shadow-md transition-all"
         onClick={goToNext}
+        aria-label="Próximo slide"
       >
         <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />
       </Button>

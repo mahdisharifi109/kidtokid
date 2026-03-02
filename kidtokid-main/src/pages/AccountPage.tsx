@@ -586,7 +586,7 @@ export default function AccountPage() {
                                             <Button
                                                 size="sm"
                                                 onClick={handleSaveProfile}
-                                                className="bg-k2k-blue hover:bg-k2k-blue/90"
+                                                className="bg-k2k-blue hover:bg-k2k-blue/90 text-white"
                                                 disabled={isSaving}
                                             >
                                                 {isSaving ? (
@@ -928,7 +928,7 @@ export default function AccountPage() {
                                     </div>
                                     <Button
                                         size="sm"
-                                        className="bg-k2k-blue hover:bg-k2k-blue/90"
+                                        className="bg-k2k-blue hover:bg-k2k-blue/90 text-white"
                                         onClick={() => setShowAddressModal(true)}
                                     >
                                         <Plus className="h-4 w-4 mr-2" />
@@ -1111,7 +1111,7 @@ export default function AccountPage() {
                                                     Cancelar
                                                 </Button>
                                                 <Button
-                                                    className="flex-1 bg-k2k-blue hover:bg-k2k-blue/90"
+                                                    className="flex-1 bg-k2k-blue hover:bg-k2k-blue/90 text-white"
                                                     onClick={handleAddAddress}
                                                 >
                                                     Guardar

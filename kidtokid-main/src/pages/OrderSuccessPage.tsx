@@ -261,7 +261,7 @@ export default function OrderSuccessPage() {
                     {/* CTA Buttons - Vinted Style */}
                     <div className="space-y-3 mt-8">
                         <Link to="/">
-                            <Button className="w-full h-12 text-base font-semibold bg-k2k-blue hover:bg-k2k-blue/90 rounded-xl">
+                            <Button className="w-full h-12 text-base font-semibold bg-k2k-blue hover:bg-k2k-blue/90 text-white rounded-xl">
                                 <Home className="mr-2 h-5 w-5" />
                                 Continuar a comprar
                             </Button>

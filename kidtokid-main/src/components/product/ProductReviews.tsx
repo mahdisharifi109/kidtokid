@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react"
+import { Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -223,14 +224,14 @@ export function ProductReviews({ productId, productName }: ProductReviewsProps) 
                     {isAuthenticated && !userHasReviewed && (
                         <Button 
                             onClick={() => setShowForm(!showForm)}
-                            className="w-full mt-4 bg-k2k-blue hover:bg-k2k-blue/90"
+                            className="w-full mt-4 bg-k2k-blue hover:bg-k2k-blue/90 text-white"
                         >
                             Escrever Avaliação
                         </Button>
                     )}
                     {!isAuthenticated && (
                         <p className="text-xs text-center text-gray-500 mt-4">
-                            <a href="/entrar" className="text-k2k-blue hover:underline">Inicia sessão</a> para deixar uma avaliação
+                            <Link to="/entrar" className="text-k2k-blue hover:underline">Inicia sessão</Link> para deixar uma avaliação
                         </p>
                     )}
                     {userHasReviewed && (
@@ -282,7 +283,7 @@ export function ProductReviews({ productId, productName }: ProductReviewsProps) 
                                     <Button 
                                         type="submit" 
                                         disabled={submitting || rating === 0}
-                                        className="bg-k2k-blue hover:bg-k2k-blue/90"
+                                        className="bg-k2k-blue hover:bg-k2k-blue/90 text-white"
                                     >
                                         {submitting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
                                         Publicar

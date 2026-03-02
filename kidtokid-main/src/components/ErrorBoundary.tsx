@@ -60,7 +60,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                 <RefreshCw className="mr-2 h-4 w-4" />
                 Tentar novamente
               </Button>
-              <Button onClick={this.handleReload} className="bg-k2k-blue hover:bg-k2k-blue/90">
+              <Button onClick={this.handleReload} className="bg-k2k-blue hover:bg-k2k-blue/90 text-white">
                 Ir para o início
               </Button>
             </div>

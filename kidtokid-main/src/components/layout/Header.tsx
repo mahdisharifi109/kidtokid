@@ -131,14 +131,24 @@ export function Header() {
                 {Object.values(catalogo).map((cat) => (
                   <div
                     key={cat.id}
+                    role="button"
+                    tabIndex={0}
                     className={`flex cursor-pointer items-center gap-3 border-l-[3px] px-4 py-3 transition-colors ${activeCategory === cat.id
                       ? "border-l-blue-600 bg-white"
                       : "border-l-transparent hover:bg-white"
                       }`}
                     onMouseEnter={() => setActiveCategory(cat.id)}
+                    onFocus={() => setActiveCategory(cat.id)}
                     onClick={() => {
                       navigate(`/categoria/${cat.id}`)
                       setIsCatalogueOpen(false)
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault()
+                        navigate(`/categoria/${cat.id}`)
+                        setIsCatalogueOpen(false)
+                      }
                     }}
                   >
                     <span className="flex-1 text-sm font-medium">{cat.nome}</span>

@@ -104,7 +104,7 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
         <p className="text-[11px] text-gray-400 uppercase tracking-wider truncate">{product.brand}</p>
 
         <Link to={`/produto/${product.id}`}>
-          <h3 className="mt-1 line-clamp-2 text-sm font-medium text-gray-800 hover:text-(--k2k-blue) transition-colors leading-snug min-h-[2.5em]">{product.title}</h3>
+          <h3 className="mt-1 line-clamp-2 text-sm font-medium text-gray-800 hover:text-k2k-blue transition-colors leading-snug min-h-[2.5em]">{product.title}</h3>
         </Link>
 
         <div className="mt-1.5 flex items-center gap-2 text-[11px] text-gray-400">
@@ -114,7 +114,7 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
         </div>
 
         <div className="mt-3 flex items-center gap-2 flex-wrap">
-          <span className="text-base sm:text-lg font-semibold text-(--k2k-blue)">{product.price.toFixed(2)}&euro;</span>
+          <span className="text-base sm:text-lg font-semibold text-k2k-blue">{product.price.toFixed(2)}&euro;</span>
           {hasDiscount && (
             <span className="text-xs text-gray-300 line-through">{product.originalPrice?.toFixed(2)}&euro;</span>
           )}
@@ -123,7 +123,7 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
 
       <CardFooter className="p-3 sm:p-4 pt-0">
         <Button
-          className="w-full rounded-xl bg-(--k2k-blue) text-white transition-all hover:bg-(--k2k-blue)/90 active:scale-[0.98] text-sm h-10"
+          className="w-full rounded-xl bg-k2k-blue text-white transition-all hover:bg-k2k-blue/90 active:scale-[0.98] text-sm h-10"
           disabled={isSoldOut}
           onClick={handleAddToCart}
         >

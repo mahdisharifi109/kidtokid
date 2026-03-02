@@ -29,7 +29,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     return (localStorage.getItem("k2k-theme") as Theme) || "system"
   })
 
-  const resolvedTheme = theme === "system" ? getSystemTheme() : theme
+  const [systemDark, setSystemDark] = useState(() => getSystemTheme() === "dark")
+
+  const resolvedTheme = theme === "system" ? (systemDark ? "dark" : "light") : theme
 
   const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme)
@@ -48,12 +50,11 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   // Listen for system preference changes
   useEffect(() => {
-    if (theme !== "system") return
     const mql = window.matchMedia("(prefers-color-scheme: dark)")
-    const handler = () => setThemeState("system") // triggers re-render
+    const handler = (e: MediaQueryListEvent) => setSystemDark(e.matches)
     mql.addEventListener("change", handler)
     return () => mql.removeEventListener("change", handler)
-  }, [theme])
+  }, [])
 
   return (
     <ThemeContext.Provider value={{ theme, resolvedTheme, setTheme }}>

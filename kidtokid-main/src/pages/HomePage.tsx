@@ -75,8 +75,8 @@ export default function HomePage() {
           ) : products.length > 0 ? (
             <>
               <div className="grid grid-cols-2 gap-3 sm:gap-4 md:gap-5 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-                {products.map((product, index) => (
-                  <div key={product.id} className="stagger-item" style={{ animationDelay: `${index * 0.04}s` }}>
+                {products.map((product) => (
+                  <div key={product.id} className="stagger-item">
                     <ProductCard product={product} onAddToCart={addToCart} />
                   </div>
                 ))}
