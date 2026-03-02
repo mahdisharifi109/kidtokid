@@ -1,0 +1,253 @@
+rules_version = '2';
+
+// Firestore Security Rules - Kid to Kid
+// Última atualização: Janeiro 2026
+// Documentação: https://firebase.google.com/docs/firestore/security/get-started
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // FUNÇÕES AUXILIARES
+    
+    // Verificar se utilizador está autenticado
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Verificar se é o próprio utilizador
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Verificar se é admin (custom claims OU email na lista)
+    function isAdmin() {
+      return request.auth != null && 
+             (request.auth.token.admin == true ||
+              request.auth.token.email in ['info@kidtokid.pt', 'mahdisharifi4561@gmail.com']);
+    }
+    
+    // Verificar se é staff (admin ou moderador)
+    function isStaff() {
+      return request.auth != null && 
+             (request.auth.token.admin == true || 
+              request.auth.token.moderator == true ||
+              request.auth.token.email in ['info@kidtokid.pt', 'mahdisharifi4561@gmail.com']);
+    }
+    
+    // Verificar se a categoria é válida (nova estrutura de 7 categorias)
+    function isValidCategory(category) {
+      return category in [
+        'roupa',
+        'calcado',
+        'brinquedos',
+        'bebe',
+        'equipamento',
+        'maternidade',
+        'ocasioes'
+      ];
+    }
+    
+    // PRODUTOS
+    match /products/{productId} {
+      // Leitura pública - qualquer pessoa pode ver produtos
+      allow read: if true;
+      
+      // Staff pode criar produtos — validar campos obrigatórios e categoria
+      allow create: if isStaff() && 
+                       request.resource.data.title is string &&
+                       request.resource.data.price is number &&
+                       request.resource.data.price > 0 &&
+                       request.resource.data.category is string &&
+                       isValidCategory(request.resource.data.category);
+      
+      // Staff pode editar — validar categoria se estiver a ser alterada
+      allow update: if isStaff() &&
+                       (!('category' in request.resource.data) || 
+                        isValidCategory(request.resource.data.category));
+      
+      allow delete: if isStaff();
+    }
+    
+    // CATEGORIAS
+    match /categories/{categoryId} {
+      // Leitura pública
+      allow read: if true;
+      
+      // PRODUÇÃO: Apenas staff pode modificar categorias
+      allow create: if isStaff();
+      allow update: if isStaff();
+      allow delete: if isAdmin();
+    }
+    
+    // UTILIZADORES
+    match /users/{userId} {
+      // Ler próprio perfil ou staff pode ver todos
+      allow read: if isOwner(userId) || isStaff();
+      
+      // Criar próprio perfil ao registar
+      allow create: if isOwner(userId);
+      
+      // Atualizar próprio perfil ou staff
+      allow update: if isOwner(userId) || isStaff();
+      
+      // Eliminar - não permitido (soft delete)
+      allow delete: if false;
+      
+      // Sub-coleção: endereços do utilizador
+      match /addresses/{addressId} {
+        allow read, write: if isOwner(userId);
+      }
+    }
+    
+    // ENCOMENDAS
+    match /orders/{orderId} {
+      // Ler próprias encomendas ou staff vê todas
+      allow read: if isAuthenticated() && 
+                    (resource.data.userId == request.auth.uid || isStaff());
+      
+      // Criar encomenda - APENAS via Cloud Function (Admin SDK bypassa regras)
+      // Bloqueia criação direta pelo cliente para prevenir manipulação de preços
+      allow create: if false;
+      
+      // Atualizar - staff pode alterar estado, utilizador só pode cancelar se pendente
+      // Staff pode também marcar notificação como lida (_adminRead)
+      allow update: if isAuthenticated() && (
+                       isStaff() || 
+                       (resource.data.userId == request.auth.uid && 
+                        request.resource.data.status == "cancelled" &&
+                        resource.data.status == "pending")
+                    );
+      
+      // Eliminar - nunca (manter histórico)
+      allow delete: if false;
+    }
+    
+    // FAVORITOS
+    match /favorites/{favoriteId} {
+      // Ler próprios favoritos
+      allow read: if isAuthenticated() && 
+                    resource.data.userId == request.auth.uid;
+      
+      // Adicionar favorito — validar campos obrigatórios
+      allow create: if isAuthenticated() && 
+                       request.resource.data.userId == request.auth.uid &&
+                       request.resource.data.productId is string &&
+                       request.resource.data.keys().size() <= 4;
+      
+      // Remover favorito
+      allow delete: if isAuthenticated() && 
+                       resource.data.userId == request.auth.uid;
+      
+      allow update: if false;
+    }
+    
+    // CARRINHO
+    match /carts/{userId} {
+      allow read, write: if isOwner(userId);
+      
+      match /items/{itemId} {
+        allow read, write: if isOwner(userId);
+      }
+    }
+    
+    // ANALYTICS
+    match /analytics/{docId} {
+      allow read: if isStaff();
+      allow write: if false;
+    }
+    
+    // NEWSLETTER
+    match /newsletter/{emailId} {
+      allow create: if request.resource.data.email is string &&
+                       request.resource.data.email.size() >= 5 &&
+                       request.resource.data.email.size() <= 254 &&
+                       request.resource.data.email.matches('.*@.*[.].*') &&
+                       request.resource.data.keys().size() <= 3;
+      allow read, delete: if isAdmin();
+      allow update: if false;
+    }
+
+    // PROMOS LOG — Histórico de promoções enviadas
+    match /promos_log/{logId} {
+      allow read: if isAdmin();
+      allow write: if false; // Apenas Cloud Functions
+    }
+    
+    // CONTACTOS
+    match /contacts/{contactId} {
+      allow create: if request.resource.data.email is string &&
+                       request.resource.data.email.matches('.*@.*[.].*') &&
+                       request.resource.data.message is string &&
+                       request.resource.data.message.size() >= 10 &&
+                       request.resource.data.message.size() <= 2000 &&
+                       request.resource.data.createdAt is timestamp &&
+                       request.resource.data.keys().size() <= 6;
+      allow read, update: if isStaff();
+      allow delete: if isAdmin();
+    }
+    
+    // AVALIAÇÕES (REVIEWS)
+    match /reviews/{reviewId} {
+      // Leitura pública - qualquer pessoa pode ver avaliações
+      allow read: if true;
+      
+      // Criar avaliação - utilizador autenticado
+      allow create: if isAuthenticated() && 
+                       request.resource.data.userId == request.auth.uid &&
+                       request.resource.data.rating >= 1 &&
+                       request.resource.data.rating <= 5 &&
+                       request.resource.data.comment.size() >= 10;
+      
+      // Atualizar - apenas o dono ou staff
+      allow update: if isAuthenticated() && 
+                       (resource.data.userId == request.auth.uid || isStaff());
+      
+      // Eliminar - apenas o dono ou admin
+      allow delete: if isAuthenticated() && 
+                       (resource.data.userId == request.auth.uid || isAdmin());
+    }
+    
+    // VOTOS EM AVALIAÇÕES
+    match /reviewVotes/{voteId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && 
+                       request.resource.data.userId == request.auth.uid &&
+                       request.resource.data.reviewId is string &&
+                       request.resource.data.keys().size() <= 3;
+      allow update: if false;
+      allow delete: if isAuthenticated() && 
+                       resource.data.userId == request.auth.uid;
+    }
+    
+    // REPORTS DE AVALIAÇÕES
+    match /reviewReports/{reportId} {
+      allow create: if isAuthenticated() && 
+                       request.resource.data.reportedBy == request.auth.uid &&
+                       request.resource.data.reviewId is string &&
+                       request.resource.data.reason is string &&
+                       request.resource.data.reason.size() >= 5 &&
+                       request.resource.data.reason.size() <= 500 &&
+                       request.resource.data.keys().size() <= 5;
+      allow read, update: if isStaff();
+      allow delete: if isAdmin();
+    }
+    
+    // CUPÕES
+    match /coupons/{couponId} {
+      allow read: if isAuthenticated();
+      allow create, update, delete: if isAdmin();
+    }
+    
+    // CONFIGURAÇÕES
+    match /settings/{settingId} {
+      allow read: if true;
+      allow write: if isStaff();
+    }
+    
+    // LOGS
+    match /audit_logs/{logId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+  }
+}

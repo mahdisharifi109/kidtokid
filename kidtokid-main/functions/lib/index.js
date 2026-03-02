@@ -1,0 +1,1351 @@
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.sendPromoNewsletter = exports.onNewsletterSubscribe = exports.refundOrder = exports.onNewReview = exports.onNewContact = exports.onOrderUpdate = exports.stripeWebhook = exports.createStripeCheckoutSession = exports.onNewOrder = exports.createSecureOrder = exports.customPasswordReset = exports.setAdminClaims = exports.onUserCreated = void 0;
+const functions = __importStar(require("firebase-functions"));
+const admin = __importStar(require("firebase-admin"));
+const nodemailer = __importStar(require("nodemailer"));
+const stripe_1 = __importDefault(require("stripe"));
+admin.initializeApp();
+const db = admin.firestore();
+// Stripe instance — configure via: firebase functions:config:set stripe.secret="sk_live_..."
+const getStripe = () => {
+    var _a;
+    const secret = (_a = functions.config().stripe) === null || _a === void 0 ? void 0 : _a.secret;
+    if (!secret)
+        throw new Error("Stripe secret key not configured. Run: firebase functions:config:set stripe.secret=\"sk_...\"");
+    return new stripe_1.default(secret, { apiVersion: "2025-01-27.acacia" });
+};
+// Admin email list — keep in sync with firestore.rules
+const ADMIN_EMAILS = [
+    "info@kidtokid.pt",
+    "mahdisharifi4561@gmail.com",
+];
+// ======================================
+// 🔐 AUTO-SET ADMIN CUSTOM CLAIMS + WELCOME EMAIL
+// ======================================
+// Automatically sets admin custom claims when an admin-listed user signs up
+// Also sends a welcome email to every new user
+exports.onUserCreated = functions.region("europe-west1").auth.user().onCreate(async (user) => {
+    var _a;
+    // 1) Admin claims
+    if (user.email && ADMIN_EMAILS.includes(user.email.toLowerCase())) {
+        try {
+            await admin.auth().setCustomUserClaims(user.uid, { admin: true });
+            await db.collection("users").doc(user.uid).set({ role: "admin" }, { merge: true });
+            functions.logger.info(`Auto-set admin claims for ${user.email}`);
+        }
+        catch (error) {
+            functions.logger.error(`Failed to set admin claims for ${user.email}:`, error);
+        }
+    }
+    // 2) Welcome email for every new user
+    if (user.email) {
+        try {
+            const transporter = getTransporter();
+            const storeName = "Kid to Kid Braga";
+            const displayName = user.displayName || user.email.split("@")[0];
+            await transporter.sendMail({
+                from: `"${storeName}" <${((_a = functions.config().email) === null || _a === void 0 ? void 0 : _a.user) || "noreply@kidtokid.pt"}>`,
+                to: user.email,
+                subject: `Bem-vindo à ${storeName}! 🎉`,
+                html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
+            <div style="background: linear-gradient(135deg, #4A90B8, #7BC7A0); padding: 32px; text-align: center;">
+              <h1 style="color: #ffffff; margin: 0; font-size: 24px;">Bem-vindo, ${escapeHtml(displayName)}!</h1>
+              <p style="color: rgba(255,255,255,0.9); margin: 8px 0 0; font-size: 14px;">${storeName}</p>
+            </div>
+
+            <div style="padding: 32px;">
+              <p style="color: #333; font-size: 16px; line-height: 1.6;">
+                Olá, <strong>${escapeHtml(displayName)}</strong>! 👋
+              </p>
+              <p style="color: #333; font-size: 16px; line-height: 1.6;">
+                A tua conta na <strong>${storeName}</strong> foi criada com sucesso!
+                Estamos muito felizes por te receber na nossa comunidade de moda infantil sustentável.
+              </p>
+
+              <div style="background: #f8f9fa; border-radius: 12px; padding: 24px; margin: 24px 0;">
+                <h3 style="color: #4A90B8; margin: 0 0 16px; font-size: 16px;">O que podes fazer agora:</h3>
+                <ul style="color: #555; font-size: 15px; line-height: 2; padding-left: 20px; margin: 0;">
+                  <li>🛍️ <strong>Explorar</strong> centenas de artigos infantis de qualidade</li>
+                  <li>❤️ <strong>Guardar favoritos</strong> para comprar mais tarde</li>
+                  <li>🏷️ <strong>Aproveitar promoções</strong> exclusivas</li>
+                  <li>⭐ <strong>Avaliar produtos</strong> e ajudar outros pais</li>
+                </ul>
+              </div>
+
+              <div style="text-align: center; margin: 32px 0;">
+                <a href="https://kidtokid.pt"
+                   style="display: inline-block; background: #4A90B8; color: #fff; padding: 14px 36px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 15px;">
+                  Começar a Explorar
+                </a>
+              </div>
+
+              <p style="color: #999; font-size: 12px; text-align: center; margin-top: 32px; border-top: 1px solid #eee; padding-top: 16px;">
+                Recebeste este email porque criaste uma conta na ${storeName}.<br/>
+                ${storeName} — Rua do Raio, 4700-922 Braga
+              </p>
+            </div>
+          </div>
+        `,
+            });
+            functions.logger.info(`Welcome email sent to ${user.email}`);
+        }
+        catch (error) {
+            functions.logger.error(`Failed to send welcome email to ${user.email}:`, error);
+        }
+    }
+});
+// Callable function: Admin can set custom claims for known admin emails
+// This is useful when the admin already exists but never had claims set
+exports.setAdminClaims = functions.region("europe-west1").https.onCall(async (_data, context) => {
+    if (!context.auth || !context.auth.token.email) {
+        throw new functions.https.HttpsError("unauthenticated", "Login required");
+    }
+    const email = context.auth.token.email.toLowerCase();
+    if (!ADMIN_EMAILS.includes(email)) {
+        throw new functions.https.HttpsError("permission-denied", "Not an admin email");
+    }
+    // Check if already has admin claim
+    if (context.auth.token.admin === true) {
+        return { alreadyAdmin: true };
+    }
+    // Set the custom claim
+    await admin.auth().setCustomUserClaims(context.auth.uid, {
+        ...(context.auth.token || {}),
+        admin: true,
+    });
+    await db.collection("users").doc(context.auth.uid).set({ role: "admin" }, { merge: true });
+    functions.logger.info(`Admin claims set for ${email} via setAdminClaims`);
+    return { success: true, message: "Admin claims set. Please re-login." };
+});
+// HTML-encode user input to prevent XSS in email templates
+function escapeHtml(str) {
+    if (!str)
+        return "";
+    return str
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+// Configure your email transport
+// Set these via: firebase functions:config:set email.user="you@gmail.com" email.pass="app-password" admin.email="admin@kidtokid.pt"
+const getTransporter = () => {
+    const emailConfig = functions.config().email;
+    return nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+            user: (emailConfig === null || emailConfig === void 0 ? void 0 : emailConfig.user) || "",
+            pass: (emailConfig === null || emailConfig === void 0 ? void 0 : emailConfig.pass) || "",
+        },
+    });
+};
+const getAdminEmail = () => {
+    var _a;
+    return ((_a = functions.config().admin) === null || _a === void 0 ? void 0 : _a.email) || "admin@kidtokid.pt";
+};
+// ======================================
+// � CUSTOM PASSWORD RESET EMAIL
+// ======================================
+// Sends password reset email through our SMTP (Gmail) instead of Firebase's noreply
+exports.customPasswordReset = functions.region("europe-west1").https.onCall(async (data, context) => {
+    var _a, _b;
+    // Must be authenticated
+    if (!context.auth) {
+        throw new functions.https.HttpsError("unauthenticated", "É necessário estar autenticado.");
+    }
+    const email = (data.email || "").trim().toLowerCase();
+    if (!email) {
+        throw new functions.https.HttpsError("invalid-argument", "Email é obrigatório.");
+    }
+    // Security: Only allow resetting own password
+    if (((_a = context.auth.token.email) === null || _a === void 0 ? void 0 : _a.toLowerCase()) !== email) {
+        throw new functions.https.HttpsError("permission-denied", "Só pode alterar a sua própria password.");
+    }
+    try {
+        // Check if user uses password auth (not Google-only)
+        const userRecord = await admin.auth().getUserByEmail(email);
+        const hasPasswordProvider = userRecord.providerData.some((p) => p.providerId === "password");
+        if (!hasPasswordProvider) {
+            throw new functions.https.HttpsError("failed-precondition", "A sua conta usa Google para login. Não é possível alterar a password por aqui.");
+        }
+        // Generate the reset link using Firebase Admin
+        const continueUrl = data.continueUrl || "https://kidtokid-4d642.web.app/entrar";
+        const resetLink = await admin.auth().generatePasswordResetLink(email, {
+            url: continueUrl,
+            handleCodeInApp: false,
+        });
+        // Send via our SMTP
+        const transporter = getTransporter();
+        await transporter.sendMail({
+            from: `"Kid to Kid" <${(_b = functions.config().email) === null || _b === void 0 ? void 0 : _b.user}>`,
+            to: email,
+            subject: "Alterar Password — Kid to Kid",
+            html: `
+          <div style="font-family: 'Inter', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px;">
+            <div style="text-align: center; margin-bottom: 24px;">
+              <h1 style="color: #4A90B8; font-size: 24px; margin: 0;">🔑 Alterar Password</h1>
+              <p style="color: #888; font-size: 14px;">Recebemos o seu pedido de alteração de password</p>
+            </div>
+
+            <div style="background: #F8F9FA; border-radius: 16px; padding: 20px; margin-bottom: 16px;">
+              <p style="color: #555; font-size: 15px; line-height: 1.6; margin: 0;">
+                Olá! Clique no botão abaixo para criar uma nova password para a sua conta 
+                <strong>${escapeHtml(email)}</strong>.
+              </p>
+            </div>
+
+            <div style="text-align: center; margin: 32px 0;">
+              <a href="${resetLink}"
+                 style="display: inline-block; background: #4A90B8; color: white; padding: 14px 32px; border-radius: 12px; text-decoration: none; font-weight: 600; font-size: 16px;">
+                Alterar Password
+              </a>
+            </div>
+
+            <div style="background: #FFF8E1; border-radius: 16px; padding: 16px; margin-bottom: 16px; border-left: 4px solid #FFB300;">
+              <p style="color: #555; font-size: 13px; margin: 0;">
+                ⚠️ Se não pediu esta alteração, pode ignorar este email. A sua conta permanece segura.
+              </p>
+            </div>
+
+            <p style="text-align: center; color: #aaa; font-size: 12px; margin-top: 24px;">
+              Kid to Kid Braga — Rua do Raio, 9 — info@kidtokid.pt
+            </p>
+          </div>
+        `,
+        });
+        functions.logger.info(`Custom password reset email sent to ${email}`);
+        return { success: true };
+    }
+    catch (error) {
+        if (error instanceof functions.https.HttpsError)
+            throw error;
+        const err = error;
+        // Handle Firebase Auth errors
+        if (err.code === "auth/user-not-found") {
+            // Don't reveal if user exists
+            return { success: true };
+        }
+        functions.logger.error("Password reset email failed:", {
+            code: err.code,
+            message: err.message,
+            stack: err.stack,
+        });
+        throw new functions.https.HttpsError("internal", `Erro ao enviar email: ${err.message || "erro desconhecido"}`);
+    }
+});
+exports.createSecureOrder = functions.region("europe-west1").https.onCall(async (data, context) => {
+    var _a, _b, _c, _d, _e, _f, _g;
+    // 1. Auth check
+    if (!context.auth) {
+        throw new functions.https.HttpsError("unauthenticated", "É necessário estar autenticado para criar uma encomenda.");
+    }
+    const userId = context.auth.uid;
+    const userEmail = context.auth.token.email || "";
+    // 2. Validate input
+    if (!data.items || !Array.isArray(data.items) || data.items.length === 0) {
+        throw new functions.https.HttpsError("invalid-argument", "A encomenda deve ter pelo menos um artigo.");
+    }
+    if (data.items.length > 20) {
+        throw new functions.https.HttpsError("invalid-argument", "Máximo de 20 artigos por encomenda.");
+    }
+    if (!data.shippingAddress || !data.shippingAddress.name || !data.shippingAddress.email) {
+        throw new functions.https.HttpsError("invalid-argument", "Morada de envio incompleta.");
+    }
+    // Validate customer notes length
+    if (data.customerNotes && data.customerNotes.length > 500) {
+        throw new functions.https.HttpsError("invalid-argument", "Notas do cliente demasiado longas (máx. 500 caracteres).");
+    }
+    // Validate phone format
+    const cleanPhone = (data.shippingAddress.phone || "").replace(/\s/g, "");
+    if (!/^(9[1236]\d{7}|2\d{8})$/.test(cleanPhone)) {
+        throw new functions.https.HttpsError("invalid-argument", "Número de telemóvel inválido.");
+    }
+    // 3. Rate limiting: max 5 orders per hour per user
+    const oneHourAgo = admin.firestore.Timestamp.fromDate(new Date(Date.now() - 60 * 60 * 1000));
+    const recentOrders = await db
+        .collection("orders")
+        .where("userId", "==", userId)
+        .where("createdAt", ">", oneHourAgo)
+        .get();
+    if (recentOrders.size >= 5) {
+        throw new functions.https.HttpsError("resource-exhausted", "Demasiadas encomendas. Aguarde um pouco antes de tentar novamente.");
+    }
+    // 4. Load store settings for shipping costs
+    const settingsDoc = await db.doc("settings/store").get();
+    const settings = settingsDoc.exists ? settingsDoc.data() : {};
+    const freeShippingThreshold = (_a = settings === null || settings === void 0 ? void 0 : settings.freeShippingThreshold) !== null && _a !== void 0 ? _a : 50;
+    const standardShippingCost = (_b = settings === null || settings === void 0 ? void 0 : settings.standardShippingCost) !== null && _b !== void 0 ? _b : 4.50;
+    const expressShippingCost = (_c = settings === null || settings === void 0 ? void 0 : settings.expressShippingCost) !== null && _c !== void 0 ? _c : 7.50;
+    const protectionFee = (_d = settings === null || settings === void 0 ? void 0 : settings.protectionFee) !== null && _d !== void 0 ? _d : 0.50;
+    // 4b. Validate coupon if provided
+    let couponDiscount = 0;
+    let couponRef = null;
+    if (data.couponCode) {
+        const couponsSnap = await db
+            .collection("coupons")
+            .where("code", "==", data.couponCode.toUpperCase().trim())
+            .limit(1)
+            .get();
+        if (!couponsSnap.empty) {
+            const couponDoc = couponsSnap.docs[0];
+            const coupon = couponDoc.data();
+            const now = new Date();
+            const validFrom = ((_e = coupon.validFrom) === null || _e === void 0 ? void 0 : _e.toDate()) || new Date(0);
+            const validUntil = ((_f = coupon.validUntil) === null || _f === void 0 ? void 0 : _f.toDate()) || new Date(0);
+            const isActive = coupon.isActive !== false;
+            const withinDates = now >= validFrom && now <= validUntil;
+            const withinUsage = coupon.maxUses === 0 || (coupon.usedCount || 0) < coupon.maxUses;
+            if (isActive && withinDates && withinUsage) {
+                couponRef = couponDoc.ref;
+                // Discount will be calculated after subtotal is known
+            }
+        }
+    }
+    // 5. Validate products & decrement stock atomically
+    try {
+        const result = await db.runTransaction(async (transaction) => {
+            const orderItems = [];
+            let subtotal = 0;
+            const lowStockItems = [];
+            // Read all products first (Firestore transaction requirement)
+            const productDocs = [];
+            for (const item of data.items) {
+                if (!item.productId || typeof item.quantity !== "number" || item.quantity < 1) {
+                    throw new functions.https.HttpsError("invalid-argument", "Artigo inválido na encomenda.");
+                }
+                const productRef = db.doc(`products/${item.productId}`);
+                const productDoc = await transaction.get(productRef);
+                productDocs.push(productDoc);
+            }
+            // Validate & build items
+            for (let i = 0; i < data.items.length; i++) {
+                const item = data.items[i];
+                const productDoc = productDocs[i];
+                if (!productDoc.exists) {
+                    throw new functions.https.HttpsError("not-found", `Produto "${item.productId}" não encontrado.`);
+                }
+                const product = productDoc.data();
+                if ((product.stock || 0) < item.quantity) {
+                    throw new functions.https.HttpsError("failed-precondition", `"${product.title}" não tem stock suficiente (disponível: ${product.stock || 0}).`);
+                }
+                const price = product.price;
+                if (typeof price !== "number" || price <= 0) {
+                    throw new functions.https.HttpsError("internal", `Preço inválido para "${product.title}".`);
+                }
+                subtotal += price * item.quantity;
+                orderItems.push({
+                    productId: item.productId,
+                    title: product.title || "",
+                    brand: product.brand || "",
+                    size: product.size || "",
+                    price: price,
+                    quantity: item.quantity,
+                    image: (product.images && product.images[0]) || "/placeholder.svg",
+                });
+                // Decrement stock
+                transaction.update(productDoc.ref, {
+                    stock: admin.firestore.FieldValue.increment(-item.quantity),
+                });
+                // Track low stock items
+                const remainingStock = (product.stock || 0) - item.quantity;
+                if (remainingStock <= 3 && remainingStock >= 0) {
+                    lowStockItems.push({
+                        title: product.title || "",
+                        remaining: remainingStock,
+                        productId: item.productId,
+                    });
+                }
+            }
+            // Calculate totals server-side
+            const shippingCost = data.shippingMethod === "pickup"
+                ? 0
+                : subtotal >= freeShippingThreshold
+                    ? 0
+                    : data.shippingMethod === "express"
+                        ? expressShippingCost
+                        : standardShippingCost;
+            // Apply coupon discount
+            if (couponRef) {
+                const couponSnap = await transaction.get(couponRef);
+                const coupon = couponSnap.data();
+                if (coupon.discountType === "percentage") {
+                    couponDiscount = Math.round((subtotal * coupon.discountValue) / 100 * 100) / 100;
+                }
+                else {
+                    couponDiscount = Math.min(coupon.discountValue, subtotal);
+                }
+                if (coupon.minOrderValue && subtotal < coupon.minOrderValue) {
+                    couponDiscount = 0; // doesn't meet minimum
+                }
+                else {
+                    // Increment coupon usage
+                    transaction.update(couponRef, {
+                        usedCount: admin.firestore.FieldValue.increment(1),
+                    });
+                }
+            }
+            const total = Math.max(0, subtotal - couponDiscount) + shippingCost + protectionFee;
+            // Generate order number
+            const date = new Date();
+            const year = date.getFullYear().toString().slice(-2);
+            const month = (date.getMonth() + 1).toString().padStart(2, "0");
+            const day = date.getDate().toString().padStart(2, "0");
+            const random = Math.random().toString(36).substring(2, 9).toUpperCase();
+            const orderNumber = `K2K-${year}${month}${day}-${random}`;
+            // Create order document
+            const orderRef = db.collection("orders").doc();
+            transaction.set(orderRef, {
+                orderNumber,
+                userId,
+                userEmail,
+                items: orderItems,
+                subtotal,
+                shippingCost,
+                protectionFee,
+                discount: couponDiscount,
+                couponCode: couponDiscount > 0 ? (data.couponCode || "").toUpperCase().trim() : null,
+                total,
+                shippingMethod: data.shippingMethod,
+                shippingAddress: {
+                    name: data.shippingAddress.name.trim().substring(0, 200),
+                    email: data.shippingAddress.email.trim().substring(0, 200),
+                    phone: cleanPhone,
+                    street: data.shippingAddress.street.trim().substring(0, 300),
+                    city: data.shippingAddress.city.trim().substring(0, 100),
+                    postalCode: data.shippingAddress.postalCode.trim().substring(0, 10),
+                    country: "Portugal",
+                },
+                paymentMethod: data.paymentMethod,
+                paymentStatus: "pending",
+                paymentReference: null,
+                status: "pending",
+                createdAt: admin.firestore.FieldValue.serverTimestamp(),
+                updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+                customerNotes: data.customerNotes
+                    ? data.customerNotes.trim().substring(0, 500)
+                    : null,
+                internalNotes: null,
+                trackingNumber: null,
+                trackingUrl: null,
+            });
+            return { orderId: orderRef.id, orderNumber, total, subtotal, shippingCost, lowStockItems };
+        });
+        functions.logger.info(`Order ${result.orderNumber} created by ${userEmail}`);
+        // Send low stock alert email if any products are running low
+        if (result.lowStockItems && result.lowStockItems.length > 0) {
+            try {
+                const transporter = getTransporter();
+                const adminEmail = getAdminEmail();
+                const stockList = result.lowStockItems
+                    .map((item) => `• ${escapeHtml(item.title)} — ${item.remaining === 0 ? "⚠️ ESGOTADO" : `${item.remaining} restante${item.remaining !== 1 ? "s" : ""}`}`)
+                    .join("<br/>");
+                await transporter.sendMail({
+                    from: `"Kid to Kid" <${(_g = functions.config().email) === null || _g === void 0 ? void 0 : _g.user}>`,
+                    to: adminEmail,
+                    subject: `⚠️ Stock Baixo — ${result.lowStockItems.length} produto${result.lowStockItems.length !== 1 ? "s" : ""}`,
+                    html: `
+              <div style="font-family: 'Inter', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px;">
+                <div style="text-align: center; margin-bottom: 24px;">
+                  <h1 style="color: #E8927C; font-size: 22px; margin: 0;">⚠️ Alerta de Stock Baixo</h1>
+                  <p style="color: #888; font-size: 14px;">Após encomenda #${escapeHtml(result.orderNumber)}</p>
+                </div>
+                <div style="background: #FFF8F6; border: 1px solid #FECDD3; border-radius: 16px; padding: 20px; margin-bottom: 16px;">
+                  <h3 style="margin: 0 0 12px; color: #333;">Produtos com stock baixo:</h3>
+                  <p style="margin: 0; color: #555; line-height: 1.8;">${stockList}</p>
+                </div>
+                <div style="text-align: center; margin-top: 24px;">
+                  <a href="https://kidtokid-4d642.web.app/admin/produtos" 
+                     style="display: inline-block; background: #E8927C; color: white; padding: 12px 24px; border-radius: 12px; text-decoration: none; font-weight: 500;">
+                    Gerir Produtos
+                  </a>
+                </div>
+              </div>
+            `,
+                });
+                functions.logger.info(`Low stock alert sent for ${result.lowStockItems.length} products`);
+            }
+            catch (emailError) {
+                functions.logger.error("Failed to send low stock email:", emailError);
+            }
+        }
+        return result;
+    }
+    catch (error) {
+        if (error instanceof functions.https.HttpsError) {
+            throw error;
+        }
+        functions.logger.error("Order creation failed:", error);
+        throw new functions.https.HttpsError("internal", "Erro ao criar encomenda. Tente novamente.");
+    }
+});
+// Trigger: New order created
+exports.onNewOrder = functions.region("europe-west1").firestore
+    .document("orders/{orderId}")
+    .onCreate(async (snap, context) => {
+    var _a, _b, _c, _d, _e, _f;
+    const order = snap.data();
+    const orderId = context.params.orderId;
+    try {
+        const transporter = getTransporter();
+        const adminEmail = getAdminEmail();
+        const itemsList = (order.items || [])
+            .map((item) => { var _a; return `\u2022 ${escapeHtml(item.title)} (x${item.quantity}) \u2014 \u20AC${(_a = item.price) === null || _a === void 0 ? void 0 : _a.toFixed(2)}`; })
+            .join("\n");
+        const mailOptions = {
+            from: `"Kid to Kid" <${(_a = functions.config().email) === null || _a === void 0 ? void 0 : _a.user}>`,
+            to: adminEmail,
+            subject: `Nova Encomenda #${orderId.slice(0, 8).toUpperCase()}`,
+            html: `
+          <div style="font-family: 'Inter', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px;">
+            <div style="text-align: center; margin-bottom: 24px;">
+              <h1 style="color: #4A90B8; font-size: 24px; margin: 0;">Nova Encomenda</h1>
+              <p style="color: #888; font-size: 14px;">Recebida em ${new Date().toLocaleString("pt-PT")}</p>
+            </div>
+            
+            <div style="background: #F8F9FA; border-radius: 16px; padding: 20px; margin-bottom: 16px;">
+              <h3 style="margin: 0 0 8px; color: #333;">Detalhes</h3>
+              <p style="margin: 4px 0; color: #555;"><strong>ID:</strong> ${escapeHtml(orderId)}</p>
+              <p style="margin: 4px 0; color: #555;"><strong>Cliente:</strong> ${escapeHtml(order.customerName || order.userEmail || "N/A")}</p>
+              <p style="margin: 4px 0; color: #555;"><strong>Email:</strong> ${escapeHtml(order.userEmail || "N/A")}</p>
+              <p style="margin: 4px 0; color: #555;"><strong>Total:</strong> €${((_b = order.total) === null || _b === void 0 ? void 0 : _b.toFixed(2)) || "0.00"}</p>
+            </div>
+
+            <div style="background: #F8F9FA; border-radius: 16px; padding: 20px;">
+              <h3 style="margin: 0 0 8px; color: #333;">Produtos</h3>
+              <pre style="margin: 0; font-family: inherit; white-space: pre-wrap; color: #555;">${itemsList || "Sem itens"}</pre>
+            </div>
+
+            <div style="text-align: center; margin-top: 24px;">
+              <a href="https://kidtokid-4d642.web.app/admin" 
+                 style="display: inline-block; background: #4A90B8; color: white; padding: 12px 24px; border-radius: 12px; text-decoration: none; font-weight: 500;">
+                Ver no Painel Admin
+              </a>
+            </div>
+
+            <p style="text-align: center; color: #aaa; font-size: 12px; margin-top: 24px;">
+              Kid to Kid — Notificação automática
+            </p>
+          </div>
+        `,
+        };
+        await transporter.sendMail(mailOptions);
+        functions.logger.info(`Admin email sent for order ${orderId}`);
+        // ─── Email de confirmação para o cliente ──────────────────────
+        const customerEmail = ((_c = order.shippingAddress) === null || _c === void 0 ? void 0 : _c.email) || order.userEmail;
+        if (customerEmail) {
+            const paymentInstructions = {
+                card: "O pagamento com cartão será processado automaticamente via Stripe.",
+                shop: "Efetue o pagamento quando levantar a encomenda na nossa loja.",
+            };
+            const customerItemsList = (order.items || [])
+                .map((item) => {
+                var _a;
+                return `<tr>
+                <td style="padding: 8px 0; border-bottom: 1px solid #eee; color: #333;">${escapeHtml(item.title)}</td>
+                <td style="padding: 8px 0; border-bottom: 1px solid #eee; text-align: center; color: #555;">x${item.quantity}</td>
+                <td style="padding: 8px 0; border-bottom: 1px solid #eee; text-align: right; color: #333;">€${(_a = item.price) === null || _a === void 0 ? void 0 : _a.toFixed(2)}</td>
+              </tr>`;
+            })
+                .join("");
+            const customerMailOptions = {
+                from: `"Kid to Kid" <${(_d = functions.config().email) === null || _d === void 0 ? void 0 : _d.user}>`,
+                to: customerEmail,
+                subject: `Confirmação de Encomenda #${orderId.slice(0, 8).toUpperCase()} — Kid to Kid`,
+                html: `
+            <div style="font-family: 'Inter', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px;">
+              <div style="text-align: center; margin-bottom: 24px;">
+                <h1 style="color: #4A90B8; font-size: 24px; margin: 0;">Obrigado pela sua encomenda! 🎉</h1>
+                <p style="color: #888; font-size: 14px;">Recebemos a sua encomenda com sucesso</p>
+              </div>
+
+              <div style="background: #F8F9FA; border-radius: 16px; padding: 20px; margin-bottom: 16px;">
+                <h3 style="margin: 0 0 12px; color: #333;">Resumo da Encomenda</h3>
+                <p style="margin: 4px 0; color: #555;"><strong>Nº:</strong> #${orderId.slice(0, 8).toUpperCase()}</p>
+                <p style="margin: 4px 0; color: #555;"><strong>Data:</strong> ${new Date().toLocaleString("pt-PT")}</p>
+                <p style="margin: 4px 0; color: #555;"><strong>Método de envio:</strong> ${order.shippingMethod === "pickup" ? "Recolha na Loja" : order.shippingMethod === "express" ? "Envio Expresso (1-2 dias)" : "Envio Standard (3-5 dias)"}</p>
+                <p style="margin: 4px 0; color: #555;"><strong>Pagamento:</strong> ${((_e = order.paymentMethod) === null || _e === void 0 ? void 0 : _e.toUpperCase()) || "N/A"}</p>
+              </div>
+
+              <div style="background: #F8F9FA; border-radius: 16px; padding: 20px; margin-bottom: 16px;">
+                <h3 style="margin: 0 0 12px; color: #333;">Produtos</h3>
+                <table style="width: 100%; border-collapse: collapse;">
+                  <thead>
+                    <tr>
+                      <th style="text-align: left; padding: 8px 0; border-bottom: 2px solid #ddd; color: #555; font-size: 13px;">Produto</th>
+                      <th style="text-align: center; padding: 8px 0; border-bottom: 2px solid #ddd; color: #555; font-size: 13px;">Qtd</th>
+                      <th style="text-align: right; padding: 8px 0; border-bottom: 2px solid #ddd; color: #555; font-size: 13px;">Preço</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${customerItemsList || "<tr><td colspan='3'>Sem itens</td></tr>"}
+                  </tbody>
+                </table>
+                ${order.discount ? `<p style="margin: 12px 0 4px; color: #16a34a;"><strong>Desconto:</strong> -€${order.discount.toFixed(2)}</p>` : ""}
+                <p style="margin: 12px 0 4px; font-size: 18px; color: #333;"><strong>Total: €${((_f = order.total) === null || _f === void 0 ? void 0 : _f.toFixed(2)) || "0.00"}</strong></p>
+              </div>
+
+              <div style="background: #FFF8E1; border-radius: 16px; padding: 20px; margin-bottom: 16px; border-left: 4px solid #FFB300;">
+                <h3 style="margin: 0 0 8px; color: #333;">💳 Instruções de Pagamento</h3>
+                <p style="color: #555; margin: 0;">${paymentInstructions[order.paymentMethod] || "Entraremos em contacto consigo com instruções de pagamento."}</p>
+              </div>
+
+              <div style="text-align: center; margin-top: 24px;">
+                <a href="https://kidtokid-4d642.web.app/minha-conta"
+                   style="display: inline-block; background: #4A90B8; color: white; padding: 12px 24px; border-radius: 12px; text-decoration: none; font-weight: 500;">
+                  Ver as minhas encomendas
+                </a>
+              </div>
+
+              <p style="text-align: center; color: #aaa; font-size: 12px; margin-top: 24px;">
+                Kid to Kid Braga — Rua do Raio, 9 — info@kidtokid.pt
+              </p>
+            </div>
+          `,
+            };
+            await transporter.sendMail(customerMailOptions);
+            functions.logger.info(`Customer confirmation email sent to ${customerEmail} for order ${orderId}`);
+        }
+    }
+    catch (error) {
+        functions.logger.error("Failed to send order email:", error);
+    }
+});
+// ======================================
+// 💳 STRIPE — CREATE CHECKOUT SESSION
+// ======================================
+// Creates a Stripe Checkout Session for an existing order
+exports.createStripeCheckoutSession = functions.region("europe-west1").https.onCall(async (data, context) => {
+    var _a;
+    if (!context.auth) {
+        throw new functions.https.HttpsError("unauthenticated", "É necessário estar autenticado.");
+    }
+    const { orderId, successUrl, cancelUrl } = data;
+    if (!orderId || !successUrl || !cancelUrl) {
+        throw new functions.https.HttpsError("invalid-argument", "Dados em falta (orderId, successUrl, cancelUrl).");
+    }
+    // Fetch the order
+    const orderDoc = await db.collection("orders").doc(orderId).get();
+    if (!orderDoc.exists) {
+        throw new functions.https.HttpsError("not-found", "Encomenda não encontrada.");
+    }
+    const order = orderDoc.data();
+    if (order.userId !== context.auth.uid) {
+        throw new functions.https.HttpsError("permission-denied", "Não tens permissão para esta encomenda.");
+    }
+    if (order.paymentStatus === "paid") {
+        throw new functions.https.HttpsError("failed-precondition", "Esta encomenda já foi paga.");
+    }
+    const stripe = getStripe();
+    // Build line items from the order
+    const lineItems = (order.items || []).map((item) => ({
+        price_data: {
+            currency: "eur",
+            product_data: {
+                name: item.title,
+                ...(item.brand ? { description: `${item.brand} • Tam. ${item.size || "N/A"}` } : {}),
+                ...(item.images && item.images[0] ? { images: [item.images[0]] } : {}),
+            },
+            unit_amount: Math.round(item.price * 100), // Stripe uses cents
+        },
+        quantity: item.quantity || 1,
+    }));
+    // Add shipping cost as a line item if applicable
+    if (order.shippingCost && order.shippingCost > 0) {
+        lineItems.push({
+            price_data: {
+                currency: "eur",
+                product_data: { name: "Envio (CTT Expresso)" },
+                unit_amount: Math.round(order.shippingCost * 100),
+            },
+            quantity: 1,
+        });
+    }
+    // Add protection fee
+    if (order.protectionFee && order.protectionFee > 0) {
+        lineItems.push({
+            price_data: {
+                currency: "eur",
+                product_data: { name: "Proteção do comprador" },
+                unit_amount: Math.round(order.protectionFee * 100),
+            },
+            quantity: 1,
+        });
+    }
+    // Build discount coupon if relevant
+    const discounts = [];
+    if (order.discount && order.discount > 0) {
+        const coupon = await stripe.coupons.create({
+            amount_off: Math.round(order.discount * 100),
+            currency: "eur",
+            duration: "once",
+            name: order.couponCode || "Desconto",
+        });
+        discounts.push({ coupon: coupon.id });
+    }
+    // Create the Stripe Checkout Session
+    const session = await stripe.checkout.sessions.create({
+        payment_method_types: ["card"],
+        mode: "payment",
+        line_items: lineItems,
+        ...(discounts.length > 0 ? { discounts } : {}),
+        metadata: {
+            orderId: orderDoc.id,
+            orderNumber: order.orderNumber,
+            userId: context.auth.uid,
+        },
+        customer_email: ((_a = order.shippingAddress) === null || _a === void 0 ? void 0 : _a.email) || order.userEmail,
+        success_url: successUrl,
+        cancel_url: cancelUrl,
+        locale: "pt",
+    });
+    // Save session ID on the order for reference
+    await db.collection("orders").doc(orderId).update({
+        stripeSessionId: session.id,
+        paymentReference: `STRIPE: ${session.id}`,
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+    functions.logger.info(`Stripe session ${session.id} created for order ${orderId}`);
+    return { sessionId: session.id, url: session.url };
+});
+// ======================================
+// 💳 STRIPE — WEBHOOK
+// ======================================
+// Handles Stripe webhooks to confirm payments
+// Configure via: firebase functions:config:set stripe.webhook_secret="whsec_..."
+exports.stripeWebhook = functions.region("europe-west1").https.onRequest(async (req, res) => {
+    var _a, _b, _c;
+    if (req.method !== "POST") {
+        res.status(405).send("Method Not Allowed");
+        return;
+    }
+    const stripe = getStripe();
+    const webhookSecret = (_a = functions.config().stripe) === null || _a === void 0 ? void 0 : _a.webhook_secret;
+    let event;
+    if (webhookSecret) {
+        const sig = req.headers["stripe-signature"];
+        try {
+            event = stripe.webhooks.constructEvent(req.rawBody, sig, webhookSecret);
+        }
+        catch (err) {
+            functions.logger.error("Webhook signature verification failed:", err.message);
+            res.status(400).send(`Webhook Error: ${err.message}`);
+            return;
+        }
+    }
+    else {
+        // No webhook secret — accept the event as-is (dev only)
+        event = req.body;
+        functions.logger.warn("No webhook secret configured — accepting event without verification.");
+    }
+    if (event.type === "checkout.session.completed") {
+        const session = event.data.object;
+        const orderId = (_b = session.metadata) === null || _b === void 0 ? void 0 : _b.orderId;
+        if (!orderId) {
+            functions.logger.error("No orderId in session metadata");
+            res.status(400).send("Missing orderId");
+            return;
+        }
+        // Mark order as paid
+        const orderRef = db.collection("orders").doc(orderId);
+        const orderDoc = await orderRef.get();
+        if (orderDoc.exists && ((_c = orderDoc.data()) === null || _c === void 0 ? void 0 : _c.paymentStatus) !== "paid") {
+            await orderRef.update({
+                paymentStatus: "paid",
+                status: "paid",
+                stripePaymentIntentId: session.payment_intent,
+                paidAt: admin.firestore.FieldValue.serverTimestamp(),
+                updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+            });
+            functions.logger.info(`Order ${orderId} marked as paid via Stripe webhook.`);
+        }
+    }
+    res.status(200).json({ received: true });
+});
+// ======================================
+// 📦 ORDER STATUS UPDATE — EMAIL TO CUSTOMER
+// ======================================
+// Sends an email to the customer when order status changes
+exports.onOrderUpdate = functions.region("europe-west1").firestore
+    .document("orders/{orderId}")
+    .onUpdate(async (change, context) => {
+    var _a, _b, _c, _d, _e, _f;
+    const before = change.before.data();
+    const after = change.after.data();
+    const orderId = context.params.orderId;
+    // Only proceed if status actually changed
+    if (before.status === after.status)
+        return;
+    const newStatus = after.status;
+    // ── Restore stock when order is cancelled ──────────────────
+    // (refundOrder Cloud Function already handles its own stock restoration,
+    //  so we only handle "cancelled" here to cover customer + admin cancellation)
+    if (newStatus === "cancelled" && before.status !== "cancelled") {
+        try {
+            const items = after.items || [];
+            if (items.length > 0) {
+                const stockBatch = db.batch();
+                for (const item of items) {
+                    if (item.productId) {
+                        stockBatch.update(db.collection("products").doc(item.productId), {
+                            stock: admin.firestore.FieldValue.increment(item.quantity || 1),
+                        });
+                    }
+                }
+                await stockBatch.commit();
+                functions.logger.info(`Stock restored for cancelled order ${orderId} (${items.length} products)`);
+            }
+        }
+        catch (stockError) {
+            functions.logger.error(`Failed to restore stock for cancelled order ${orderId}:`, stockError);
+        }
+    }
+    const customerEmail = ((_a = after.shippingAddress) === null || _a === void 0 ? void 0 : _a.email) || after.userEmail;
+    if (!customerEmail) {
+        functions.logger.warn(`No customer email for order ${orderId}, skipping status email.`);
+        return;
+    }
+    // Define which statuses trigger an email
+    const statusEmailConfig = {
+        paid: {
+            subject: "Pagamento Confirmado",
+            emoji: "✅",
+            title: "Pagamento confirmado!",
+            message: "O pagamento da sua encomenda foi confirmado com sucesso. Vamos começar a preparar os seus artigos.",
+            color: "#16a34a",
+        },
+        processing: {
+            subject: "Encomenda em Preparação",
+            emoji: "📦",
+            title: "A preparar a sua encomenda!",
+            message: "Estamos a preparar os seus artigos com todo o cuidado. Receberá uma atualização quando estiver pronta.",
+            color: "#7c3aed",
+        },
+        ready_pickup: {
+            subject: "Encomenda Pronta para Levantamento",
+            emoji: "🏪",
+            title: "Pronta para levantar!",
+            message: "A sua encomenda está pronta para levantamento na nossa loja. Pode passar a qualquer momento durante o horário de funcionamento.",
+            color: "#ea580c",
+        },
+        shipped: {
+            subject: "Encomenda Enviada",
+            emoji: "🚚",
+            title: "A sua encomenda foi enviada!",
+            message: "A sua encomenda está a caminho! Receberá a entrega nos próximos dias úteis.",
+            color: "#4338ca",
+        },
+        delivered: {
+            subject: "Encomenda Entregue",
+            emoji: "🎉",
+            title: "Encomenda entregue!",
+            message: "A sua encomenda foi entregue com sucesso. Esperamos que goste dos artigos!",
+            color: "#16a34a",
+        },
+        cancelled: {
+            subject: "Encomenda Cancelada",
+            emoji: "❌",
+            title: "Encomenda cancelada",
+            message: "A sua encomenda foi cancelada. Se tiver dúvidas, não hesite em contactar-nos.",
+            color: "#dc2626",
+        },
+        refunded: {
+            subject: "Reembolso Processado",
+            emoji: "💰",
+            title: "Reembolso processado",
+            message: "O reembolso da sua encomenda foi processado. O valor será devolvido ao método de pagamento original nos próximos dias.",
+            color: "#6b7280",
+        },
+    };
+    const config = statusEmailConfig[newStatus];
+    if (!config)
+        return; // Status doesn't trigger email (e.g. "pending")
+    try {
+        const transporter = getTransporter();
+        const orderNumber = after.orderNumber || orderId.slice(0, 8).toUpperCase();
+        // Build tracking info if available
+        let trackingHtml = "";
+        if (newStatus === "shipped" && after.trackingNumber) {
+            const trackingLink = after.trackingUrl
+                ? `<a href="${escapeHtml(after.trackingUrl)}" style="color: #4A90B8; text-decoration: underline;">Seguir encomenda</a>`
+                : "";
+            trackingHtml = `
+          <div style="background: #EFF6FF; border-radius: 16px; padding: 20px; margin-bottom: 16px; border-left: 4px solid #3B82F6;">
+            <h3 style="margin: 0 0 8px; color: #333;">📍 Informação de Tracking</h3>
+            <p style="color: #555; margin: 4px 0;"><strong>Nº de tracking:</strong> ${escapeHtml(after.trackingNumber)}</p>
+            ${trackingLink ? `<p style="color: #555; margin: 4px 0;">${trackingLink}</p>` : ""}
+          </div>
+        `;
+        }
+        // Build items table
+        const itemsList = (after.items || [])
+            .map((item) => {
+            var _a;
+            return `<tr>
+              <td style="padding: 8px 0; border-bottom: 1px solid #eee; color: #333;">${escapeHtml(item.title)}</td>
+              <td style="padding: 8px 0; border-bottom: 1px solid #eee; text-align: center; color: #555;">x${item.quantity}</td>
+              <td style="padding: 8px 0; border-bottom: 1px solid #eee; text-align: right; color: #333;">€${(_a = item.price) === null || _a === void 0 ? void 0 : _a.toFixed(2)}</td>
+            </tr>`;
+        })
+            .join("");
+        const mailOptions = {
+            from: `"Kid to Kid" <${(_b = functions.config().email) === null || _b === void 0 ? void 0 : _b.user}>`,
+            to: customerEmail,
+            subject: `${config.emoji} ${config.subject} — Encomenda #${orderNumber}`,
+            html: `
+          <div style="font-family: 'Inter', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px;">
+            <div style="text-align: center; margin-bottom: 24px;">
+              <h1 style="color: ${config.color}; font-size: 24px; margin: 0;">${config.emoji} ${config.title}</h1>
+              <p style="color: #888; font-size: 14px;">Encomenda #${escapeHtml(orderNumber)}</p>
+            </div>
+
+            <div style="background: #F8F9FA; border-radius: 16px; padding: 20px; margin-bottom: 16px;">
+              <p style="color: #555; font-size: 15px; line-height: 1.6; margin: 0;">${config.message}</p>
+            </div>
+
+            ${trackingHtml}
+
+            <div style="background: #F8F9FA; border-radius: 16px; padding: 20px; margin-bottom: 16px;">
+              <h3 style="margin: 0 0 12px; color: #333;">Resumo da Encomenda</h3>
+              <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                  <tr>
+                    <th style="text-align: left; padding: 8px 0; border-bottom: 2px solid #ddd; color: #555; font-size: 13px;">Produto</th>
+                    <th style="text-align: center; padding: 8px 0; border-bottom: 2px solid #ddd; color: #555; font-size: 13px;">Qtd</th>
+                    <th style="text-align: right; padding: 8px 0; border-bottom: 2px solid #ddd; color: #555; font-size: 13px;">Preço</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${itemsList || "<tr><td colspan='3'>Sem itens</td></tr>"}
+                </tbody>
+              </table>
+              <p style="margin: 12px 0 4px; font-size: 18px; color: #333;"><strong>Total: €${((_c = after.total) === null || _c === void 0 ? void 0 : _c.toFixed(2)) || "0.00"}</strong></p>
+            </div>
+
+            <div style="text-align: center; margin-top: 24px;">
+              <a href="https://kidtokid-4d642.web.app/minha-conta"
+                 style="display: inline-block; background: #4A90B8; color: white; padding: 12px 24px; border-radius: 12px; text-decoration: none; font-weight: 500;">
+                Ver as minhas encomendas
+              </a>
+            </div>
+
+            <p style="text-align: center; color: #aaa; font-size: 12px; margin-top: 24px;">
+              Kid to Kid Braga — Rua do Raio, 9 — info@kidtokid.pt
+            </p>
+          </div>
+        `,
+        };
+        await transporter.sendMail(mailOptions);
+        functions.logger.info(`Status update email (${newStatus}) sent to ${customerEmail} for order ${orderId}`);
+        // Also notify admin for important status changes
+        if (["cancelled", "refunded"].includes(newStatus)) {
+            const adminEmail = getAdminEmail();
+            await transporter.sendMail({
+                from: `"Kid to Kid" <${(_d = functions.config().email) === null || _d === void 0 ? void 0 : _d.user}>`,
+                to: adminEmail,
+                subject: `${config.emoji} Encomenda #${orderNumber} — ${config.subject}`,
+                html: `
+            <div style="font-family: 'Inter', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px;">
+              <h1 style="color: ${config.color}; font-size: 22px;">${config.emoji} ${config.subject}</h1>
+              <div style="background: #F8F9FA; border-radius: 16px; padding: 20px; margin: 16px 0;">
+                <p style="margin: 4px 0; color: #555;"><strong>Encomenda:</strong> #${escapeHtml(orderNumber)}</p>
+                <p style="margin: 4px 0; color: #555;"><strong>Cliente:</strong> ${escapeHtml(((_e = after.shippingAddress) === null || _e === void 0 ? void 0 : _e.name) || "N/A")}</p>
+                <p style="margin: 4px 0; color: #555;"><strong>Email:</strong> ${escapeHtml(customerEmail)}</p>
+                <p style="margin: 4px 0; color: #555;"><strong>Total:</strong> €${((_f = after.total) === null || _f === void 0 ? void 0 : _f.toFixed(2)) || "0.00"}</p>
+                <p style="margin: 4px 0; color: #555;"><strong>Estado anterior:</strong> ${escapeHtml(before.status)}</p>
+                <p style="margin: 4px 0; color: #555;"><strong>Novo estado:</strong> ${escapeHtml(newStatus)}</p>
+              </div>
+              <div style="text-align: center; margin-top: 24px;">
+                <a href="https://kidtokid-4d642.web.app/admin/encomendas" 
+                   style="display: inline-block; background: #4A90B8; color: white; padding: 12px 24px; border-radius: 12px; text-decoration: none; font-weight: 500;">
+                  Ver Encomendas
+                </a>
+              </div>
+            </div>
+          `,
+            });
+            functions.logger.info(`Admin notified of ${newStatus} for order ${orderId}`);
+        }
+    }
+    catch (error) {
+        functions.logger.error(`Failed to send status update email for order ${orderId}:`, error);
+    }
+});
+// Trigger: New contact form submission
+exports.onNewContact = functions.region("europe-west1").firestore
+    .document("contacts/{contactId}")
+    .onCreate(async (snap, context) => {
+    var _a;
+    const contact = snap.data();
+    const contactId = context.params.contactId;
+    try {
+        const transporter = getTransporter();
+        const adminEmail = getAdminEmail();
+        const mailOptions = {
+            from: `"Kid to Kid" <${(_a = functions.config().email) === null || _a === void 0 ? void 0 : _a.user}>`,
+            to: adminEmail,
+            subject: `Nova Mensagem de Contacto — ${contact.subject || "Sem assunto"}`,
+            html: `
+          <div style="font-family: 'Inter', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px;">
+            <h1 style="color: #4A90B8; font-size: 22px;">Nova Mensagem de Contacto</h1>
+            
+            <div style="background: #F8F9FA; border-radius: 16px; padding: 20px; margin: 16px 0;">
+              <p style="margin: 4px 0; color: #555;"><strong>De:</strong> ${escapeHtml(contact.name || "An\u00f3nimo")}</p>
+              <p style="margin: 4px 0; color: #555;"><strong>Email:</strong> ${escapeHtml(contact.email || "N/A")}</p>
+              <p style="margin: 4px 0; color: #555;"><strong>Assunto:</strong> ${escapeHtml(contact.subject || "N/A")}</p>
+            </div>
+
+            <div style="background: #F8F9FA; border-radius: 16px; padding: 20px;">
+              <h3 style="margin: 0 0 8px; color: #333;">Mensagem</h3>
+              <p style="color: #555; line-height: 1.6;">${escapeHtml(contact.message || "Sem mensagem")}</p>
+            </div>
+          </div>
+        `,
+        };
+        await transporter.sendMail(mailOptions);
+        functions.logger.info(`Contact email sent for ${contactId}`);
+    }
+    catch (error) {
+        functions.logger.error("Failed to send contact email:", error);
+    }
+});
+// Trigger: New review notification
+exports.onNewReview = functions.region("europe-west1").firestore
+    .document("reviews/{reviewId}")
+    .onCreate(async (snap, context) => {
+    var _a;
+    const review = snap.data();
+    const reviewId = context.params.reviewId;
+    try {
+        const transporter = getTransporter();
+        const adminEmail = getAdminEmail();
+        const stars = "★".repeat(review.rating) + "☆".repeat(5 - review.rating);
+        const mailOptions = {
+            from: `"Kid to Kid" <${(_a = functions.config().email) === null || _a === void 0 ? void 0 : _a.user}>`,
+            to: adminEmail,
+            subject: `Nova Avaliação — ${stars} — ${review.title || "Sem título"}`,
+            html: `
+          <div style="font-family: 'Inter', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px;">
+            <h1 style="color: #4A90B8; font-size: 22px;">Nova Avaliação de Produto</h1>
+            
+            <div style="background: #F8F9FA; border-radius: 16px; padding: 20px; margin: 16px 0;">
+              <p style="font-size: 24px; margin: 0 0 8px; color: #F59E0B;">${stars}</p>
+              <p style="margin: 4px 0; color: #555;"><strong>Por:</strong> ${escapeHtml(review.userName || "An\u00f3nimo")}</p>
+              <p style="margin: 4px 0; color: #555;"><strong>Produto:</strong> ${escapeHtml(review.productId)}</p>
+              <h3 style="margin: 12px 0 4px; color: #333;">${escapeHtml(review.title)}</h3>
+              <p style="color: #555; line-height: 1.6;">${escapeHtml(review.comment)}</p>
+            </div>
+          </div>
+        `,
+        };
+        await transporter.sendMail(mailOptions);
+        functions.logger.info(`Review notification sent for ${reviewId}`);
+    }
+    catch (error) {
+        functions.logger.error("Failed to send review email:", error);
+    }
+});
+// ======================================
+// 💳 AUTOMATIC STRIPE REFUND ON CANCELLATION
+// ======================================
+// When an admin (or the customer) cancels a paid order, automatically refund via Stripe
+exports.refundOrder = functions.region("europe-west1").https.onCall(async (data, context) => {
+    // Auth check
+    if (!context.auth) {
+        throw new functions.https.HttpsError("unauthenticated", "Login required");
+    }
+    const { orderId } = data;
+    if (!orderId) {
+        throw new functions.https.HttpsError("invalid-argument", "orderId is required");
+    }
+    const orderRef = db.collection("orders").doc(orderId);
+    const orderDoc = await orderRef.get();
+    if (!orderDoc.exists) {
+        throw new functions.https.HttpsError("not-found", "Encomenda não encontrada");
+    }
+    const order = orderDoc.data();
+    // Permission: must be order owner or admin
+    const isOwner = order.userId === context.auth.uid;
+    const isAdmin = context.auth.token.admin === true;
+    if (!isOwner && !isAdmin) {
+        throw new functions.https.HttpsError("permission-denied", "Sem permissão");
+    }
+    // Must have been paid via Stripe
+    if (order.paymentStatus !== "paid" || order.paymentMethod !== "card") {
+        throw new functions.https.HttpsError("failed-precondition", "Esta encomenda não pode ser reembolsada (não paga via Stripe)");
+    }
+    // Must have a Stripe payment intent
+    const paymentIntentId = order.stripePaymentIntentId;
+    if (!paymentIntentId) {
+        throw new functions.https.HttpsError("failed-precondition", "Sem referência de pagamento Stripe");
+    }
+    // Don't refund twice
+    if (order.paymentStatus === "refunded" || order.status === "refunded") {
+        throw new functions.https.HttpsError("already-exists", "Encomenda já foi reembolsada");
+    }
+    try {
+        const stripe = getStripe();
+        const refund = await stripe.refunds.create({
+            payment_intent: paymentIntentId,
+        });
+        // Update order
+        await orderRef.update({
+            status: "refunded",
+            paymentStatus: "refunded",
+            stripeRefundId: refund.id,
+            refundedAt: admin.firestore.FieldValue.serverTimestamp(),
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+        // Restore stock
+        if (order.items && Array.isArray(order.items)) {
+            const batch = db.batch();
+            for (const item of order.items) {
+                const productRef = db.collection("products").doc(item.productId);
+                batch.update(productRef, {
+                    stock: admin.firestore.FieldValue.increment(item.quantity || 1),
+                });
+            }
+            await batch.commit();
+        }
+        functions.logger.info(`Order ${orderId} refunded. Stripe refund: ${refund.id}`);
+        return { success: true, refundId: refund.id };
+    }
+    catch (error) {
+        functions.logger.error(`Refund failed for order ${orderId}:`, error);
+        throw new functions.https.HttpsError("internal", error.message || "Erro ao processar reembolso Stripe");
+    }
+});
+// ======================================
+// 📰 NEWSLETTER — Email de boas-vindas
+// ======================================
+exports.onNewsletterSubscribe = functions
+    .region("europe-west1")
+    .firestore.document("newsletter/{emailId}")
+    .onCreate(async (snap) => {
+    var _a;
+    const data = snap.data();
+    const email = data === null || data === void 0 ? void 0 : data.email;
+    if (!email) {
+        functions.logger.warn("Newsletter doc created without email field");
+        return;
+    }
+    try {
+        const transporter = getTransporter();
+        const storeName = "Kid to Kid Braga";
+        await transporter.sendMail({
+            from: `"${storeName}" <${((_a = functions.config().email) === null || _a === void 0 ? void 0 : _a.user) || "noreply@kidtokid.pt"}>`,
+            to: email,
+            subject: `Bem-vindo à Newsletter ${storeName}! 🎉`,
+            html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
+            <div style="background: linear-gradient(135deg, #4A90B8, #7BC7A0); padding: 32px; text-align: center;">
+              <h1 style="color: #ffffff; margin: 0; font-size: 24px;">Bem-vindo à Newsletter!</h1>
+              <p style="color: rgba(255,255,255,0.9); margin: 8px 0 0; font-size: 14px;">${storeName}</p>
+            </div>
+
+            <div style="padding: 32px;">
+              <p style="color: #333; font-size: 16px; line-height: 1.6;">
+                Olá! 👋
+              </p>
+              <p style="color: #333; font-size: 16px; line-height: 1.6;">
+                Obrigado por te subscreveres à nossa newsletter. A partir de agora vais receber:
+              </p>
+              <ul style="color: #555; font-size: 15px; line-height: 1.8; padding-left: 20px;">
+                <li>🏷️ <strong>Promoções exclusivas</strong> antes de todos</li>
+                <li>👶 <strong>Novos artigos</strong> acabados de chegar</li>
+                <li>📢 <strong>Eventos e novidades</strong> da loja</li>
+                <li>💡 <strong>Dicas</strong> sobre moda infantil sustentável</li>
+              </ul>
+
+              <div style="text-align: center; margin: 32px 0;">
+                <a href="https://kidtokid.pt" 
+                   style="display: inline-block; background: #4A90B8; color: #fff; padding: 12px 32px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 15px;">
+                  Visitar a Loja
+                </a>
+              </div>
+
+              <p style="color: #999; font-size: 12px; text-align: center; margin-top: 32px; border-top: 1px solid #eee; padding-top: 16px;">
+                Recebeste este email porque te subscreveste à newsletter de ${storeName}.<br/>
+                Se não foste tu, podes ignorar este email.
+              </p>
+            </div>
+          </div>
+        `,
+        });
+        functions.logger.info(`Newsletter welcome email sent to ${email}`);
+    }
+    catch (error) {
+        functions.logger.error(`Failed to send newsletter welcome email to ${email}:`, error);
+    }
+});
+exports.sendPromoNewsletter = functions
+    .region("europe-west1")
+    .https.onCall(async (data, context) => {
+    var _a, _b;
+    // Only admins can send promotional emails
+    if (!context.auth) {
+        throw new functions.https.HttpsError("unauthenticated", "Login necessário");
+    }
+    const email = ((_a = context.auth.token.email) === null || _a === void 0 ? void 0 : _a.toLowerCase()) || "";
+    const isAdmin = context.auth.token.admin === true || ADMIN_EMAILS.includes(email);
+    if (!isAdmin) {
+        throw new functions.https.HttpsError("permission-denied", "Apenas admins podem enviar promoções");
+    }
+    // Validate input
+    if (!data.subject || !data.headline || !data.message) {
+        throw new functions.https.HttpsError("invalid-argument", "subject, headline e message são obrigatórios");
+    }
+    // Fetch all active newsletter subscribers
+    const subscribersSnap = await db.collection("newsletter").where("active", "==", true).get();
+    if (subscribersSnap.empty) {
+        return { success: true, sent: 0, message: "Nenhum subscritor ativo" };
+    }
+    const subscribers = subscribersSnap.docs.map((d) => d.data().email).filter(Boolean);
+    if (subscribers.length === 0) {
+        return { success: true, sent: 0, message: "Nenhum subscritor ativo" };
+    }
+    const storeName = "Kid to Kid Braga";
+    const transporter = getTransporter();
+    // Build products HTML if provided
+    let productsHtml = "";
+    if (data.products && data.products.length > 0) {
+        const productCards = data.products.map((p) => {
+            const discount = p.originalPrice > 0
+                ? Math.round(((p.originalPrice - p.promoPrice) / p.originalPrice) * 100)
+                : 0;
+            return `
+          <div style="display: inline-block; width: 48%; vertical-align: top; margin: 1%; background: #fff; border: 1px solid #eee; border-radius: 8px; overflow: hidden; text-align: center;">
+            ${p.imageUrl ? `<img src="${escapeHtml(p.imageUrl)}" alt="${escapeHtml(p.name)}" style="width: 100%; height: 150px; object-fit: cover;" />` : ""}
+            <div style="padding: 12px;">
+              <p style="margin: 0; font-weight: bold; color: #333; font-size: 14px;">${escapeHtml(p.name)}</p>
+              <p style="margin: 6px 0;">
+                <span style="color: #999; text-decoration: line-through; font-size: 13px;">${p.originalPrice.toFixed(2)}€</span>
+                <span style="color: #e53e3e; font-weight: bold; font-size: 16px; margin-left: 8px;">${p.promoPrice.toFixed(2)}€</span>
+              </p>
+              ${discount > 0 ? `<span style="display: inline-block; background: #e53e3e; color: #fff; font-size: 11px; padding: 2px 8px; border-radius: 12px; font-weight: bold;">-${discount}%</span>` : ""}
+              ${p.link ? `<div style="margin-top: 8px;"><a href="${escapeHtml(p.link)}" style="color: #4A90B8; font-size: 13px; text-decoration: none; font-weight: bold;">Ver Produto →</a></div>` : ""}
+            </div>
+          </div>
+        `;
+        }).join("");
+        productsHtml = `
+        <div style="margin: 24px 0;">
+          <h3 style="color: #333; font-size: 18px; text-align: center; margin-bottom: 16px;">🏷️ Produtos em Destaque</h3>
+          <div style="text-align: center;">
+            ${productCards}
+          </div>
+        </div>
+      `;
+    }
+    const ctaText = data.ctaText || "Visitar a Loja";
+    const ctaUrl = data.ctaUrl || "https://kidtokid.pt";
+    const htmlTemplate = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
+        <div style="background: linear-gradient(135deg, #e53e3e, #f56565); padding: 32px; text-align: center;">
+          <h1 style="color: #ffffff; margin: 0; font-size: 24px;">${escapeHtml(data.headline)}</h1>
+          <p style="color: rgba(255,255,255,0.9); margin: 8px 0 0; font-size: 14px;">${storeName}</p>
+        </div>
+
+        <div style="padding: 32px;">
+          <p style="color: #333; font-size: 16px; line-height: 1.6; white-space: pre-line;">
+            ${escapeHtml(data.message)}
+          </p>
+
+          ${productsHtml}
+
+          <div style="text-align: center; margin: 32px 0;">
+            <a href="${escapeHtml(ctaUrl)}"
+               style="display: inline-block; background: #e53e3e; color: #fff; padding: 14px 36px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 15px;">
+              ${escapeHtml(ctaText)}
+            </a>
+          </div>
+
+          <p style="color: #999; font-size: 12px; text-align: center; margin-top: 32px; border-top: 1px solid #eee; padding-top: 16px;">
+            Recebeste este email porque subscreveste a newsletter de ${storeName}.<br/>
+            ${storeName} — Rua do Raio, 4700-922 Braga
+          </p>
+        </div>
+      </div>
+    `;
+    // Send in batches of 10 to avoid rate limits
+    let sent = 0;
+    let failed = 0;
+    const batchSize = 10;
+    for (let i = 0; i < subscribers.length; i += batchSize) {
+        const batch = subscribers.slice(i, i + batchSize);
+        const results = await Promise.allSettled(batch.map((subscriberEmail) => {
+            var _a;
+            return transporter.sendMail({
+                from: `"${storeName}" <${((_a = functions.config().email) === null || _a === void 0 ? void 0 : _a.user) || "noreply@kidtokid.pt"}>`,
+                to: subscriberEmail,
+                subject: data.subject,
+                html: htmlTemplate,
+            });
+        }));
+        results.forEach((r) => {
+            if (r.status === "fulfilled")
+                sent++;
+            else
+                failed++;
+        });
+    }
+    // Log the promo send in Firestore for tracking
+    await db.collection("promos_log").add({
+        subject: data.subject,
+        headline: data.headline,
+        message: data.message,
+        productsCount: ((_b = data.products) === null || _b === void 0 ? void 0 : _b.length) || 0,
+        totalSubscribers: subscribers.length,
+        sent,
+        failed,
+        sentBy: context.auth.uid,
+        sentByEmail: context.auth.token.email || "",
+        sentAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+    functions.logger.info(`Promo newsletter sent: ${sent} ok, ${failed} failed out of ${subscribers.length}`);
+    return {
+        success: true,
+        sent,
+        failed,
+        total: subscribers.length,
+    };
+});
+//# sourceMappingURL=index.js.map

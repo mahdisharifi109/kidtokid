@@ -1,0 +1,17 @@
+User-agent: *
+Allow: /
+
+# Bloquear páginas admin, internas e pessoais
+Disallow: /admin
+Disallow: /admin/
+Disallow: /checkout
+Disallow: /sucesso
+Disallow: /minha-conta
+Disallow: /favoritos
+Disallow: /carrinho
+Disallow: /entrar
+Disallow: /registar
+Disallow: /recuperar-senha
+
+# Sitemap
+Sitemap: https://kidtokid-4d642.web.app/sitemap.xml
