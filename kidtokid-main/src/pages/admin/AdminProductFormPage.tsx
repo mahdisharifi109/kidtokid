@@ -20,7 +20,7 @@ import { doc, getDoc, setDoc, addDoc, collection, Timestamp } from "firebase/fir
 import { db } from "@/src/lib/firebase"
 import { toast } from "sonner"
 import type { IProduct } from "@/src/types"
-import { CATEGORY_OPTIONS, CONDITIONS, GENDERS } from "@/src/constants/categories"
+import { CATEGORY_OPTIONS, CONDITIONS, GENDERS, CATALOGUE } from "@/src/constants/categories"
 import { uploadProductImage } from "@/src/services/storageService"
 
 interface ProductFormData {
@@ -30,6 +30,7 @@ interface ProductFormData {
     price: string
     originalPrice: string
     category: string
+    subcategory: string
     condition: string
     gender: string
     size: string
@@ -46,6 +47,7 @@ const initialFormData: ProductFormData = {
     price: "",
     originalPrice: "",
     category: "roupa",
+    subcategory: "",
     condition: "bom",
     gender: "menina",
     size: "",
@@ -81,6 +83,7 @@ export default function AdminProductFormPage() {
                     price: data.price?.toString() || "",
                     originalPrice: data.originalPrice?.toString() || "",
                     category: data.category || "roupa",
+                    subcategory: data.subcategory || "",
                     condition: data.condition || "bom",
                     gender: data.gender || "menina",
                     size: data.size || "",
@@ -109,7 +112,14 @@ export default function AdminProductFormPage() {
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target
-        setFormData(prev => ({ ...prev, [name]: value }))
+        setFormData(prev => {
+            const updated = { ...prev, [name]: value }
+            // Reset subcategory when category changes
+            if (name === "category") {
+                updated.subcategory = ""
+            }
+            return updated
+        })
     }
 
     const addImageUrl = () => {
@@ -168,6 +178,7 @@ export default function AdminProductFormPage() {
                 price: parseFloat(formData.price),
                 originalPrice: formData.originalPrice ? parseFloat(formData.originalPrice) : null,
                 category: formData.category,
+                subcategory: formData.subcategory || null,
                 condition: formData.condition,
                 gender: formData.gender,
                 size: formData.size.trim(),
@@ -304,6 +315,25 @@ export default function AdminProductFormPage() {
                                             <option key={cat.value} value={cat.value}>{cat.label}</option>
                                         ))}
                                     </select>
+                                </div>
+
+                                <div>
+                                    <Label htmlFor="subcategory">Subcategoria</Label>
+                                    <select
+                                        id="subcategory"
+                                        name="subcategory"
+                                        value={formData.subcategory}
+                                        onChange={handleInputChange}
+                                        className="mt-1 w-full h-10 px-3 rounded-lg border border-gray-200 text-sm focus:border-k2k-blue focus:ring-1 focus:ring-k2k-blue"
+                                    >
+                                        <option value="">— Selecione —</option>
+                                        {CATALOGUE[formData.category]?.subcategorias.map(sub => (
+                                            <option key={sub.id} value={sub.id}>{sub.nome}</option>
+                                        ))}
+                                    </select>
+                                    <p className="text-xs text-gray-500 mt-1">
+                                        Ajuda os clientes a encontrar o produto mais facilmente
+                                    </p>
                                 </div>
 
                                 <div>

@@ -24,6 +24,9 @@ export function Header() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
+  const [hoveredQuickCat, setHoveredQuickCat] = useState<string | null>(null)
+  const [expandedMobileCat, setExpandedMobileCat] = useState<string | null>(null)
+  const quickCatTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const catalogueRef = useRef<HTMLDivElement>(null)
   const userMenuRef = useRef<HTMLDivElement>(null)
   const navigate = useNavigate()
@@ -341,18 +344,56 @@ export function Header() {
         </form>
       </div>
 
-      {/* Category Quick Links - Desktop */}
+      {/* Category Quick Links - Desktop with Subcategory Dropdowns */}
       <nav className="hidden border-t md:block">
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-center gap-6 py-2">
+          <div className="flex items-center justify-center gap-1 py-2">
             {Object.values(catalogo).map((cat) => (
-              <Link
+              <div
                 key={cat.id}
-                to={`/categoria/${cat.id}`}
-                className="flex items-center gap-1.5 whitespace-nowrap text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors"
+                className="relative"
+                onMouseEnter={() => {
+                  if (quickCatTimeoutRef.current) clearTimeout(quickCatTimeoutRef.current)
+                  setHoveredQuickCat(cat.id)
+                }}
+                onMouseLeave={() => {
+                  quickCatTimeoutRef.current = setTimeout(() => setHoveredQuickCat(null), 150)
+                }}
               >
-                <span>{cat.nome}</span>
-              </Link>
+                <Link
+                  to={`/categoria/${cat.id}`}
+                  className="flex items-center gap-1 whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-blue-600 transition-colors"
+                >
+                  <span>{cat.nome}</span>
+                  <ChevronDown className={`h-3 w-3 text-gray-400 transition-transform ${hoveredQuickCat === cat.id ? "rotate-180" : ""}`} />
+                </Link>
+
+                {/* Subcategory Dropdown */}
+                {hoveredQuickCat === cat.id && cat.subcategorias.length > 0 && (
+                  <div className="absolute left-0 top-full z-50 mt-0 min-w-56 rounded-lg border border-gray-200 bg-white py-2 shadow-xl">
+                    <div className="px-3 pb-2 mb-1 border-b border-gray-100">
+                      <Link
+                        to={`/categoria/${cat.id}`}
+                        className="text-sm font-semibold text-gray-900 hover:text-blue-600"
+                        onClick={() => setHoveredQuickCat(null)}
+                      >
+                        Ver tudo em {cat.nome}
+                      </Link>
+                    </div>
+                    {cat.subcategorias.map((sub) => (
+                      <Link
+                        key={sub.id}
+                        to={`/categoria/${cat.id}?sub=${sub.id}`}
+                        className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-blue-50 hover:text-blue-700 transition-colors"
+                        onClick={() => setHoveredQuickCat(null)}
+                      >
+                        <ChevronRight className="h-3 w-3 text-gray-300" />
+                        {sub.nome}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
             ))}
           </div>
         </div>
@@ -379,14 +420,41 @@ export function Header() {
           <p className="mb-3 text-xs font-semibold uppercase text-gray-500">Categorias</p>
           <div className="space-y-1">
             {Object.values(catalogo).map((cat) => (
-              <Link
-                key={cat.id}
-                to={`/categoria/${cat.id}`}
-                className="flex items-center gap-3 rounded-lg p-3 hover:bg-gray-100"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                <span className="font-medium">{cat.nome}</span>
-              </Link>
+              <div key={cat.id}>
+                <div className="flex items-center">
+                  <Link
+                    to={`/categoria/${cat.id}`}
+                    className="flex-1 flex items-center gap-3 rounded-lg p-3 hover:bg-gray-100"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <span className="font-medium">{cat.nome}</span>
+                  </Link>
+                  {cat.subcategorias.length > 0 && (
+                    <button
+                      onClick={() => setExpandedMobileCat(expandedMobileCat === cat.id ? null : cat.id)}
+                      className="p-3 text-gray-400 hover:text-gray-600"
+                      aria-label={`Expandir ${cat.nome}`}
+                    >
+                      <ChevronDown className={`h-4 w-4 transition-transform ${expandedMobileCat === cat.id ? "rotate-180" : ""}`} />
+                    </button>
+                  )}
+                </div>
+                {/* Mobile Subcategories */}
+                {expandedMobileCat === cat.id && (
+                  <div className="ml-6 mb-2 space-y-0.5 border-l-2 border-blue-100 pl-3">
+                    {cat.subcategorias.map((sub) => (
+                      <Link
+                        key={sub.id}
+                        to={`/categoria/${cat.id}?sub=${sub.id}`}
+                        className="block rounded px-3 py-2 text-sm text-gray-600 hover:bg-blue-50 hover:text-blue-700 transition-colors"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        {sub.nome}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
             ))}
           </div>
 
