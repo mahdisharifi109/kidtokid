@@ -88,16 +88,16 @@ export default function AdminSettingsPage() {
 
     if (loading) {
         return (
-            <AdminLayout title="Definições" subtitle="A carregar as suas preferências...">
+            <AdminLayout title="Definições" subtitle="A carregar as tuas preferências...">
                 <div className="flex items-center justify-center py-20">
-                    <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+                    <Loader2 className="h-8 w-8 animate-spin text-gray-400 dark:text-gray-500" />
                 </div>
             </AdminLayout>
         )
     }
 
     return (
-        <AdminLayout title="Definições" subtitle="Personalize a loja ao seu gosto">
+        <AdminLayout title="Definições" subtitle="Personaliza a loja ao teu gosto">
             <div className="flex flex-col lg:flex-row gap-6">
                 {/* Tabs Sidebar */}
                 <div className="lg:w-64 shrink-0">
@@ -110,7 +110,7 @@ export default function AdminSettingsPage() {
                                     className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-left transition-colors ${
                                         activeTab === tab.id 
                                             ? 'bg-blue-50 text-blue-700 font-medium' 
-                                            : 'text-gray-600 hover:bg-gray-50'
+                                            : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'
                                     }`}
                                 >
                                     <tab.icon className="h-5 w-5" />
@@ -127,10 +127,10 @@ export default function AdminSettingsPage() {
                     {activeTab === "appearance" && (
                         <Card className="p-6">
                             <div className="flex items-center gap-3 mb-6">
-                                <Palette className="h-5 w-5 text-gray-400" />
+                                <Palette className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                                 <div>
-                                    <h2 className="text-lg font-semibold text-gray-900">Esquema de Cores do Admin</h2>
-                                    <p className="text-sm text-gray-500">Personalize o visual do painel de administração</p>
+                                    <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Esquema de Cores do Admin</h2>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">Personalize o visual do painel de administração</p>
                                 </div>
                             </div>
 
@@ -143,7 +143,7 @@ export default function AdminSettingsPage() {
                                             className={`relative cursor-pointer rounded-lg border-2 p-3 transition-all ${
                                                 isSelected
                                                     ? "border-blue-600 ring-2 ring-blue-100"
-                                                    : "border-gray-200 hover:border-gray-300"
+                                                    : "border-gray-200 dark:border-gray-700 hover:border-gray-300"
                                             }`}
                                         >
                                             <input
@@ -163,7 +163,7 @@ export default function AdminSettingsPage() {
                                                         <div className="w-2 h-2 rounded-full bg-blue-600" />
                                                     )}
                                                 </div>
-                                                <span className="text-sm font-medium text-gray-900">{cs.name}</span>
+                                                <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{cs.name}</span>
                                             </div>
                                             {/* Color swatches — WordPress style */}
                                             <div className="flex rounded-md overflow-hidden h-7">
@@ -186,10 +186,10 @@ export default function AdminSettingsPage() {
                     {activeTab === "store" && (
                         <Card className="p-6">
                             <div className="flex items-center gap-3 mb-6">
-                                <Store className="h-5 w-5 text-gray-400" />
+                                <Store className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                                 <div>
-                                    <h2 className="text-lg font-semibold text-gray-900">Informações da Loja</h2>
-                                    <p className="text-sm text-gray-500">Os dados que os clientes vêem sobre a sua loja</p>
+                                    <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Informações da Loja</h2>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">Os dados que os clientes vêem sobre a tua loja</p>
                                 </div>
                             </div>
 
@@ -207,7 +207,7 @@ export default function AdminSettingsPage() {
                                     <div>
                                         <Label htmlFor="storeEmail">Email</Label>
                                         <div className="relative mt-1">
-                                            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                                            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                                             <Input
                                                 id="storeEmail"
                                                 type="email"
@@ -222,7 +222,7 @@ export default function AdminSettingsPage() {
                                 <div>
                                     <Label htmlFor="storePhone">Telefone</Label>
                                     <div className="relative mt-1">
-                                        <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                                        <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                                         <Input
                                             id="storePhone"
                                             value={settings.storePhone}
@@ -232,8 +232,8 @@ export default function AdminSettingsPage() {
                                     </div>
                                 </div>
 
-                                <div className="border-t border-gray-100 pt-6">
-                                    <h3 className="font-medium text-gray-900 mb-4 flex items-center gap-2">
+                                <div className="border-t border-gray-100 dark:border-gray-800 pt-6">
+                                    <h3 className="font-medium text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
                                         <MapPin className="h-4 w-4" />
                                         Morada
                                     </h3>
@@ -270,8 +270,8 @@ export default function AdminSettingsPage() {
                                     </div>
                                 </div>
 
-                                <div className="border-t border-gray-100 pt-6">
-                                    <h3 className="font-medium text-gray-900 mb-4 flex items-center gap-2">
+                                <div className="border-t border-gray-100 dark:border-gray-800 pt-6">
+                                    <h3 className="font-medium text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
                                         <Clock className="h-4 w-4" />
                                         Horário de Funcionamento
                                     </h3>
@@ -316,10 +316,10 @@ export default function AdminSettingsPage() {
                     {activeTab === "shipping" && (
                         <Card className="p-6">
                             <div className="flex items-center gap-3 mb-6">
-                                <Truck className="h-5 w-5 text-gray-400" />
+                                <Truck className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                                 <div>
-                                    <h2 className="text-lg font-semibold text-gray-900">Opções de Envio</h2>
-                                    <p className="text-sm text-gray-500">Defina custos e métodos de entrega para os seus clientes</p>
+                                    <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Opções de Envio</h2>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">Define custos e métodos de entrega para os teus clientes</p>
                                 </div>
                             </div>
 
@@ -328,7 +328,7 @@ export default function AdminSettingsPage() {
                                     <div>
                                         <Label htmlFor="freeShippingThreshold">Envio Grátis a partir de (€)</Label>
                                         <div className="relative mt-1">
-                                            <Euro className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                                            <Euro className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                                             <Input
                                                 id="freeShippingThreshold"
                                                 type="number"
@@ -342,7 +342,7 @@ export default function AdminSettingsPage() {
                                     <div>
                                         <Label htmlFor="standardShippingCost">Envio Standard (€)</Label>
                                         <div className="relative mt-1">
-                                            <Euro className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                                            <Euro className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                                             <Input
                                                 id="standardShippingCost"
                                                 type="number"
@@ -356,7 +356,7 @@ export default function AdminSettingsPage() {
                                     <div>
                                         <Label htmlFor="expressShippingCost">Envio Expresso (€)</Label>
                                         <div className="relative mt-1">
-                                            <Euro className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                                            <Euro className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                                             <Input
                                                 id="expressShippingCost"
                                                 type="number"
@@ -373,7 +373,7 @@ export default function AdminSettingsPage() {
                                     <div>
                                         <Label htmlFor="protectionFee">Taxa de Proteção do Comprador (€)</Label>
                                         <div className="relative mt-1">
-                                            <Euro className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                                            <Euro className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                                             <Input
                                                 id="protectionFee"
                                                 type="number"
@@ -384,13 +384,13 @@ export default function AdminSettingsPage() {
                                                 className="pl-10"
                                             />
                                         </div>
-                                        <p className="text-xs text-gray-500 mt-1">Taxa adicionada no checkout para proteção do comprador. Coloque 0 para desativar.</p>
+                                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Taxa adicionada no checkout para proteção do comprador. Coloque 0 para desativar.</p>
                                     </div>
                                 </div>
 
-                                <div className="border-t border-gray-100 pt-6">
-                                    <h3 className="font-medium text-gray-900 mb-4">Métodos de Entrega</h3>
-                                    <label className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors">
+                                <div className="border-t border-gray-100 dark:border-gray-800 pt-6">
+                                    <h3 className="font-medium text-gray-900 dark:text-gray-100 mb-4">Métodos de Entrega</h3>
+                                    <label className="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
                                         <input
                                             type="checkbox"
                                             checked={settings.pickupEnabled}
@@ -398,10 +398,10 @@ export default function AdminSettingsPage() {
                                             className="h-5 w-5 rounded border-gray-300 text-k2k-blue focus:ring-k2k-blue"
                                         />
                                         <div className="flex-1">
-                                            <p className="font-medium text-gray-900">Levantamento em Loja</p>
-                                        <p className="text-sm text-gray-500">Os clientes podem levantar na loja sem custos de envio</p>
+                                            <p className="font-medium text-gray-900 dark:text-gray-100">Levantamento em Loja</p>
+                                        <p className="text-sm text-gray-500 dark:text-gray-400">Os clientes podem levantar na loja sem custos de envio</p>
                                         </div>
-                                        <Package className="h-5 w-5 text-gray-400" />
+                                        <Package className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                                     </label>
                                 </div>
                             </div>
@@ -412,10 +412,10 @@ export default function AdminSettingsPage() {
                     {activeTab === "payment" && (
                         <Card className="p-6">
                             <div className="flex items-center gap-3 mb-6">
-                                <CreditCard className="h-5 w-5 text-gray-400" />
+                                <CreditCard className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                                 <div>
-                                    <h2 className="text-lg font-semibold text-gray-900">Métodos de Pagamento</h2>
-                                    <p className="text-sm text-gray-500">Escolha como os seus clientes podem pagar</p>
+                                    <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Métodos de Pagamento</h2>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">Escolhe como os teus clientes podem pagar</p>
                                 </div>
                             </div>
 
@@ -426,7 +426,7 @@ export default function AdminSettingsPage() {
                                 ].map(method => (
                                     <label 
                                         key={method.id}
-                                        className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
+                                        className="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                                     >
                                         <input
                                             type="checkbox"
@@ -435,8 +435,8 @@ export default function AdminSettingsPage() {
                                             className="h-5 w-5 rounded border-gray-300 text-k2k-blue focus:ring-k2k-blue"
                                         />
                                         <div className="flex-1">
-                                            <p className="font-medium text-gray-900">{method.label}</p>
-                                            <p className="text-sm text-gray-500">{method.desc}</p>
+                                            <p className="font-medium text-gray-900 dark:text-gray-100">{method.label}</p>
+                                            <p className="text-sm text-gray-500 dark:text-gray-400">{method.desc}</p>
                                         </div>
                                         {settings[method.id as keyof StoreSettings] ? (
                                             <CheckCircle2 className="h-5 w-5 text-green-500" />
@@ -453,10 +453,10 @@ export default function AdminSettingsPage() {
                     {activeTab === "notifications" && (
                         <Card className="p-6">
                             <div className="flex items-center gap-3 mb-6">
-                                <Bell className="h-5 w-5 text-gray-400" />
+                                <Bell className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                                 <div>
-                                    <h2 className="text-lg font-semibold text-gray-900">Notificações</h2>
-                                    <p className="text-sm text-gray-500">Fique a par de tudo o que acontece na loja</p>
+                                    <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Notificações</h2>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">Fique a par de tudo o que acontece na loja</p>
                                 </div>
                             </div>
 
@@ -464,7 +464,7 @@ export default function AdminSettingsPage() {
                                 <div>
                                     <Label htmlFor="orderNotificationEmail">Email para Notificações de Encomendas</Label>
                                     <div className="relative mt-1">
-                                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                                         <Input
                                             id="orderNotificationEmail"
                                             type="email"
@@ -473,7 +473,7 @@ export default function AdminSettingsPage() {
                                             className="pl-10"
                                         />
                                     </div>
-                                    <p className="text-xs text-gray-500 mt-1">Receberá um email sempre que entrar uma nova encomenda</p>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Receberá um email sempre que entrar uma nova encomenda</p>
                                 </div>
 
                                 <div>
@@ -486,10 +486,10 @@ export default function AdminSettingsPage() {
                                         onChange={(e) => handleInputChange('lowStockThreshold', parseInt(e.target.value) || 1)}
                                         className="mt-1 max-w-xs"
                                     />
-                                    <p className="text-xs text-gray-500 mt-1">Receber aviso quando um produto tiver menos de X unidades</p>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Receber aviso quando um produto tiver menos de X unidades</p>
                                 </div>
 
-                                <label className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors">
+                                <label className="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
                                     <input
                                         type="checkbox"
                                         checked={settings.emailNotificationsEnabled}
@@ -497,8 +497,8 @@ export default function AdminSettingsPage() {
                                         className="h-5 w-5 rounded border-gray-300 text-k2k-blue focus:ring-k2k-blue"
                                     />
                                     <div className="flex-1">
-                                        <p className="font-medium text-gray-900">Ativar Notificações por Email</p>
-                                        <p className="text-sm text-gray-500">Receber emails sobre novas encomendas e stock baixo</p>
+                                        <p className="font-medium text-gray-900 dark:text-gray-100">Ativar Notificações por Email</p>
+                                        <p className="text-sm text-gray-500 dark:text-gray-400">Receber emails sobre novas encomendas e stock baixo</p>
                                     </div>
                                 </label>
                             </div>
@@ -509,10 +509,10 @@ export default function AdminSettingsPage() {
                     {activeTab === "seo" && (
                         <Card className="p-6">
                             <div className="flex items-center gap-3 mb-6">
-                                <Globe className="h-5 w-5 text-gray-400" />
+                                <Globe className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                                 <div>
-                                    <h2 className="text-lg font-semibold text-gray-900">SEO e Redes Sociais</h2>
-                                    <p className="text-sm text-gray-500">Ajude os clientes a encontrar a sua loja no Google</p>
+                                    <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">SEO e Redes Sociais</h2>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">Ajuda os clientes a encontrar a tua loja no Google</p>
                                 </div>
                             </div>
 
@@ -526,7 +526,7 @@ export default function AdminSettingsPage() {
                                         className="mt-1"
                                         maxLength={60}
                                     />
-                                    <p className="text-xs text-gray-500 mt-1">{settings.seoTitle.length}/60 caracteres (recomendado)</p>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{settings.seoTitle.length}/60 caracteres (recomendado)</p>
                                 </div>
 
                                 <div>
@@ -537,17 +537,17 @@ export default function AdminSettingsPage() {
                                         onChange={(e) => handleInputChange('seoDescription', e.target.value)}
                                         rows={3}
                                         maxLength={160}
-                                        className="mt-1 w-full rounded-lg border border-gray-200 p-3 text-sm focus:border-k2k-blue focus:ring-1 focus:ring-k2k-blue focus:outline-none resize-none"
+                                        className="mt-1 w-full rounded-lg border border-gray-200 dark:border-gray-700 p-3 text-sm focus:border-k2k-blue focus:ring-1 focus:ring-k2k-blue focus:outline-none resize-none"
                                     />
-                                    <p className="text-xs text-gray-500 mt-1">{settings.seoDescription.length}/160 caracteres (recomendado)</p>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{settings.seoDescription.length}/160 caracteres (recomendado)</p>
                                 </div>
 
-                                <div className="bg-gray-50 rounded-lg p-4">
-                                    <p className="text-xs text-gray-500 mb-2">Pré-visualização no Google:</p>
-                                    <div className="bg-white border rounded-lg p-3">
+                                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Pré-visualização no Google:</p>
+                                    <div className="bg-white dark:bg-gray-900 border rounded-lg p-3">
                                         <p className="text-blue-600 text-lg hover:underline cursor-pointer">{settings.seoTitle}</p>
                                         <p className="text-green-700 text-sm">https://kidtokid.pt</p>
-                                        <p className="text-gray-600 text-sm mt-1">{settings.seoDescription}</p>
+                                        <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">{settings.seoDescription}</p>
                                     </div>
                                 </div>
                             </div>
@@ -558,10 +558,10 @@ export default function AdminSettingsPage() {
                     {activeTab === "security" && (
                         <Card className="p-6">
                             <div className="flex items-center gap-3 mb-6">
-                                <Shield className="h-5 w-5 text-gray-400" />
+                                <Shield className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                                 <div>
-                                    <h2 className="text-lg font-semibold text-gray-900">Segurança e Acesso</h2>
-                                    <p className="text-sm text-gray-500">Mantenha a sua loja protegida e segura</p>
+                                    <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Segurança e Acesso</h2>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">Mantém a tua loja protegida e segura</p>
                                 </div>
                             </div>
 
@@ -580,7 +580,7 @@ export default function AdminSettingsPage() {
                                     <AlertCircle className="h-5 w-5 text-red-500" />
                                 </label>
 
-                                <label className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors">
+                                <label className="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
                                     <input
                                         type="checkbox"
                                         checked={settings.allowGuestCheckout}
@@ -588,28 +588,28 @@ export default function AdminSettingsPage() {
                                         className="h-5 w-5 rounded border-gray-300 text-k2k-blue focus:ring-k2k-blue"
                                     />
                                     <div className="flex-1">
-                                        <p className="font-medium text-gray-900">Checkout sem Conta</p>
-                                        <p className="text-sm text-gray-500">Permitir compras sem registo (prático, mas menos seguro)</p>
+                                        <p className="font-medium text-gray-900 dark:text-gray-100">Checkout sem Conta</p>
+                                        <p className="text-sm text-gray-500 dark:text-gray-400">Permitir compras sem registo (prático, mas menos seguro)</p>
                                     </div>
                                 </label>
 
-                                <div className="border-t border-gray-100 pt-6 mt-6">
-                                    <h3 className="font-medium text-gray-900 mb-3">Estatísticas de Segurança</h3>
+                                <div className="border-t border-gray-100 dark:border-gray-800 pt-6 mt-6">
+                                    <h3 className="font-medium text-gray-900 dark:text-gray-100 mb-3">Estatísticas de Segurança</h3>
                                     <div className="grid sm:grid-cols-3 gap-4">
-                                        <div className="bg-gray-50 rounded-lg p-4 text-center">
-                                            <CheckCircle2 className="h-5 w-5 text-gray-500 mx-auto mb-2" />
-                                            <p className="text-sm font-medium text-gray-900">SSL Ativo</p>
-                                            <p className="text-xs text-gray-500">Conexão encriptada</p>
+                                        <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 text-center">
+                                            <CheckCircle2 className="h-5 w-5 text-gray-500 dark:text-gray-400 mx-auto mb-2" />
+                                            <p className="text-sm font-medium text-gray-900 dark:text-gray-100">SSL Ativo</p>
+                                            <p className="text-xs text-gray-500 dark:text-gray-400">Conexão encriptada</p>
                                         </div>
-                                        <div className="bg-gray-50 rounded-lg p-4 text-center">
-                                            <CheckCircle2 className="h-5 w-5 text-gray-500 mx-auto mb-2" />
-                                            <p className="text-sm font-medium text-gray-900">Firestore Rules</p>
-                                            <p className="text-xs text-gray-500">Regras configuradas</p>
+                                        <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 text-center">
+                                            <CheckCircle2 className="h-5 w-5 text-gray-500 dark:text-gray-400 mx-auto mb-2" />
+                                            <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Firestore Rules</p>
+                                            <p className="text-xs text-gray-500 dark:text-gray-400">Regras configuradas</p>
                                         </div>
-                                        <div className="bg-gray-50 rounded-lg p-4 text-center">
-                                            <CheckCircle2 className="h-5 w-5 text-gray-500 mx-auto mb-2" />
-                                            <p className="text-sm font-medium text-gray-900">Rate Limiting</p>
-                                            <p className="text-xs text-gray-500">Proteção ativa</p>
+                                        <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 text-center">
+                                            <CheckCircle2 className="h-5 w-5 text-gray-500 dark:text-gray-400 mx-auto mb-2" />
+                                            <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Rate Limiting</p>
+                                            <p className="text-xs text-gray-500 dark:text-gray-400">Proteção ativa</p>
                                         </div>
                                     </div>
                                 </div>

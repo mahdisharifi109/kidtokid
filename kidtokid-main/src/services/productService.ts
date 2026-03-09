@@ -218,6 +218,7 @@ export async function searchProducts(
   }
 
   constraints.push(orderBy("createdAt", "desc"))
+  constraints.push(limit(500)) // Cap to prevent loading entire collection
 
   const q = query(productsRef, ...constraints)
   const snapshot = await getDocs(q)

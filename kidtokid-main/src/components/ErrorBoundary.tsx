@@ -41,17 +41,17 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       }
 
       return (
-        <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4">
+        <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-950 p-4">
           <div className="w-full max-w-md text-center">
-            <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-red-100">
+            <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30">
               <AlertTriangle className="h-10 w-10 text-red-500" />
             </div>
-            <h1 className="mb-2 text-2xl font-bold text-gray-900">Algo correu mal</h1>
-            <p className="mb-6 text-sm text-gray-500">
+            <h1 className="mb-2 text-2xl font-bold text-gray-900 dark:text-gray-100">Algo correu mal</h1>
+            <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">
               Ocorreu um erro inesperado. Podes tentar recarregar a página.
             </p>
             {import.meta.env.DEV && this.state.error && (
-              <pre className="mb-6 max-h-40 overflow-auto rounded-lg bg-gray-100 p-4 text-left text-xs text-red-600">
+              <pre className="mb-6 max-h-40 overflow-auto rounded-lg bg-gray-100 dark:bg-gray-800 p-4 text-left text-xs text-red-600">
                 {this.state.error.message}
               </pre>
             )}

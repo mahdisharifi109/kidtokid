@@ -49,7 +49,7 @@ export function Footer() {
   }
 
   return (
-    <footer className="border-t border-gray-100 bg-white py-8 md:py-12">
+    <footer className="border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-950 py-8 md:py-12">
       <div className="container mx-auto px-4">
         <div className="grid gap-8 sm:gap-10 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
           {/* Logo and Description */}
@@ -58,14 +58,14 @@ export function Footer() {
               <img src="/logo.png" alt={settings.storeName} className="h-8 md:h-10" />
             </div>
             <p className="mb-3 md:mb-4 text-sm text-muted-foreground">
-              Loja de roupa e artigos de crianças em segunda mão. Compre com confiança!
+              Roupa e artigos de criança com nova vida, a preços amigos ❤️
             </p>
             <div className="flex gap-4 justify-center sm:justify-start">
               <a
                 href="https://www.facebook.com/Kid-to-Kid-Braga-419643264796595/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-blue-600 hover:opacity-80"
+                className="text-blue-600 hover:scale-110 transition-transform"
                 aria-label="Facebook"
               >
                 <Facebook className="h-5 w-5 md:h-6 md:w-6" />
@@ -74,7 +74,7 @@ export function Footer() {
                 href="https://www.instagram.com/kidtokidbraga_"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-blue-600 hover:opacity-80"
+                className="text-blue-600 hover:scale-110 transition-transform"
                 aria-label="Instagram"
               >
                 <Instagram className="h-5 w-5 md:h-6 md:w-6" />
@@ -142,15 +142,15 @@ export function Footer() {
 
           {/* Newsletter & Info */}
           <div className="text-center sm:text-left">
-            <h4 className="mb-3 md:mb-4 font-semibold text-sm md:text-base text-gray-800">Newsletter</h4>
-            <p className="text-xs md:text-sm text-gray-500 mb-3">Recebe novidades e promoções exclusivas!</p>
+            <h4 className="mb-3 md:mb-4 font-semibold text-sm md:text-base text-gray-800 dark:text-gray-100">Newsletter</h4>
+            <p className="text-xs md:text-sm text-gray-500 dark:text-gray-400 mb-3">Recebe novidades e promoções exclusivas!</p>
             <form onSubmit={handleNewsletterSubscribe} className="flex gap-2 max-w-xs mx-auto sm:mx-0">
               <input
                 type="email"
                 value={newsletterEmail}
                 onChange={(e) => setNewsletterEmail(e.target.value)}
                 placeholder="O teu email"
-                className="flex-1 min-w-0 rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-blue-600 focus:ring-1 focus:ring-blue-600 focus:outline-none"
+                className="flex-1 min-w-0 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-sm focus:border-blue-600 focus:ring-1 focus:ring-blue-600 focus:outline-none dark:text-gray-100"
                 disabled={isSubscribing}
               />
               <button
@@ -162,7 +162,7 @@ export function Footer() {
                 <Send className="h-4 w-4" />
               </button>
             </form>
-            <ul className="space-y-2 md:space-y-3 text-xs md:text-sm text-gray-500 mt-4">
+            <ul className="space-y-2 md:space-y-3 text-xs md:text-sm text-gray-500 dark:text-gray-400 mt-4">
               <li className="flex items-center gap-2.5"><span className="w-1.5 h-1.5 rounded-full bg-blue-600" /> Portes Grátis acima de €{settings.freeShippingThreshold}</li>
               <li className="flex items-center gap-2.5"><span className="w-1.5 h-1.5 rounded-full bg-blue-600" /> Envio: €{settings.standardShippingCost.toFixed(2)}</li>
               <li className="flex items-center gap-2.5"><span className="w-1.5 h-1.5 rounded-full bg-green-600" /> Artigos verificados</li>
@@ -170,7 +170,7 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-8 md:mt-12 border-t border-gray-100 pt-6 md:pt-8 text-center text-xs md:text-sm text-gray-400">
+        <div className="mt-8 md:mt-12 border-t border-gray-100 dark:border-gray-800 pt-6 md:pt-8 text-center text-xs md:text-sm text-gray-400 dark:text-gray-500">
           <p>&copy; {new Date().getFullYear()} {settings.storeName}. Todos os direitos reservados.</p>
           <p className="mt-1.5">
             <a href={`mailto:${settings.storeEmail}`} className="hover:text-blue-600 transition-colors">{settings.storeEmail}</a>

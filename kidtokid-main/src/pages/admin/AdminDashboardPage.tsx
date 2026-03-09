@@ -120,14 +120,14 @@ export default function AdminDashboardPage() {
 
     const getStatusBadge = useCallback((status: string) => {
         const statusConfig: Record<string, { color: string; icon: React.ComponentType<{ className?: string }>; label: string }> = {
-            pending: { color: "bg-yellow-100 text-yellow-700", icon: Clock, label: "Pendente" },
-            paid: { color: "bg-blue-100 text-blue-700", icon: CheckCircle2, label: "Pago" },
-            processing: { color: "bg-purple-100 text-purple-700", icon: Package, label: "Em Preparação" },
-            ready_pickup: { color: "bg-orange-100 text-orange-700", icon: Package, label: "Pronto Levantamento" },
+            pending: { color: "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700", icon: Clock, label: "Pendente" },
+            paid: { color: "bg-blue-100 dark:bg-blue-900/30 text-blue-700", icon: CheckCircle2, label: "Pago" },
+            processing: { color: "bg-purple-100 dark:bg-purple-900/30 text-purple-700", icon: Package, label: "Em Preparação" },
+            ready_pickup: { color: "bg-orange-100 dark:bg-orange-900/30 text-orange-700", icon: Package, label: "Pronto Levantamento" },
             shipped: { color: "bg-indigo-100 text-indigo-700", icon: Truck, label: "Enviada" },
-            delivered: { color: "bg-green-100 text-green-700", icon: CheckCircle2, label: "Entregue" },
-            cancelled: { color: "bg-red-100 text-red-700", icon: AlertCircle, label: "Cancelada" },
-            refunded: { color: "bg-gray-100 text-gray-700", icon: AlertCircle, label: "Reembolsada" }
+            delivered: { color: "bg-green-100 dark:bg-green-900/30 text-green-700", icon: CheckCircle2, label: "Entregue" },
+            cancelled: { color: "bg-red-100 dark:bg-red-900/30 text-red-700", icon: AlertCircle, label: "Cancelada" },
+            refunded: { color: "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300", icon: AlertCircle, label: "Reembolsada" }
         }
         const config = statusConfig[status] || statusConfig.pending
         const Icon = config.icon
@@ -215,29 +215,29 @@ export default function AdminDashboardPage() {
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                 {statCards.map((stat, index) => (
                     <Link to={stat.href} key={index}>
-                        <Card className="p-4 hover:shadow-md transition-shadow border border-gray-200">
+                        <Card className="p-4 hover:shadow-md transition-shadow border border-gray-200 dark:border-gray-700">
                             <div className="flex items-center justify-between mb-3">
                                 <div className={`w-9 h-9 rounded-lg ${stat.bg} flex items-center justify-center`}>
                                     <stat.icon className={`h-4.5 w-4.5 ${stat.color}`} />
                                 </div>
                             </div>
                             {loading ? (
-                                <div className="h-8 w-20 bg-gray-100 animate-pulse rounded" />
+                                <div className="h-8 w-20 bg-gray-100 dark:bg-gray-800 animate-pulse rounded" />
                             ) : (
-                                <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stat.value}</p>
                             )}
-                            <p className="text-xs text-gray-500 mt-1">{stat.title}</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{stat.title}</p>
                         </Card>
                     </Link>
                 ))}
             </div>
 
             {/* Revenue Chart */}
-            <Card className="p-5 mb-6 border border-gray-200">
+            <Card className="p-5 mb-6 border border-gray-200 dark:border-gray-700">
                 <div className="flex items-center justify-between mb-4">
                     <div>
-                        <h2 className="font-semibold text-gray-900">Receita — 30 dias</h2>
-                        <p className="text-sm text-gray-500 mt-0.5">Evolução das vendas</p>
+                        <h2 className="font-semibold text-gray-900 dark:text-gray-100">Receita — 30 dias</h2>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Evolução das vendas</p>
                     </div>
                     <span className="text-sm font-semibold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-md flex items-center gap-1">
                         <TrendingUp className="h-3.5 w-3.5" />
@@ -245,7 +245,7 @@ export default function AdminDashboardPage() {
                     </span>
                 </div>
                 {loading ? (
-                    <div className="h-56 bg-gray-50 animate-pulse rounded-lg" />
+                    <div className="h-56 bg-gray-50 dark:bg-gray-800 animate-pulse rounded-lg" />
                 ) : (
                     <div className="h-56">
                         <ResponsiveContainer width="100%" height="100%">
@@ -295,9 +295,9 @@ export default function AdminDashboardPage() {
 
             <div className="grid lg:grid-cols-3 gap-4">
                 {/* Recent Orders */}
-                <Card className="lg:col-span-2 p-5 border border-gray-200">
+                <Card className="lg:col-span-2 p-5 border border-gray-200 dark:border-gray-700">
                     <div className="flex items-center justify-between mb-4">
-                        <h2 className="font-semibold text-gray-900">Últimas Encomendas</h2>
+                        <h2 className="font-semibold text-gray-900 dark:text-gray-100">Últimas Encomendas</h2>
                         <div className="flex gap-1">
                             <Button
                                 variant="ghost"
@@ -319,13 +319,13 @@ export default function AdminDashboardPage() {
                     {loading ? (
                         <div className="space-y-2">
                             {[1, 2, 3, 4, 5].map(i => (
-                                <div key={i} className="h-14 bg-gray-50 animate-pulse rounded-lg" />
+                                <div key={i} className="h-14 bg-gray-50 dark:bg-gray-800 animate-pulse rounded-lg" />
                             ))}
                         </div>
                     ) : stats.recentOrders.length === 0 ? (
                         <div className="text-center py-10">
                             <ShoppingCart className="h-8 w-8 text-gray-300 mx-auto mb-2" />
-                            <p className="text-sm text-gray-500">Ainda sem encomendas</p>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">Ainda sem encomendas</p>
                         </div>
                     ) : (
                         <div className="space-y-1">
@@ -333,24 +333,24 @@ export default function AdminDashboardPage() {
                                 <Link 
                                     key={order.id}
                                     to="/admin/encomendas"
-                                    className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors"
+                                    className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                                 >
                                     <div className="flex items-center gap-3">
-                                        <div className="w-9 h-9 bg-gray-100 rounded-lg flex items-center justify-center">
-                                            <Package className="h-4 w-4 text-gray-400" />
+                                        <div className="w-9 h-9 bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center">
+                                            <Package className="h-4 w-4 text-gray-400 dark:text-gray-500" />
                                         </div>
                                         <div>
-                                            <p className="text-sm font-medium text-gray-900">
+                                            <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                                                 #{order.orderNumber}
                                             </p>
-                                            <p className="text-xs text-gray-500">
+                                            <p className="text-xs text-gray-500 dark:text-gray-400">
                                                 {order.shippingAddress?.name} · {order.items?.length || 0} artigo{(order.items?.length || 0) !== 1 ? 's' : ''}
                                             </p>
                                         </div>
                                     </div>
                                     <div className="text-right">
                                         {getStatusBadge(order.status)}
-                                        <p className="text-sm font-semibold text-gray-900 mt-1">
+                                        <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 mt-1">
                                             €{order.total?.toFixed(2)}
                                         </p>
                                     </div>
@@ -362,8 +362,8 @@ export default function AdminDashboardPage() {
 
                 {/* Quick Actions & Today */}
                 <div className="space-y-4">
-                    <Card className="p-5 border border-gray-200">
-                        <h2 className="font-semibold text-gray-900 mb-3">Acesso Rápido</h2>
+                    <Card className="p-5 border border-gray-200 dark:border-gray-700">
+                        <h2 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">Acesso Rápido</h2>
                         <div className="space-y-2">
                             <Link to="/admin/produtos/novo">
                                 <Button className="w-full justify-start bg-blue-600 hover:bg-blue-700 h-10">
@@ -379,7 +379,7 @@ export default function AdminDashboardPage() {
                             </Link>
                             <Link to="/">
                                 <Button variant="outline" className="w-full justify-start h-10">
-                                    <ExternalLink className="h-4 w-4 mr-2 text-gray-400" />
+                                    <ExternalLink className="h-4 w-4 mr-2 text-gray-400 dark:text-gray-500" />
                                     Ver Loja
                                 </Button>
                             </Link>
@@ -387,19 +387,19 @@ export default function AdminDashboardPage() {
                     </Card>
 
                     {/* Today Stats */}
-                    <Card className="p-5 border border-gray-200">
-                        <h3 className="text-sm font-medium text-gray-500 mb-3">Hoje</h3>
+                    <Card className="p-5 border border-gray-200 dark:border-gray-700">
+                        <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">Hoje</h3>
                         <div className="space-y-3">
                             <div className="flex items-center justify-between">
-                                <span className="text-sm text-gray-600">Encomendas</span>
-                                <span className="text-xl font-bold text-gray-900">
+                                <span className="text-sm text-gray-600 dark:text-gray-400">Encomendas</span>
+                                <span className="text-xl font-bold text-gray-900 dark:text-gray-100">
                                     {loading ? "—" : stats.todayOrders}
                                 </span>
                             </div>
-                            <div className="h-px bg-gray-100" />
+                            <div className="h-px bg-gray-100 dark:bg-gray-800" />
                             <div className="flex items-center justify-between">
-                                <span className="text-sm text-gray-600">Produtos</span>
-                                <span className="text-xl font-bold text-gray-900">
+                                <span className="text-sm text-gray-600 dark:text-gray-400">Produtos</span>
+                                <span className="text-xl font-bold text-gray-900 dark:text-gray-100">
                                     {loading ? "—" : stats.totalProducts}
                                 </span>
                             </div>

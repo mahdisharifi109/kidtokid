@@ -7,11 +7,11 @@ admin.initializeApp();
 
 const db = admin.firestore();
 
-// Stripe instance — configure via: firebase functions:config:set stripe.secret="sk_live_..."
+// Stripe instance — configure via .env file in functions/ directory
 const getStripe = (): Stripe => {
-  const secret = functions.config().stripe?.secret;
-  if (!secret) throw new Error("Stripe secret key not configured. Run: firebase functions:config:set stripe.secret=\"sk_...\"");
-  return new Stripe(secret, { apiVersion: "2025-01-27.acacia" as any });
+  const secret = process.env.STRIPE_SECRET;
+  if (!secret) throw new Error("Stripe secret key not configured. Add STRIPE_SECRET to functions/.env");
+  return new Stripe(secret);
 };
 
 // Admin email list — keep in sync with firestore.rules
@@ -45,7 +45,7 @@ export const onUserCreated = functions.region("europe-west1").auth.user().onCrea
       const displayName = user.displayName || user.email.split("@")[0];
 
       await transporter.sendMail({
-        from: `"${storeName}" <${functions.config().email?.user || "noreply@kidtokid.pt"}>`,
+        from: `"${storeName}" <${process.env.EMAIL_USER || "noreply@kidtokid.pt"}>`,
         to: user.email,
         subject: `Bem-vindo à ${storeName}! 🎉`,
         html: `
@@ -117,7 +117,6 @@ export const setAdminClaims = functions.region("europe-west1").https.onCall(
 
     // Set the custom claim
     await admin.auth().setCustomUserClaims(context.auth.uid, {
-      ...(context.auth.token || {}),
       admin: true,
     });
     await db.collection("users").doc(context.auth.uid).set({ role: "admin" }, { merge: true });
@@ -138,21 +137,101 @@ function escapeHtml(str: string): string {
     .replace(/'/g, "&#039;");
 }
 
+// ======================================
+// 🎫 VALIDATE COUPON CODE (for checkout preview)
+// ======================================
+// Allows authenticated users to validate a coupon without reading the coupons collection directly
+export const validateCouponCode = functions.region("europe-west1").https.onCall(
+  async (data: { code: string; orderTotal: number }, context) => {
+    if (!context.auth) {
+      throw new functions.https.HttpsError("unauthenticated", "Login necessário");
+    }
+
+    const code = (data.code || "").toUpperCase().trim();
+    const orderTotal = data.orderTotal || 0;
+
+    if (!code) {
+      return { valid: false, error: "Introduz um código de cupão" };
+    }
+
+    const couponsSnap = await db
+      .collection("coupons")
+      .where("code", "==", code)
+      .limit(1)
+      .get();
+
+    if (couponsSnap.empty) {
+      return { valid: false, error: "Cupão não encontrado" };
+    }
+
+    const coupon = couponsSnap.docs[0].data();
+    const now = new Date();
+    const validFrom = coupon.validFrom?.toDate() || new Date(0);
+    const validUntil = coupon.validUntil?.toDate() || new Date(0);
+
+    if (coupon.isActive === false) {
+      return { valid: false, error: "Este cupão está desativado" };
+    }
+    if (now < validFrom) {
+      return { valid: false, error: "Este cupão ainda não é válido" };
+    }
+    if (now > validUntil) {
+      return { valid: false, error: "Este cupão já expirou" };
+    }
+    if (coupon.maxUses > 0 && (coupon.usedCount || 0) >= coupon.maxUses) {
+      return { valid: false, error: "Este cupão já atingiu o limite de utilizações" };
+    }
+    if (coupon.minOrderValue && orderTotal < coupon.minOrderValue) {
+      return { valid: false, error: `Encomenda mínima de €${coupon.minOrderValue.toFixed(2)} para usar este cupão` };
+    }
+
+    // Per-user usage check
+    const userId = context.auth.uid;
+    const userOrdersSnap = await db
+      .collection("orders")
+      .where("userId", "==", userId)
+      .where("couponCode", "==", code)
+      .limit(1)
+      .get();
+    if (!userOrdersSnap.empty) {
+      return { valid: false, error: "Já usaste este cupão numa encomenda anterior" };
+    }
+
+    const discount = coupon.discountType === "percentage"
+      ? Math.round((orderTotal * coupon.discountValue) / 100 * 100) / 100
+      : Math.min(coupon.discountValue, orderTotal);
+
+    // Return only minimal info — don't expose raw coupon document
+    return {
+      valid: true,
+      discount,
+      coupon: {
+        id: couponsSnap.docs[0].id,
+        code: coupon.code,
+        description: coupon.description || "",
+        discountType: coupon.discountType,
+        discountValue: coupon.discountValue,
+      },
+    };
+  }
+);
+
 // Configure your email transport
-// Set these via: firebase functions:config:set email.user="you@gmail.com" email.pass="app-password" admin.email="admin@kidtokid.pt"
+// Set these in functions/.env: EMAIL_USER, EMAIL_PASS, ADMIN_EMAIL
 const getTransporter = () => {
-  const emailConfig = functions.config().email;
+  const user = process.env.EMAIL_USER || "";
+  const pass = process.env.EMAIL_PASS || "";
+  if (!user || !pass) {
+    functions.logger.warn("Email credentials not configured. Set EMAIL_USER and EMAIL_PASS in functions/.env");
+  }
   return nodemailer.createTransport({
     service: "gmail",
-    auth: {
-      user: emailConfig?.user || "",
-      pass: emailConfig?.pass || "",
-    },
+    auth: { user, pass },
   });
 };
 
 const getAdminEmail = (): string => {
-  return functions.config().admin?.email || "admin@kidtokid.pt";
+  return process.env.ADMIN_EMAIL || "admin@kidtokid.pt";
 };
 
 // ======================================
@@ -180,20 +259,11 @@ export const customPasswordReset = functions.region("europe-west1").https.onCall
     }
 
     try {
-      // Check if user uses password auth (not Google-only)
-      const userRecord = await admin.auth().getUserByEmail(email);
-      const hasPasswordProvider = userRecord.providerData.some(
-        (p) => p.providerId === "password"
-      );
-
-      if (!hasPasswordProvider) {
-        throw new functions.https.HttpsError(
-          "failed-precondition",
-          "A sua conta usa Google para login. Não é possível alterar a password por aqui."
-        );
-      }
+      // Verify user exists
+      await admin.auth().getUserByEmail(email);
 
       // Generate the reset link using Firebase Admin
+      // Works for both password-only and Google accounts (allows adding a password)
       const continueUrl = data.continueUrl || "https://kidtokid-4d642.web.app/entrar";
       const resetLink = await admin.auth().generatePasswordResetLink(email, {
         url: continueUrl,
@@ -203,7 +273,7 @@ export const customPasswordReset = functions.region("europe-west1").https.onCall
       // Send via our SMTP
       const transporter = getTransporter();
       await transporter.sendMail({
-        from: `"Kid to Kid" <${functions.config().email?.user}>`,
+        from: `"Kid to Kid" <${process.env.EMAIL_USER}>`,
         to: email,
         subject: "Alterar Password — Kid to Kid",
         html: `
@@ -260,7 +330,7 @@ export const customPasswordReset = functions.region("europe-west1").https.onCall
       });
       throw new functions.https.HttpsError(
         "internal",
-        `Erro ao enviar email: ${err.message || "erro desconhecido"}`
+        "Erro ao enviar email de recuperação. Tente novamente."
       );
     }
   }
@@ -391,6 +461,19 @@ export const createSecureOrder = functions.region("europe-west1").https.onCall(
         const withinUsage = coupon.maxUses === 0 || (coupon.usedCount || 0) < coupon.maxUses;
 
         if (isActive && withinDates && withinUsage) {
+          // Per-user usage check — prevent same user from using coupon multiple times
+          const userCouponOrders = await db
+            .collection("orders")
+            .where("userId", "==", userId)
+            .where("couponCode", "==", data.couponCode.toUpperCase().trim())
+            .limit(1)
+            .get();
+          if (!userCouponOrders.empty) {
+            throw new functions.https.HttpsError(
+              "failed-precondition",
+              "Já usaste este cupão numa encomenda anterior."
+            );
+          }
           couponRef = couponDoc.ref;
           // Discount will be calculated after subtotal is known
         }
@@ -399,28 +482,48 @@ export const createSecureOrder = functions.region("europe-west1").https.onCall(
 
     // 5. Validate products & decrement stock atomically
     try {
+      // Deduplicate items by productId — merge quantities to prevent stock bypass
+      const itemMap = new Map<string, number>();
+      for (const item of data.items) {
+        if (!item.productId || typeof item.quantity !== "number" || item.quantity < 1 || !Number.isInteger(item.quantity)) {
+          throw new functions.https.HttpsError(
+            "invalid-argument",
+            "Artigo inválido na encomenda (quantidade deve ser um número inteiro positivo)."
+          );
+        }
+        itemMap.set(item.productId, (itemMap.get(item.productId) || 0) + item.quantity);
+      }
+      const deduplicatedItems = Array.from(itemMap.entries()).map(([productId, quantity]) => ({ productId, quantity }));
+
       const result = await db.runTransaction(async (transaction) => {
         const orderItems: any[] = [];
         let subtotal = 0;
         const lowStockItems: { title: string; remaining: number; productId: string }[] = [];
 
-        // Read all products first (Firestore transaction requirement)
+        // ===== ALL READS FIRST (Firestore v7+ requirement) =====
+
+        // Read all products (deduplicated — one read per unique productId)
         const productDocs: admin.firestore.DocumentSnapshot[] = [];
-        for (const item of data.items) {
-          if (!item.productId || typeof item.quantity !== "number" || item.quantity < 1) {
-            throw new functions.https.HttpsError(
-              "invalid-argument",
-              "Artigo inválido na encomenda."
-            );
-          }
+        for (const item of deduplicatedItems) {
           const productRef = db.doc(`products/${item.productId}`);
           const productDoc = await transaction.get(productRef);
           productDocs.push(productDoc);
         }
 
-        // Validate & build items
-        for (let i = 0; i < data.items.length; i++) {
-          const item = data.items[i];
+        // Read coupon if applicable (must happen before any writes)
+        let couponData: admin.firestore.DocumentData | null = null;
+        if (couponRef) {
+          const couponSnap = await transaction.get(couponRef);
+          if (couponSnap.exists) {
+            couponData = couponSnap.data()!;
+          }
+        }
+
+        // ===== ALL WRITES BELOW =====
+
+        // Validate & build items (using deduplicated list)
+        for (let i = 0; i < deduplicatedItems.length; i++) {
+          const item = deduplicatedItems[i];
           const productDoc = productDocs[i];
 
           if (!productDoc.exists) {
@@ -485,16 +588,14 @@ export const createSecureOrder = functions.region("europe-west1").https.onCall(
             ? expressShippingCost
             : standardShippingCost;
 
-        // Apply coupon discount
-        if (couponRef) {
-          const couponSnap = await transaction.get(couponRef);
-          const coupon = couponSnap.data()!;
-          if (coupon.discountType === "percentage") {
-            couponDiscount = Math.round((subtotal * coupon.discountValue) / 100 * 100) / 100;
+        // Apply coupon discount using pre-read data
+        if (couponRef && couponData) {
+          if (couponData.discountType === "percentage") {
+            couponDiscount = Math.round((subtotal * couponData.discountValue) / 100 * 100) / 100;
           } else {
-            couponDiscount = Math.min(coupon.discountValue, subtotal);
+            couponDiscount = Math.min(couponData.discountValue, subtotal);
           }
-          if (coupon.minOrderValue && subtotal < coupon.minOrderValue) {
+          if (couponData.minOrderValue && subtotal < couponData.minOrderValue) {
             couponDiscount = 0; // doesn't meet minimum
           } else {
             // Increment coupon usage
@@ -570,7 +671,7 @@ export const createSecureOrder = functions.region("europe-west1").https.onCall(
             .join("<br/>");
 
           await transporter.sendMail({
-            from: `"Kid to Kid" <${functions.config().email?.user}>`,
+            from: `"Kid to Kid" <${process.env.EMAIL_USER}>`,
             to: adminEmail,
             subject: `⚠️ Stock Baixo — ${result.lowStockItems.length} produto${result.lowStockItems.length !== 1 ? "s" : ""}`,
             html: `
@@ -603,7 +704,7 @@ export const createSecureOrder = functions.region("europe-west1").https.onCall(
       if (error instanceof functions.https.HttpsError) {
         throw error;
       }
-      functions.logger.error("Order creation failed:", error);
+      functions.logger.error("Order creation failed:", error?.message || error);
       throw new functions.https.HttpsError(
         "internal",
         "Erro ao criar encomenda. Tente novamente."
@@ -631,7 +732,7 @@ export const onNewOrder = functions.region("europe-west1").firestore
         .join("\n");
 
       const mailOptions = {
-        from: `"Kid to Kid" <${functions.config().email?.user}>`,
+        from: `"Kid to Kid" <${process.env.EMAIL_USER}>`,
         to: adminEmail,
         subject: `Nova Encomenda #${orderId.slice(0, 8).toUpperCase()}`,
         html: `
@@ -691,7 +792,7 @@ export const onNewOrder = functions.region("europe-west1").firestore
           .join("");
 
         const customerMailOptions = {
-          from: `"Kid to Kid" <${functions.config().email?.user}>`,
+          from: `"Kid to Kid" <${process.env.EMAIL_USER}>`,
           to: customerEmail,
           subject: `Confirmação de Encomenda #${orderId.slice(0, 8).toUpperCase()} — Kid to Kid`,
           html: `
@@ -793,7 +894,7 @@ export const createStripeCheckoutSession = functions.region("europe-west1").http
         product_data: {
           name: item.title,
           ...(item.brand ? { description: `${item.brand} • Tam. ${item.size || "N/A"}` } : {}),
-          ...(item.images && item.images[0] ? { images: [item.images[0]] } : {}),
+          ...(item.image && item.image !== '/placeholder.svg' ? { images: [item.image] } : {}),
         },
         unit_amount: Math.round(item.price * 100), // Stripe uses cents
       },
@@ -870,7 +971,7 @@ export const createStripeCheckoutSession = functions.region("europe-west1").http
 // 💳 STRIPE — WEBHOOK
 // ======================================
 // Handles Stripe webhooks to confirm payments
-// Configure via: firebase functions:config:set stripe.webhook_secret="whsec_..."
+// Configure via functions/.env: STRIPE_WEBHOOK_SECRET=whsec_...
 export const stripeWebhook = functions.region("europe-west1").https.onRequest(
   async (req, res) => {
     if (req.method !== "POST") {
@@ -879,7 +980,7 @@ export const stripeWebhook = functions.region("europe-west1").https.onRequest(
     }
 
     const stripe = getStripe();
-    const webhookSecret = functions.config().stripe?.webhook_secret;
+    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
     let event: Stripe.Event;
 
@@ -893,9 +994,9 @@ export const stripeWebhook = functions.region("europe-west1").https.onRequest(
         return;
       }
     } else {
-      // No webhook secret — accept the event as-is (dev only)
-      event = req.body as Stripe.Event;
-      functions.logger.warn("No webhook secret configured — accepting event without verification.");
+      functions.logger.error("STRIPE_WEBHOOK_SECRET not configured — rejecting webhook.");
+      res.status(500).send("Webhook secret not configured");
+      return;
     }
 
     if (event.type === "checkout.session.completed") {
@@ -944,26 +1045,32 @@ export const onOrderUpdate = functions.region("europe-west1").firestore
 
     const newStatus: string = after.status;
 
-    // ── Restore stock when order is cancelled ──────────────────
-    // (refundOrder Cloud Function already handles its own stock restoration,
-    //  so we only handle "cancelled" here to cover customer + admin cancellation)
+    // ── Restore stock when order is cancelled (idempotent) ──────────
+    // Uses _stockRestored flag to prevent duplicate restores on Firestore trigger retries
     if (newStatus === "cancelled" && before.status !== "cancelled") {
-      try {
-        const items = after.items || [];
-        if (items.length > 0) {
-          const stockBatch = db.batch();
-          for (const item of items) {
-            if (item.productId) {
-              stockBatch.update(db.collection("products").doc(item.productId), {
-                stock: admin.firestore.FieldValue.increment(item.quantity || 1),
-              });
+      const alreadyRestored = after._stockRestored === true;
+      if (!alreadyRestored) {
+        try {
+          const items = after.items || [];
+          if (items.length > 0) {
+            const stockBatch = db.batch();
+            for (const item of items) {
+              if (item.productId) {
+                stockBatch.update(db.collection("products").doc(item.productId), {
+                  stock: admin.firestore.FieldValue.increment(item.quantity || 1),
+                });
+              }
             }
+            // Mark as restored to prevent duplicate processing
+            stockBatch.update(change.after.ref, { _stockRestored: true });
+            await stockBatch.commit();
+            functions.logger.info(`Stock restored for cancelled order ${orderId} (${items.length} products)`);
           }
-          await stockBatch.commit();
-          functions.logger.info(`Stock restored for cancelled order ${orderId} (${items.length} products)`);
+        } catch (stockError) {
+          functions.logger.error(`Failed to restore stock for cancelled order ${orderId}:`, stockError);
         }
-      } catch (stockError) {
-        functions.logger.error(`Failed to restore stock for cancelled order ${orderId}:`, stockError);
+      } else {
+        functions.logger.info(`Stock already restored for order ${orderId}, skipping (idempotent guard)`);
       }
     }
 
@@ -1062,7 +1169,7 @@ export const onOrderUpdate = functions.region("europe-west1").firestore
         .join("");
 
       const mailOptions = {
-        from: `"Kid to Kid" <${functions.config().email?.user}>`,
+        from: `"Kid to Kid" <${process.env.EMAIL_USER}>`,
         to: customerEmail,
         subject: `${config.emoji} ${config.subject} — Encomenda #${orderNumber}`,
         html: `
@@ -1116,7 +1223,7 @@ export const onOrderUpdate = functions.region("europe-west1").firestore
       if (["cancelled", "refunded"].includes(newStatus)) {
         const adminEmail = getAdminEmail();
         await transporter.sendMail({
-          from: `"Kid to Kid" <${functions.config().email?.user}>`,
+          from: `"Kid to Kid" <${process.env.EMAIL_USER}>`,
           to: adminEmail,
           subject: `${config.emoji} Encomenda #${orderNumber} — ${config.subject}`,
           html: `
@@ -1158,7 +1265,7 @@ export const onNewContact = functions.region("europe-west1").firestore
       const adminEmail = getAdminEmail();
 
       const mailOptions = {
-        from: `"Kid to Kid" <${functions.config().email?.user}>`,
+        from: `"Kid to Kid" <${process.env.EMAIL_USER}>`,
         to: adminEmail,
         subject: `Nova Mensagem de Contacto — ${contact.subject || "Sem assunto"}`,
         html: `
@@ -1200,7 +1307,7 @@ export const onNewReview = functions.region("europe-west1").firestore
       const stars = "★".repeat(review.rating) + "☆".repeat(5 - review.rating);
 
       const mailOptions = {
-        from: `"Kid to Kid" <${functions.config().email?.user}>`,
+        from: `"Kid to Kid" <${process.env.EMAIL_USER}>`,
         to: adminEmail,
         subject: `Nova Avaliação — ${stars} — ${review.title || "Sem título"}`,
         html: `
@@ -1273,6 +1380,11 @@ export const refundOrder = functions.region("europe-west1").https.onCall(
       throw new functions.https.HttpsError("already-exists", "Encomenda já foi reembolsada");
     }
 
+    // Don't refund a cancelled order (stock already restored by onOrderUpdate)
+    if (order.status === "cancelled") {
+      throw new functions.https.HttpsError("failed-precondition", "Encomenda já foi cancelada. Reembolsa manualmente no Stripe Dashboard.");
+    }
+
     try {
       const stripe = getStripe();
       const refund = await stripe.refunds.create({
@@ -1304,7 +1416,7 @@ export const refundOrder = functions.region("europe-west1").https.onCall(
       return { success: true, refundId: refund.id };
     } catch (error: any) {
       functions.logger.error(`Refund failed for order ${orderId}:`, error);
-      throw new functions.https.HttpsError("internal", error.message || "Erro ao processar reembolso Stripe");
+      throw new functions.https.HttpsError("internal", "Erro ao processar reembolso. Contacte o suporte.");
     }
   }
 );
@@ -1328,7 +1440,7 @@ export const onNewsletterSubscribe = functions
       const storeName = "Kid to Kid Braga";
 
       await transporter.sendMail({
-        from: `"${storeName}" <${functions.config().email?.user || "noreply@kidtokid.pt"}>`,
+        from: `"${storeName}" <${process.env.EMAIL_USER || "noreply@kidtokid.pt"}>`,
         to: email,
         subject: `Bem-vindo à Newsletter ${storeName}! 🎉`,
         html: `
@@ -1505,7 +1617,7 @@ export const sendPromoNewsletter = functions
       const results = await Promise.allSettled(
         batch.map((subscriberEmail) =>
           transporter.sendMail({
-            from: `"${storeName}" <${functions.config().email?.user || "noreply@kidtokid.pt"}>`,
+            from: `"${storeName}" <${process.env.EMAIL_USER || "noreply@kidtokid.pt"}>`,
             to: subscriberEmail,
             subject: data.subject,
             html: htmlTemplate,

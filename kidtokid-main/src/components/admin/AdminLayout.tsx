@@ -136,7 +136,7 @@ export function AdminLayout({ children, title, subtitle }: AdminLayoutProps) {
     const greeting = useMemo(() => getGreeting(), [])
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
             {/* Mobile sidebar overlay */}
             {sidebarOpen && (
                 <div 
@@ -241,28 +241,28 @@ export function AdminLayout({ children, title, subtitle }: AdminLayoutProps) {
             {/* Main content */}
             <div className="lg:pl-64">
                 {/* Top bar */}
-                <header className="sticky top-0 z-30 h-14 bg-white border-b border-gray-200 flex items-center justify-between px-4 lg:px-6">
+                <header className="sticky top-0 z-30 h-14 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between px-4 lg:px-6">
                     <div className="flex items-center gap-3">
                         <button
                             onClick={() => setSidebarOpen(true)}
-                            className="lg:hidden text-gray-500 hover:text-gray-700 p-1.5"
+                            className="lg:hidden text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 p-1.5"
                         >
                             <Menu className="h-5 w-5" />
                         </button>
                         <div>
-                            <h1 className="text-base font-semibold text-gray-900">{title}</h1>
+                            <h1 className="text-base font-semibold text-gray-900 dark:text-gray-100">{title}</h1>
                             {subtitle ? (
-                                <p className="text-xs text-gray-500">{subtitle}</p>
+                                <p className="text-xs text-gray-500 dark:text-gray-400">{subtitle}</p>
                             ) : (
-                                <p className="text-xs text-gray-400">{greeting}, {userData?.firstName || "Admin"}</p>
+                                <p className="text-xs text-gray-400 dark:text-gray-500">{greeting}, {userData?.firstName || "Admin"}</p>
                             )}
                         </div>
                     </div>
 
                     <div className="flex items-center gap-1.5">
                         {/* Search */}
-                        <div className="hidden md:flex items-center gap-2 bg-gray-50 rounded-lg px-3 py-1.5 border border-gray-200 focus-within:border-blue-300 focus-within:ring-1 focus-within:ring-blue-100 transition-all">
-                            <Search className="h-4 w-4 text-gray-400" />
+                        <div className="hidden md:flex items-center gap-2 bg-gray-50 dark:bg-gray-950 rounded-lg px-3 py-1.5 border border-gray-200 dark:border-gray-700 focus-within:border-blue-300 focus-within:ring-1 focus-within:ring-blue-100 transition-all">
+                            <Search className="h-4 w-4 text-gray-400 dark:text-gray-500" />
                             <input
                                 type="text"
                                 placeholder="Pesquisar..."
@@ -287,14 +287,14 @@ export function AdminLayout({ children, title, subtitle }: AdminLayoutProps) {
                                         setSearchQuery("")
                                     }
                                 }}
-                                className="bg-transparent border-none outline-none text-sm w-40 placeholder:text-gray-400"
+                                className="bg-transparent border-none outline-none text-sm w-40 placeholder:text-gray-400 dark:placeholder:text-gray-500"
                             />
                         </div>
 
                         {/* Notifications */}
                         <div className="relative" ref={notifRef}>
                             <button
-                                className="relative p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
+                                className="relative p-2 text-gray-400 dark:text-gray-500 hover:text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors"
                                 onClick={() => setShowNotifications(!showNotifications)}
                                 aria-label={`Notificações${unreadCount > 0 ? ` (${unreadCount} novas)` : ''}`}
                             >
@@ -308,9 +308,9 @@ export function AdminLayout({ children, title, subtitle }: AdminLayoutProps) {
 
                             {/* Notification Dropdown */}
                             {showNotifications && (
-                                <div className="absolute right-0 mt-1 w-80 sm:w-96 bg-white rounded-lg shadow-lg border border-gray-200 z-50 overflow-hidden">
-                                    <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
-                                        <h3 className="font-semibold text-gray-900 text-sm">
+                                <div className="absolute right-0 mt-1 w-80 sm:w-96 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50 overflow-hidden">
+                                    <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-gray-800">
+                                        <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm">
                                             Notificações
                                         </h3>
                                         {unreadCount > 0 && (
@@ -328,7 +328,7 @@ export function AdminLayout({ children, title, subtitle }: AdminLayoutProps) {
                                         {notifications.length === 0 ? (
                                             <div className="py-8 text-center">
                                                 <Bell className="h-8 w-8 text-gray-300 mx-auto mb-2" />
-                                                <p className="text-sm text-gray-500">Sem notificações</p>
+                                                <p className="text-sm text-gray-500 dark:text-gray-400">Sem notificações</p>
                                             </div>
                                         ) : (
                                             notifications.slice(0, 15).map((notif) => (
@@ -336,7 +336,7 @@ export function AdminLayout({ children, title, subtitle }: AdminLayoutProps) {
                                                     key={notif.id}
                                                     onClick={() => handleNotificationClick(notif)}
                                                     className={cn(
-                                                        "w-full flex items-start gap-3 px-4 py-3 text-left hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0",
+                                                        "w-full flex items-start gap-3 px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors border-b border-gray-50 last:border-0",
                                                         !notif.read && "bg-blue-50/40"
                                                     )}
                                                 >
@@ -346,13 +346,13 @@ export function AdminLayout({ children, title, subtitle }: AdminLayoutProps) {
                                                     <div className="flex-1 min-w-0">
                                                         <p className={cn(
                                                             "text-sm truncate",
-                                                            notif.read ? "text-gray-600" : "text-gray-900 font-medium"
+                                                            notif.read ? "text-gray-600 dark:text-gray-400" : "text-gray-900 dark:text-gray-100 font-medium"
                                                         )}>
                                                             {notif.title}
                                                         </p>
-                                                        <p className="text-xs text-gray-500 truncate mt-0.5">{notif.message}</p>
+                                                        <p className="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5">{notif.message}</p>
                                                     </div>
-                                                    <span className="text-[10px] text-gray-400 shrink-0 mt-1">
+                                                    <span className="text-[10px] text-gray-400 dark:text-gray-500 shrink-0 mt-1">
                                                         {formatTimeAgo(notif.createdAt)}
                                                     </span>
                                                 </button>
@@ -361,7 +361,7 @@ export function AdminLayout({ children, title, subtitle }: AdminLayoutProps) {
                                     </div>
 
                                     {notifications.length > 0 && (
-                                        <div className="px-4 py-2 border-t border-gray-100 text-center">
+                                        <div className="px-4 py-2 border-t border-gray-100 dark:border-gray-800 text-center">
                                             <Link
                                                 to="/admin/encomendas"
                                                 className="text-xs text-blue-600 hover:text-blue-700 font-medium"

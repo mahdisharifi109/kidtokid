@@ -80,8 +80,8 @@ export function UserAvatar({ src, alt = "", fallbackInitials, size = "sm", class
   }
 
   return (
-    <div className={`${sizeClass} flex items-center justify-center rounded-full bg-gray-100 ${className}`}>
-      <User className="h-1/2 w-1/2 text-gray-400" />
+    <div className={`${sizeClass} flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 ${className}`}>
+      <User className="h-1/2 w-1/2 text-gray-400 dark:text-gray-500" />
     </div>
   )
 }

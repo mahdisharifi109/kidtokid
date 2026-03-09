@@ -10,12 +10,14 @@ import { toast } from "sonner"
 import { useState } from "react"
 import { usePageTitle } from "@/src/hooks/usePageTitle"
 import { cn } from "@/lib/utils"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 
 export default function FavoritesPage() {
   const { favorites, clearFavorites } = useFavorites()
   const { addToCart, items: cartItems } = useCart()
   const [sortBy, setSortBy] = useState<'date' | 'price-asc' | 'price-desc'>('date')
   const [removingId] = useState<string | null>(null)
+  const [showClearConfirm, setShowClearConfirm] = useState(false)
   usePageTitle("Favoritos")
 
   const sortedFavorites = sortBy === 'date'
@@ -45,21 +47,24 @@ export default function FavoritesPage() {
   }
 
   const handleClearAll = () => {
-    if (window.confirm("Tens a certeza que queres remover todos os favoritos?")) {
-      clearFavorites()
-      toast.success("Favoritos limpos")
-    }
+    setShowClearConfirm(true)
+  }
+
+  const confirmClearAll = () => {
+    clearFavorites()
+    setShowClearConfirm(false)
+    toast.success("Favoritos limpos")
   }
 
   if (favorites.length === 0) {
     return (
-      <div className="min-h-screen flex flex-col bg-white">
+      <div className="min-h-screen flex flex-col bg-white dark:bg-gray-950">
         <Header />
         <main className="flex-1 flex flex-col items-center justify-center py-20 px-4 text-center">
-          <Heart className="h-12 w-12 text-gray-300 mb-4" />
-          <h1 className="text-xl font-semibold text-gray-900 mb-2">Sem favoritos</h1>
-          <p className="text-gray-500 mb-6 max-w-sm text-sm">
-            Guarda artigos que gostas clicando no coração.
+          <Heart className="h-12 w-12 text-gray-300 dark:text-gray-500 mb-4" />
+          <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Ainda não guardaste nenhum favorito</h1>
+          <p className="text-gray-500 dark:text-gray-400 mb-6 max-w-sm text-sm">
+            Toca no ♡ nos artigos que gostas para os guardar aqui.
           </p>
           <Link to="/">
             <Button className="bg-blue-600 hover:bg-blue-700 text-white">
@@ -73,15 +78,15 @@ export default function FavoritesPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-white">
+    <div className="min-h-screen flex flex-col bg-white dark:bg-gray-950">
       <Header />
 
       <main className="flex-1 container mx-auto px-4 py-6 md:py-8">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
           <div>
-            <h1 className="text-xl font-semibold text-gray-900">Os Meus Favoritos</h1>
-            <p className="text-sm text-gray-500 mt-1">
+            <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Os Meus Favoritos</h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
               {favorites.length} artigos · €{totalValue.toFixed(2)} total
             </p>
           </div>
@@ -94,19 +99,19 @@ export default function FavoritesPage() {
         </div>
 
         {/* Actions Bar */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-6 rounded-lg border border-gray-200 p-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-6 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
           <div className="flex items-center gap-3 text-sm">
-            <span className="text-gray-600">Ordenar:</span>
+            <span className="text-gray-600 dark:text-gray-400">Ordenar:</span>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-              className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm bg-white"
+              className="border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-1.5 text-sm bg-white dark:bg-gray-900 dark:text-gray-100"
             >
               <option value="date">Mais recentes</option>
               <option value="price-asc">Preço: menor</option>
               <option value="price-desc">Preço: maior</option>
             </select>
-            <span className="hidden sm:inline text-gray-400">
+            <span className="hidden sm:inline text-gray-400 dark:text-gray-500">
               {availableProducts.length} disponíveis
             </span>
           </div>
@@ -157,6 +162,16 @@ export default function FavoritesPage() {
       </main>
 
       <Footer />
+
+      <ConfirmDialog
+        open={showClearConfirm}
+        title="Limpar favoritos"
+        description="Tens a certeza que queres remover todos os teus favoritos?"
+        confirmLabel="Limpar tudo"
+        cancelLabel="Cancelar"
+        onConfirm={confirmClearAll}
+        onCancel={() => setShowClearConfirm(false)}
+      />
     </div>
   )
 }

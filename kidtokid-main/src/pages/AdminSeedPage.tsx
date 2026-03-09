@@ -204,17 +204,17 @@ export default function AdminSeedPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-800">
       <Header />
 
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-2xl mx-auto">
           <h1 className="text-2xl font-bold mb-6">Administração - Produtos</h1>
 
-          <div className="bg-white rounded-lg shadow-sm border p-6 space-y-6">
+          <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm border p-6 space-y-6">
             <div>
               <h2 className="font-semibold mb-2">Adicionar Produtos de Exemplo</h2>
-              <p className="text-sm text-gray-500 mb-4">
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
                 Clique no botão abaixo para adicionar {sampleProducts.length} produtos de exemplo à base de dados Firebase.
               </p>
               <Button
@@ -240,12 +240,12 @@ export default function AdminSeedPage() {
 
               {products.length > 0 && (
                 <div className="mt-4">
-                  <p className="text-sm text-gray-500 mb-2">{products.length} produtos na base de dados:</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">{products.length} produtos na base de dados:</p>
                   <ul className="text-sm space-y-1 max-h-60 overflow-y-auto">
                     {products.map((p) => (
                       <li key={p.id} className="flex justify-between items-center py-1 border-b">
                         <span>{p.title} - €{p.price.toFixed(2)}</span>
-                        <span className="text-gray-400 text-xs">{p.category}</span>
+                        <span className="text-gray-400 dark:text-gray-500 text-xs">{p.category}</span>
                       </li>
                     ))}
                   </ul>
@@ -267,7 +267,7 @@ export default function AdminSeedPage() {
             </div>
           </div>
 
-          <p className="text-center mt-6 text-sm text-gray-400">
+          <p className="text-center mt-6 text-sm text-gray-400 dark:text-gray-500">
             Esta página é apenas para administração. Remova-a em produção.
           </p>
         </div>

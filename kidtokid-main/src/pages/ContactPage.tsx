@@ -77,15 +77,15 @@ export default function ContactPage() {
 
     if (submitted) {
         return (
-            <div className="min-h-screen flex flex-col bg-white">
+            <div className="min-h-screen flex flex-col bg-white dark:bg-gray-950">
                 <Header />
                 <main className="flex-1 flex flex-col items-center justify-center py-20 px-4 text-center">
-                    <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mb-5">
+                    <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mb-5">
                         <CheckCircle className="h-8 w-8 text-green-600" />
                     </div>
-                    <h1 className="text-2xl font-bold text-gray-900 mb-2">Mensagem enviada!</h1>
-                    <p className="text-gray-500 max-w-sm mb-6">
-                        Obrigado por nos contactar. Vamos responder o mais rápido possível, normalmente em 24 horas.
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Mensagem enviada!</h1>
+                    <p className="text-gray-500 dark:text-gray-400 max-w-sm mb-6">
+                        Obrigado por nos contactares! Vamos responder o mais rápido possível, normalmente em 24 horas.
                     </p>
                     <Button
                         onClick={() => {
@@ -103,13 +103,13 @@ export default function ContactPage() {
     }
 
     return (
-        <div className="min-h-screen flex flex-col bg-white">
+        <div className="min-h-screen flex flex-col bg-white dark:bg-gray-950">
             <Header />
 
             <main className="flex-1 container mx-auto px-4 py-8 md:py-12 max-w-5xl">
                 <div className="text-center mb-8 md:mb-10">
-                    <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Fala connosco</h1>
-                    <p className="text-gray-500 max-w-lg mx-auto">
+                    <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">Fala connosco</h1>
+                    <p className="text-gray-500 dark:text-gray-400 max-w-lg mx-auto">
                         Tens alguma dúvida ou sugestão? Estamos aqui para ajudar.
                     </p>
                 </div>
@@ -120,7 +120,7 @@ export default function ContactPage() {
                         <form onSubmit={handleSubmit} className="space-y-5">
                             <div className="grid sm:grid-cols-2 gap-4">
                                 <div>
-                                    <label htmlFor="contact-name" className="block text-sm font-medium text-gray-700 mb-1.5">
+                                    <label htmlFor="contact-name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                                         Nome *
                                     </label>
                                     <Input
@@ -132,7 +132,7 @@ export default function ContactPage() {
                                     />
                                 </div>
                                 <div>
-                                    <label htmlFor="contact-email" className="block text-sm font-medium text-gray-700 mb-1.5">
+                                    <label htmlFor="contact-email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                                         Email *
                                     </label>
                                     <Input
@@ -148,8 +148,8 @@ export default function ContactPage() {
 
                             <div className="grid sm:grid-cols-2 gap-4">
                                 <div>
-                                    <label htmlFor="contact-phone" className="block text-sm font-medium text-gray-700 mb-1.5">
-                                        Telefone <span className="text-gray-400 font-normal">(opcional)</span>
+                                    <label htmlFor="contact-phone" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                                        Telefone <span className="text-gray-400 dark:text-gray-500 font-normal">(opcional)</span>
                                     </label>
                                     <Input
                                         id="contact-phone"
@@ -160,7 +160,7 @@ export default function ContactPage() {
                                     />
                                 </div>
                                 <div>
-                                    <label htmlFor="contact-subject" className="block text-sm font-medium text-gray-700 mb-1.5">
+                                    <label htmlFor="contact-subject" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                                         Assunto *
                                     </label>
                                     <select
@@ -168,7 +168,7 @@ export default function ContactPage() {
                                         value={form.subject}
                                         onChange={(e) => updateField("subject", e.target.value)}
                                         required
-                                        className="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm focus:border-blue-600 focus:ring-1 focus:ring-blue-600 focus:outline-none"
+                                        className="flex h-10 w-full rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-sm focus:border-blue-600 focus:ring-1 focus:ring-blue-600 focus:outline-none dark:text-gray-100"
                                     >
                                         <option value="">Seleciona um assunto</option>
                                         {subjects.map((s) => (
@@ -179,7 +179,7 @@ export default function ContactPage() {
                             </div>
 
                             <div>
-                                <label htmlFor="contact-message" className="block text-sm font-medium text-gray-700 mb-1.5">
+                                <label htmlFor="contact-message" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                                     Mensagem *
                                 </label>
                                 <textarea
@@ -191,9 +191,9 @@ export default function ContactPage() {
                                     minLength={10}
                                     maxLength={2000}
                                     rows={5}
-                                    className="flex w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm focus:border-blue-600 focus:ring-1 focus:ring-blue-600 focus:outline-none resize-none"
+                                    className="flex w-full rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-sm focus:border-blue-600 focus:ring-1 focus:ring-blue-600 focus:outline-none resize-none dark:text-gray-100"
                                 />
-                                <p className="text-xs text-gray-400 mt-1 text-right">
+                                <p className="text-xs text-gray-400 dark:text-gray-500 mt-1 text-right">
                                     {form.message.length}/2000
                                 </p>
                             </div>
@@ -214,24 +214,24 @@ export default function ContactPage() {
 
                     {/* Info lateral */}
                     <div className="md:col-span-2">
-                        <div className="bg-gray-50 rounded-xl p-6 space-y-5">
-                            <h2 className="font-semibold text-gray-900">Informações</h2>
+                        <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-6 space-y-5">
+                            <h2 className="font-semibold text-gray-900 dark:text-gray-100">Informações</h2>
 
                             <div className="space-y-4 text-sm">
                                 <div className="flex items-start gap-3">
                                     <MapPin className="h-5 w-5 text-blue-600 shrink-0 mt-0.5" />
                                     <div>
-                                        <p className="font-medium text-gray-900">Morada</p>
-                                        <p className="text-gray-500">{settings.storeAddress}</p>
-                                        <p className="text-gray-500">{settings.storePostalCode} {settings.storeCity}</p>
+                                        <p className="font-medium text-gray-900 dark:text-gray-100">Morada</p>
+                                        <p className="text-gray-500 dark:text-gray-400">{settings.storeAddress}</p>
+                                        <p className="text-gray-500 dark:text-gray-400">{settings.storePostalCode} {settings.storeCity}</p>
                                     </div>
                                 </div>
 
                                 <div className="flex items-start gap-3">
                                     <Phone className="h-5 w-5 text-blue-600 shrink-0 mt-0.5" />
                                     <div>
-                                        <p className="font-medium text-gray-900">Telefone</p>
-                                        <a href={`tel:${settings.storePhone.replace(/\s/g, '')}`} className="text-gray-500 hover:text-blue-600">
+                                        <p className="font-medium text-gray-900 dark:text-gray-100">Telefone</p>
+                                        <a href={`tel:${settings.storePhone.replace(/\s/g, '')}`} className="text-gray-500 dark:text-gray-400 hover:text-blue-600">
                                             {settings.storePhone}
                                         </a>
                                     </div>
@@ -240,8 +240,8 @@ export default function ContactPage() {
                                 <div className="flex items-start gap-3">
                                     <Mail className="h-5 w-5 text-blue-600 shrink-0 mt-0.5" />
                                     <div>
-                                        <p className="font-medium text-gray-900">Email</p>
-                                        <a href={`mailto:${settings.storeEmail}`} className="text-gray-500 hover:text-blue-600">
+                                        <p className="font-medium text-gray-900 dark:text-gray-100">Email</p>
+                                        <a href={`mailto:${settings.storeEmail}`} className="text-gray-500 dark:text-gray-400 hover:text-blue-600">
                                             {settings.storeEmail}
                                         </a>
                                     </div>
@@ -250,16 +250,16 @@ export default function ContactPage() {
                                 <div className="flex items-start gap-3">
                                     <Clock className="h-5 w-5 text-blue-600 shrink-0 mt-0.5" />
                                     <div>
-                                        <p className="font-medium text-gray-900">Horário</p>
-                                        <p className="text-gray-500">Seg-Sex: {settings.weekdayHours}</p>
-                                        <p className="text-gray-500">Sáb: {settings.saturdayHours}</p>
-                                        <p className="text-gray-500">Dom: {settings.sundayHours}</p>
+                                        <p className="font-medium text-gray-900 dark:text-gray-100">Horário</p>
+                                        <p className="text-gray-500 dark:text-gray-400">Seg-Sex: {settings.weekdayHours}</p>
+                                        <p className="text-gray-500 dark:text-gray-400">Sáb: {settings.saturdayHours}</p>
+                                        <p className="text-gray-500 dark:text-gray-400">Dom: {settings.sundayHours}</p>
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="pt-4 border-t border-gray-200">
-                                <p className="text-xs text-gray-400">
+                            <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+                                <p className="text-xs text-gray-400 dark:text-gray-500">
                                     Normalmente respondemos em menos de 24 horas úteis.
                                 </p>
                             </div>

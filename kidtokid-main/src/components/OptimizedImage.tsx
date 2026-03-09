@@ -66,7 +66,7 @@ export function OptimizedImage({
         />
       )}
       {!isLoaded && (
-        <div className="absolute inset-0 animate-pulse bg-gray-200 rounded" />
+        <div className="absolute inset-0 animate-pulse bg-gray-200 dark:bg-gray-700 rounded" />
       )}
     </div>
   )

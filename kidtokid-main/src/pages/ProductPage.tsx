@@ -6,6 +6,7 @@ import { Footer } from "@/src/components/Footer"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { ShoppingCart, Check } from "lucide-react"
+import { toast } from "sonner"
 import { useCart } from "@/src/contexts/CartContext"
 import { getProductById, getProductsByCategory } from "@/src/services/productService"
 import { ProductCard } from "@/src/components/product/ProductCard"
@@ -33,6 +34,7 @@ export default function ProductPage() {
   useEffect(() => {
     async function loadProduct() {
       setIsLoading(true)
+      setSelectedImage(0)
       try {
         const fetchedProduct = await getProductById(id)
         setProduct(fetchedProduct)
@@ -54,7 +56,7 @@ export default function ProductPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-white dark:bg-gray-950">
         <Header />
         <div className="flex justify-center py-20">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
@@ -66,11 +68,11 @@ export default function ProductPage() {
 
   if (!product) {
     return (
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-white dark:bg-gray-950">
         <Header />
         <div className="container mx-auto px-4 py-20 text-center">
           <h1 className="text-2xl font-bold mb-4">Produto não encontrado</h1>
-          <p className="text-gray-500 mb-6">O produto que procura não existe ou foi removido.</p>
+          <p className="text-gray-500 dark:text-gray-400 mb-6">O produto que procura não existe ou foi removido.</p>
           <Link to="/">
             <Button>Voltar à página inicial</Button>
           </Link>
@@ -83,7 +85,7 @@ export default function ProductPage() {
   const isSoldOut = product.stock === 0
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white dark:bg-gray-950">
       <Header />
 
       <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8">
@@ -103,7 +105,7 @@ export default function ProductPage() {
         <div className="grid gap-4 sm:gap-6 md:gap-8 lg:grid-cols-2">
           {/* Product Images */}
           <div>
-            <div className="mb-2 sm:mb-4 aspect-square overflow-hidden rounded-lg bg-gray-100">
+            <div className="mb-2 sm:mb-4 aspect-square overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800">
               <img
                 src={product.images[selectedImage] || "/placeholder.svg?height=600&width=600&query=kids clothing"}
                 alt={product.title}
@@ -143,7 +145,7 @@ export default function ProductPage() {
               )}
             </div>
 
-            <div className="mb-4 sm:mb-6 rounded-lg border border-gray-200 p-3 sm:p-4">
+            <div className="mb-4 sm:mb-6 rounded-lg border border-gray-200 dark:border-gray-700 p-3 sm:p-4">
               <div className="grid grid-cols-2 gap-3 sm:gap-4">
                 <div>
                   <p className="text-xs sm:text-sm text-muted-foreground">Tamanho</p>
@@ -170,7 +172,14 @@ export default function ProductPage() {
               size="lg"
               className="mb-3 sm:mb-4 w-full bg-blue-600 text-white hover:bg-blue-700 text-sm sm:text-base h-11 sm:h-12"
               disabled={isSoldOut}
-              onClick={() => addToCart(product)}
+              onClick={() => {
+                const added = addToCart(product)
+                if (added) {
+                  toast.success("Adicionado ao carrinho!")
+                } else {
+                  toast.info("Este artigo já está no carrinho")
+                }
+              }}
             >
               {isSoldOut ? (
                 "Esgotado"
@@ -182,7 +191,7 @@ export default function ProductPage() {
               )}
             </Button>
 
-            <div className="mb-4 sm:mb-6 space-y-2 rounded-lg bg-gray-50 p-3 sm:p-4">
+            <div className="mb-4 sm:mb-6 space-y-2 rounded-lg bg-gray-50 dark:bg-gray-800 p-3 sm:p-4">
               <div className="flex items-center gap-2 text-xs sm:text-sm">
                 <Check className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-green-600 shrink-0" />
                 <span>Portes grátis acima de €{storeSettings.freeShippingThreshold}</span>
@@ -211,7 +220,7 @@ export default function ProductPage() {
 
         {/* Related Products */}
         <section className="mt-8 sm:mt-12 md:mt-16">
-          <h2 className="mb-4 sm:mb-6 text-lg sm:text-xl md:text-2xl font-bold text-gray-900">Produtos Relacionados</h2>
+          <h2 className="mb-4 sm:mb-6 text-lg sm:text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100">Produtos Relacionados</h2>
           <div className="grid grid-cols-2 gap-2 sm:gap-3 md:gap-4 sm:grid-cols-3 lg:grid-cols-4">
             {relatedProducts.map((p) => (
               <ProductCard key={p.id} product={p} onAddToCart={addToCart} />

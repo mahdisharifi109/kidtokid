@@ -1,7 +1,8 @@
 import { 
     collection, 
     doc, 
-    addDoc, 
+    addDoc,
+    setDoc,
     updateDoc, 
     deleteDoc, 
     getDoc, 
@@ -273,11 +274,11 @@ export const deleteReview = async (reviewId: string): Promise<void> => {
 
     const reviewData = reviewDoc.data()
 
-    // Verificar permissão (dono ou admin)
+    // Verificar permissão (dono ou admin via custom claims)
     if (reviewData.userId !== user.uid) {
-        // Verificar se é admin
-        const userDoc = await getDoc(doc(db, "users", user.uid))
-        if (userDoc.data()?.role !== 'admin') {
+        const idTokenResult = await user.getIdTokenResult()
+        const isAdmin = idTokenResult.claims.admin === true
+        if (!isAdmin) {
             throw new Error("Não tens permissão para eliminar esta avaliação")
         }
     }
@@ -294,6 +295,12 @@ export const markReviewHelpful = async (reviewId: string): Promise<void> => {
 
     const reviewRef = doc(db, "reviews", reviewId)
     const voteRef = doc(db, "reviewVotes", `${reviewId}_${user.uid}`)
+
+    // Prevent self-voting
+    const reviewDoc = await getDoc(reviewRef)
+    if (reviewDoc.exists() && reviewDoc.data().userId === user.uid) {
+        throw new Error("Não podes votar na tua própria avaliação")
+    }
 
     // Verificar se já votou
     const voteDoc = await getDoc(voteRef)
@@ -322,8 +329,14 @@ export const reportReview = async (reviewId: string, reason: string): Promise<vo
     const user = auth.currentUser
     if (!user) throw new Error("Inicia sessão para reportar")
 
-    // Registar report
-    await addDoc(collection(db, "reviewReports"), {
+    // Use deterministic ID to prevent duplicate reports from same user
+    const reportRef = doc(db, "reviewReports", `${reviewId}_${user.uid}`)
+    const existingReport = await getDoc(reportRef)
+    if (existingReport.exists()) {
+        throw new Error("Já reportaste esta avaliação")
+    }
+
+    await setDoc(reportRef, {
         reviewId,
         reportedBy: user.uid,
         reason,

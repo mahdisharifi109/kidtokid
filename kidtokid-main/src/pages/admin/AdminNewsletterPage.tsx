@@ -284,38 +284,38 @@ export default function AdminNewsletterPage() {
       <div className="space-y-6">
         {/* Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="bg-white rounded-lg border p-4 flex items-center gap-3">
-            <Users className="h-5 w-5 text-gray-400" />
+          <div className="bg-white dark:bg-gray-900 rounded-lg border p-4 flex items-center gap-3">
+            <Users className="h-5 w-5 text-gray-400 dark:text-gray-500" />
             <div>
-              <p className="text-sm text-gray-500">Subscritores</p>
-              <p className="text-xl font-bold text-gray-900">{subscribers.length}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Subscritores</p>
+              <p className="text-xl font-bold text-gray-900 dark:text-gray-100">{subscribers.length}</p>
             </div>
           </div>
-          <div className="bg-white rounded-lg border p-4 flex items-center gap-3">
-            <CheckCircle2 className="h-5 w-5 text-gray-400" />
+          <div className="bg-white dark:bg-gray-900 rounded-lg border p-4 flex items-center gap-3">
+            <CheckCircle2 className="h-5 w-5 text-gray-400 dark:text-gray-500" />
             <div>
-              <p className="text-sm text-gray-500">Ativos</p>
-              <p className="text-xl font-bold text-gray-900">{activeSubscribers}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Ativos</p>
+              <p className="text-xl font-bold text-gray-900 dark:text-gray-100">{activeSubscribers}</p>
             </div>
           </div>
-          <div className="bg-white rounded-lg border p-4 flex items-center gap-3">
-            <Megaphone className="h-5 w-5 text-gray-400" />
+          <div className="bg-white dark:bg-gray-900 rounded-lg border p-4 flex items-center gap-3">
+            <Megaphone className="h-5 w-5 text-gray-400 dark:text-gray-500" />
             <div>
-              <p className="text-sm text-gray-500">Promoções Enviadas</p>
-              <p className="text-xl font-bold text-gray-900">{promoLogs.length}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Promoções Enviadas</p>
+              <p className="text-xl font-bold text-gray-900 dark:text-gray-100">{promoLogs.length}</p>
             </div>
           </div>
         </div>
 
         {/* Tabs */}
-        <div className="bg-white rounded-lg border">
+        <div className="bg-white dark:bg-gray-900 rounded-lg border">
           <div className="flex border-b">
             <button
               onClick={() => setActiveTab("compose")}
               className={`flex-1 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === "compose"
                   ? "border-k2k-blue text-k2k-blue bg-blue-50/50"
-                  : "border-transparent text-gray-500 hover:text-gray-700"
+                  : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
               }`}
             >
               <Send className="h-4 w-4 inline-block mr-1.5 -mt-0.5" />
@@ -326,7 +326,7 @@ export default function AdminNewsletterPage() {
               className={`flex-1 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === "subscribers"
                   ? "border-k2k-blue text-k2k-blue bg-blue-50/50"
-                  : "border-transparent text-gray-500 hover:text-gray-700"
+                  : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
               }`}
             >
               <Users className="h-4 w-4 inline-block mr-1.5 -mt-0.5" />
@@ -337,7 +337,7 @@ export default function AdminNewsletterPage() {
               className={`flex-1 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === "history"
                   ? "border-k2k-blue text-k2k-blue bg-blue-50/50"
-                  : "border-transparent text-gray-500 hover:text-gray-700"
+                  : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
               }`}
             >
               <Clock className="h-4 w-4 inline-block mr-1.5 -mt-0.5" />
@@ -350,10 +350,10 @@ export default function AdminNewsletterPage() {
             {activeTab === "compose" && (
               <div className="space-y-6">
                 <div>
-                  <h3 className="text-base font-semibold text-gray-900 mb-1">
+                  <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-1">
                     Enviar Email Promocional
                   </h3>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
                     Compõe um email e envia para todos os {activeSubscribers} subscritores ativos
                   </p>
                 </div>
@@ -390,7 +390,7 @@ export default function AdminNewsletterPage() {
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     placeholder="Ex: Olá! Temos novidades incríveis para ti. Aproveita os nossos descontos especiais em roupa infantil de qualidade..."
-                    className="w-full min-h-30 rounded-md border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-k2k-blue/50 resize-y"
+                    className="w-full min-h-30 rounded-md border border-gray-200 dark:border-gray-700 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-k2k-blue/50 resize-y"
                     disabled={sending}
                   />
                 </div>
@@ -425,16 +425,16 @@ export default function AdminNewsletterPage() {
                 <div>
                   <div className="flex items-center justify-between mb-3">
                     <div>
-                      <h4 className="text-sm font-semibold text-gray-900">
+                      <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                         <ShoppingBag className="h-4 w-4 inline-block mr-1 -mt-0.5" />
                         Produtos em Destaque (opcional)
                       </h4>
-                      <p className="text-xs text-gray-500 mt-0.5">
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                         Seleciona produtos com desconto para incluir no email
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Label htmlFor="minDiscount" className="text-xs text-gray-500 whitespace-nowrap">
+                      <Label htmlFor="minDiscount" className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
                         Desconto mín:
                       </Label>
                       <Input
@@ -446,7 +446,7 @@ export default function AdminNewsletterPage() {
                         onChange={(e) => setMinDiscount(Number(e.target.value))}
                         className="w-16 h-8 text-xs"
                       />
-                      <span className="text-xs text-gray-500">%</span>
+                      <span className="text-xs text-gray-500 dark:text-gray-400">%</span>
                       <Button
                         variant="outline"
                         size="sm"
@@ -469,7 +469,7 @@ export default function AdminNewsletterPage() {
                       {discountProducts.map((p) => (
                         <label
                           key={p.id}
-                          className="flex items-center gap-3 px-3 py-2.5 hover:bg-gray-50 cursor-pointer"
+                          className="flex items-center gap-3 px-3 py-2.5 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
                         >
                           <Checkbox
                             checked={p.selected}
@@ -483,8 +483,8 @@ export default function AdminNewsletterPage() {
                             />
                           )}
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-gray-900 truncate">{p.title}</p>
-                            <p className="text-xs text-gray-500">
+                            <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{p.title}</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
                               <span className="line-through">{p.originalPrice.toFixed(2)}€</span>
                               <span className="ml-1 text-red-600 font-semibold">{p.price.toFixed(2)}€</span>
                             </p>
@@ -496,7 +496,7 @@ export default function AdminNewsletterPage() {
                       ))}
                     </div>
                   ) : (
-                    <div className="text-center py-6 text-sm text-gray-400 border rounded-lg">
+                    <div className="text-center py-6 text-sm text-gray-400 dark:text-gray-500 border rounded-lg">
                       {loadingProducts ? (
                         <Loader2 className="h-5 w-5 animate-spin mx-auto" />
                       ) : (
@@ -568,14 +568,14 @@ export default function AdminNewsletterPage() {
                 ) : (
                   <div className="border rounded-lg divide-y max-h-125 overflow-y-auto">
                     {filteredSubscribers.map((sub) => (
-                      <div key={sub.email} className="flex items-center justify-between px-4 py-3 hover:bg-gray-50">
+                      <div key={sub.email} className="flex items-center justify-between px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800">
                         <div className="flex items-center gap-3">
-                          <div className="p-1.5 bg-gray-100 rounded-full">
-                            <Mail className="h-4 w-4 text-gray-500" />
+                          <div className="p-1.5 bg-gray-100 dark:bg-gray-800 rounded-full">
+                            <Mail className="h-4 w-4 text-gray-500 dark:text-gray-400" />
                           </div>
                           <div>
-                            <p className="text-sm font-medium text-gray-900">{sub.email}</p>
-                            <p className="text-xs text-gray-400">
+                            <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{sub.email}</p>
+                            <p className="text-xs text-gray-400 dark:text-gray-500">
                               {sub.subscribedAt
                                 ? `Subscrito em ${sub.subscribedAt.toLocaleDateString("pt-PT")}`
                                 : "Data desconhecida"}
@@ -585,7 +585,7 @@ export default function AdminNewsletterPage() {
                         <div className="flex items-center gap-2">
                           <Badge
                             variant={sub.active ? "default" : "secondary"}
-                            className={`text-xs ${sub.active ? "bg-green-100 text-green-700" : ""}`}
+                            className={`text-xs ${sub.active ? "bg-green-100 dark:bg-green-900/30 text-green-700" : ""}`}
                           >
                             {sub.active ? "Ativo" : "Inativo"}
                           </Badge>
@@ -593,7 +593,7 @@ export default function AdminNewsletterPage() {
                             variant="ghost"
                             size="sm"
                             onClick={() => handleDeleteSubscriber(sub.email)}
-                            className="text-gray-400 hover:text-red-500"
+                            className="text-gray-400 dark:text-gray-500 hover:text-red-500"
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
@@ -609,7 +609,7 @@ export default function AdminNewsletterPage() {
             {activeTab === "history" && (
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <p className="text-sm text-gray-500">Últimas promoções enviadas</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Últimas promoções enviadas</p>
                   <Button variant="outline" size="sm" onClick={loadPromoLogs} disabled={loadingLogs}>
                     <RefreshCw className={`h-4 w-4 mr-1 ${loadingLogs ? "animate-spin" : ""}`} />
                     Atualizar
@@ -628,11 +628,11 @@ export default function AdminNewsletterPage() {
                 ) : (
                   <div className="border rounded-lg divide-y">
                     {promoLogs.map((log) => (
-                      <div key={log.id} className="px-4 py-3 hover:bg-gray-50">
+                      <div key={log.id} className="px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800">
                         <div className="flex items-start justify-between">
                           <div>
-                            <p className="text-sm font-medium text-gray-900">{log.subject}</p>
-                            <p className="text-xs text-gray-500 mt-0.5">{log.headline}</p>
+                            <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{log.subject}</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{log.headline}</p>
                           </div>
                           <div className="text-right shrink-0 ml-4">
                             <div className="flex items-center gap-1 text-xs">
@@ -645,20 +645,20 @@ export default function AdminNewsletterPage() {
                                   <span className="text-red-500">{log.failed}</span>
                                 </>
                               )}
-                              <span className="text-gray-400">/ {log.total}</span>
+                              <span className="text-gray-400 dark:text-gray-500">/ {log.total}</span>
                             </div>
                             {log.productsCount > 0 && (
-                              <p className="text-xs text-gray-400 mt-0.5">
+                              <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
                                 {log.productsCount} produto(s)
                               </p>
                             )}
                           </div>
                         </div>
                         <div className="flex items-center gap-3 mt-1.5">
-                          <p className="text-xs text-gray-400">
+                          <p className="text-xs text-gray-400 dark:text-gray-500">
                             {log.sentAt ? log.sentAt.toLocaleString("pt-PT") : "—"}
                           </p>
-                          <p className="text-xs text-gray-400">por {log.sentByEmail}</p>
+                          <p className="text-xs text-gray-400 dark:text-gray-500">por {log.sentByEmail}</p>
                         </div>
                       </div>
                     ))}

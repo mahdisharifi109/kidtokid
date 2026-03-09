@@ -19,6 +19,7 @@ export default function CheckoutPage() {
     const navigate = useNavigate()
 
     const [isProcessing, setIsProcessing] = useState(false)
+    const [orderCompleted, setOrderCompleted] = useState(false)
     const [storeSettings, setStoreSettings] = useState<StoreSettings>(defaultSettings)
 
     const [couponCode, setCouponCode] = useState('')
@@ -63,12 +64,12 @@ export default function CheckoutPage() {
     }, [isAuthenticated, isLoading, navigate])
 
     useEffect(() => {
-        if (items.length === 0 && !isProcessing) {
+        if (items.length === 0 && !isProcessing && !orderCompleted) {
             navigate('/carrinho')
         }
-    }, [items.length, isProcessing, navigate])
+    }, [items.length, isProcessing, orderCompleted, navigate])
 
-    if (items.length === 0 && !isProcessing) {
+    if (items.length === 0 && !isProcessing && !orderCompleted) {
         return null
     }
 
@@ -174,6 +175,7 @@ export default function CheckoutPage() {
 
             if (formData.paymentMethod === 'card') {
                 try {
+                    setOrderCompleted(true)
                     await initiateStripePayment(order.orderId, order.orderNumber)
                     clearCart()
                     navigate(`/sucesso?order=${order.orderNumber}`)
@@ -182,10 +184,12 @@ export default function CheckoutPage() {
                     toast.error('Erro ao redirecionar para pagamento', { 
                         description: 'A encomenda foi criada. Podes tentar pagar depois na tua conta.' 
                     })
+                    setOrderCompleted(true)
                     clearCart()
                     navigate(`/sucesso?order=${order.orderNumber}`)
                 }
             } else {
+                setOrderCompleted(true)
                 clearCart()
                 navigate(`/sucesso?order=${order.orderNumber}`)
             }
@@ -202,25 +206,25 @@ export default function CheckoutPage() {
 
     if (isLoading) {
         return (
-            <div className="min-h-screen bg-white flex items-center justify-center">
+            <div className="min-h-screen bg-white dark:bg-gray-950 flex items-center justify-center">
                 <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
             </div>
         )
     }
 
     const paymentMethods = [
-        { id: 'card', label: 'Cartão / Stripe', icon: CreditCard, desc: 'Visa, Mastercard, Apple Pay...', enabled: true },
+        { id: 'card', label: 'Cartão de Crédito/Débito', icon: CreditCard, desc: 'Visa, Mastercard, Apple Pay, Google Pay', enabled: true },
         { id: 'shop', label: 'Na Loja', icon: Store, desc: 'Paga ao levantar', enabled: storeSettings.shopPaymentEnabled && formData.shippingMethod === 'pickup' },
     ]
 
     return (
-        <div className="min-h-screen bg-white">
+        <div className="min-h-screen bg-white dark:bg-gray-950">
             {/* Header */}
-            <header className="bg-white border-b sticky top-0 z-50">
+            <header className="bg-white dark:bg-gray-950 border-b dark:border-gray-700 sticky top-0 z-50">
                 <div className="container mx-auto px-4 h-14 flex items-center justify-between">
                     <button 
                         onClick={() => navigate(-1)}
-                        className="flex items-center gap-2 text-gray-500 hover:text-gray-900 text-sm"
+                        className="flex items-center gap-2 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 text-sm"
                         aria-label="Voltar"
                     >
                         <ArrowLeft className="h-4 w-4" />
@@ -229,7 +233,7 @@ export default function CheckoutPage() {
                     <Link to="/">
                         <img src="/logo.png" alt="Kid to Kid" className="h-7" />
                     </Link>
-                    <div className="flex items-center gap-1.5 text-xs text-gray-400">
+                    <div className="flex items-center gap-1.5 text-xs text-gray-400 dark:text-gray-500">
                         <Lock className="h-3.5 w-3.5" />
                         <span className="hidden sm:inline">Pagamento Seguro</span>
                     </div>
@@ -244,8 +248,8 @@ export default function CheckoutPage() {
                         
                         {/* Items */}
                         <section>
-                            <h2 className="font-semibold text-gray-900 mb-3">Os teus artigos ({items.length})</h2>
-                            <div className="border border-gray-200 rounded-lg divide-y divide-gray-200">
+                            <h2 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">Os teus artigos ({items.length})</h2>
+                            <div className="border border-gray-200 dark:border-gray-700 rounded-lg divide-y divide-gray-200 dark:divide-gray-700">
                                 {items.map((item) => (
                                     <div key={item.product.id} className="p-3 flex gap-3">
                                         <div className="relative shrink-0">
@@ -261,10 +265,10 @@ export default function CheckoutPage() {
                                             )}
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <h3 className="text-sm font-medium text-gray-900 truncate">{item.product.title}</h3>
-                                            <p className="text-xs text-gray-500">{item.product.brand} · Tam. {item.product.size} · {getConditionLabel(item.product.condition)}</p>
+                                            <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{item.product.title}</h3>
+                                            <p className="text-xs text-gray-500 dark:text-gray-400">{item.product.brand} · Tam. {item.product.size} · {getConditionLabel(item.product.condition)}</p>
                                         </div>
-                                        <p className="font-semibold text-sm text-gray-900">€{item.product.price.toFixed(2)}</p>
+                                        <p className="font-semibold text-sm text-gray-900 dark:text-gray-100">€{item.product.price.toFixed(2)}</p>
                                     </div>
                                 ))}
                             </div>
@@ -272,10 +276,10 @@ export default function CheckoutPage() {
 
                         {/* Shipping */}
                         <section>
-                            <h2 className="font-semibold text-gray-900 mb-3">Envio</h2>
+                            <h2 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">Envio</h2>
                             <div className="space-y-2">
                                 <label className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
-                                    formData.shippingMethod === 'delivery' ? 'border-blue-600 bg-blue-50/40' : 'border-gray-200 hover:border-gray-300'
+                                    formData.shippingMethod === 'delivery' ? 'border-blue-600 bg-blue-50/40 dark:bg-blue-950/30' : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
                                 }`}>
                                     <input
                                         type="radio"
@@ -285,18 +289,18 @@ export default function CheckoutPage() {
                                         className="accent-blue-600"
                                     />
                                     <div className="flex-1">
-                                        <p className="text-sm font-medium text-gray-900">Envio Standard</p>
-                                        <p className="text-xs text-gray-500">CTT Expresso · 2-4 dias úteis</p>
+                                        <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Envio Standard</p>
+                                        <p className="text-xs text-gray-500 dark:text-gray-400">CTT Expresso · 2-4 dias úteis</p>
                                     </div>
                                     {totalPrice >= storeSettings.freeShippingThreshold ? (
                                         <span className="text-sm font-medium text-green-600">Grátis</span>
                                     ) : (
-                                        <span className="text-sm font-medium text-gray-900">€{storeSettings.standardShippingCost.toFixed(2)}</span>
+                                        <span className="text-sm font-medium text-gray-900 dark:text-gray-100">€{storeSettings.standardShippingCost.toFixed(2)}</span>
                                     )}
                                 </label>
 
                                 <label className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
-                                    formData.shippingMethod === 'express' ? 'border-blue-600 bg-blue-50/40' : 'border-gray-200 hover:border-gray-300'
+                                    formData.shippingMethod === 'express' ? 'border-blue-600 bg-blue-50/40 dark:bg-blue-950/30' : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
                                 }`}>
                                     <input
                                         type="radio"
@@ -306,19 +310,19 @@ export default function CheckoutPage() {
                                         className="accent-blue-600"
                                     />
                                     <div className="flex-1">
-                                        <p className="text-sm font-medium text-gray-900">Envio Expresso</p>
-                                        <p className="text-xs text-gray-500">Entrega rápida · 1-2 dias úteis</p>
+                                        <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Envio Expresso</p>
+                                        <p className="text-xs text-gray-500 dark:text-gray-400">Entrega rápida · 1-2 dias úteis</p>
                                     </div>
                                     {totalPrice >= storeSettings.freeShippingThreshold ? (
                                         <span className="text-sm font-medium text-green-600">Grátis</span>
                                     ) : (
-                                        <span className="text-sm font-medium text-gray-900">€{storeSettings.expressShippingCost.toFixed(2)}</span>
+                                        <span className="text-sm font-medium text-gray-900 dark:text-gray-100">€{storeSettings.expressShippingCost.toFixed(2)}</span>
                                     )}
                                 </label>
 
                                 {storeSettings.pickupEnabled && (
                                     <label className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
-                                        formData.shippingMethod === 'pickup' ? 'border-blue-600 bg-blue-50/40' : 'border-gray-200 hover:border-gray-300'
+                                        formData.shippingMethod === 'pickup' ? 'border-blue-600 bg-blue-50/40 dark:bg-blue-950/30' : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
                                     }`}>
                                         <input
                                             type="radio"
@@ -328,8 +332,8 @@ export default function CheckoutPage() {
                                             className="accent-blue-600"
                                         />
                                         <div className="flex-1">
-                                            <p className="text-sm font-medium text-gray-900">Levantar na Loja</p>
-                                            <p className="text-xs text-gray-500">{storeSettings.storeAddress}, {storeSettings.storeCity}</p>
+                                            <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Levantar na Loja</p>
+                                            <p className="text-xs text-gray-500 dark:text-gray-400">{storeSettings.storeAddress}, {storeSettings.storeCity}</p>
                                         </div>
                                         <span className="text-sm font-medium text-green-600">Grátis</span>
                                     </label>
@@ -340,7 +344,7 @@ export default function CheckoutPage() {
                             {formData.shippingMethod !== 'pickup' && (
                                 <div className="mt-4 space-y-3">
                                     <div className="flex items-center justify-between">
-                                        <h3 className="text-sm font-medium text-gray-900">Morada de Entrega</h3>
+                                        <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">Morada de Entrega</h3>
                                         <a
                                             href={`https://www.google.com/maps/search/${encodeURIComponent(
                                                 [formData.address, formData.postalCode, formData.city].filter(Boolean).join(', ') || 'Portugal'
@@ -379,15 +383,15 @@ export default function CheckoutPage() {
 
                         {/* Payment */}
                         <section>
-                            <h2 className="font-semibold text-gray-900 mb-3">Pagamento</h2>
+                            <h2 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">Pagamento</h2>
                             <div className="grid grid-cols-2 gap-2">
                                 {paymentMethods.filter(m => m.enabled).map((method) => (
                                     <label
                                         key={method.id}
                                         className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
                                             formData.paymentMethod === method.id
-                                                ? 'border-blue-600 bg-blue-50/40'
-                                                : 'border-gray-200 hover:border-gray-300'
+                                                ? 'border-blue-600 bg-blue-50/40 dark:bg-blue-950/30'
+                                                : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
                                         }`}
                                     >
                                         <input
@@ -398,8 +402,8 @@ export default function CheckoutPage() {
                                             className="accent-blue-600"
                                         />
                                         <div>
-                                            <p className="text-sm font-medium text-gray-900">{method.label}</p>
-                                            <p className="text-xs text-gray-500">{method.desc}</p>
+                                            <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{method.label}</p>
+                                            <p className="text-xs text-gray-500 dark:text-gray-400">{method.desc}</p>
                                         </div>
                                     </label>
                                 ))}
@@ -408,7 +412,7 @@ export default function CheckoutPage() {
 
                         {/* Personal data */}
                         <section>
-                            <h2 className="font-semibold text-gray-900 mb-3">Os teus dados</h2>
+                            <h2 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">Os teus dados</h2>
                             <div className="space-y-3">
                                 <Input
                                     id="name"
@@ -436,10 +440,10 @@ export default function CheckoutPage() {
                                     id="customerNotes"
                                     value={formData.customerNotes}
                                     onChange={handleInputChange}
-                                    placeholder="Notas para a encomenda (opcional)"
+                                    placeholder="Ex: tocar à campainha, deixar no vizinho... (opcional)"
                                     rows={2}
                                     maxLength={500}
-                                    className="w-full rounded-lg border border-gray-200 p-3 text-sm resize-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 focus:outline-none"
+                                    className="w-full rounded-lg border border-gray-200 dark:border-gray-700 p-3 text-sm resize-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 focus:outline-none dark:bg-gray-900 dark:text-gray-100"
                                 />
                             </div>
                         </section>
@@ -448,15 +452,15 @@ export default function CheckoutPage() {
                     {/* Right — Summary */}
                     <div className="lg:col-span-2">
                         <div className="lg:sticky lg:top-20">
-                            <div className="border border-gray-200 rounded-lg p-5">
-                                <h2 className="font-semibold text-gray-900 mb-4">Resumo</h2>
+                            <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-5">
+                                <h2 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">Resumo</h2>
                                 
                                 <div className="space-y-2.5 text-sm">
-                                    <div className="flex justify-between text-gray-600">
+                                    <div className="flex justify-between text-gray-600 dark:text-gray-400">
                                         <span>Artigos ({items.reduce((a, b) => a + b.quantity, 0)})</span>
                                         <span>€{totalPrice.toFixed(2)}</span>
                                     </div>
-                                    <div className="flex justify-between text-gray-600">
+                                    <div className="flex justify-between text-gray-600 dark:text-gray-400">
                                         <span>Envio</span>
                                         {shippingCost === 0 ? (
                                             <span className="text-green-600 font-medium">Grátis</span>
@@ -464,7 +468,7 @@ export default function CheckoutPage() {
                                             <span>€{shippingCost.toFixed(2)}</span>
                                         )}
                                     </div>
-                                    <div className="flex justify-between text-gray-600">
+                                    <div className="flex justify-between text-gray-600 dark:text-gray-400">
                                         <span>Proteção do comprador</span>
                                         <span>€{protectionFee.toFixed(2)}</span>
                                     </div>
@@ -478,9 +482,9 @@ export default function CheckoutPage() {
                                 </div>
                                 
                                 {/* Coupon */}
-                                <div className="border-t mt-3 pt-3">
+                                <div className="border-t dark:border-gray-700 mt-3 pt-3">
                                     {couponApplied ? (
-                                        <div className="flex items-center justify-between bg-green-50 text-green-700 p-2 rounded text-sm">
+                                        <div className="flex items-center justify-between bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-400 p-2 rounded text-sm">
                                             <span className="font-medium">{couponCode.toUpperCase()}</span>
                                             <button onClick={handleRemoveCoupon} className="text-xs hover:text-red-500">Remover</button>
                                         </div>
@@ -510,17 +514,17 @@ export default function CheckoutPage() {
                                 </div>
                                 
                                 {totalPrice < storeSettings.freeShippingThreshold && formData.shippingMethod !== 'pickup' && (
-                                    <p className="text-xs text-blue-600 bg-blue-50 p-2 rounded text-center mt-3">
+                                    <p className="text-xs text-blue-600 bg-blue-50 dark:bg-blue-950/30 p-2 rounded text-center mt-3">
                                         Faltam <strong>€{(storeSettings.freeShippingThreshold - totalPrice).toFixed(2)}</strong> para envio grátis
                                     </p>
                                 )}
                                 
-                                <div className="border-t mt-3 pt-3">
+                                <div className="border-t dark:border-gray-700 mt-3 pt-3">
                                     <div className="flex justify-between items-center">
-                                        <span className="font-semibold text-gray-900">Total</span>
-                                        <span className="text-xl font-bold text-gray-900">€{total.toFixed(2)}</span>
+                                        <span className="font-semibold text-gray-900 dark:text-gray-100">Total</span>
+                                        <span className="text-xl font-bold text-gray-900 dark:text-gray-100">€{total.toFixed(2)}</span>
                                     </div>
-                                    <p className="text-xs text-gray-400 text-right mt-0.5">IVA incluído</p>
+                                    <p className="text-xs text-gray-400 dark:text-gray-500 text-right mt-0.5">IVA incluído</p>
                                 </div>
                                 
                                 <Button 
@@ -538,7 +542,7 @@ export default function CheckoutPage() {
                                     )}
                                 </Button>
                                 
-                                <p className="text-xs text-center text-gray-400 mt-3">
+                                <p className="text-xs text-center text-gray-400 dark:text-gray-500 mt-3">
                                     Ao continuar, aceitas os{" "}
                                     <Link to="/termos-e-condicoes" className="text-blue-600 hover:underline">
                                         Termos e Condições
@@ -546,7 +550,7 @@ export default function CheckoutPage() {
                                 </p>
                             </div>
 
-                            <p className="text-xs text-center text-gray-400 mt-3">
+                            <p className="text-xs text-center text-gray-400 dark:text-gray-500 mt-3">
                                 Compra segura · SSL encriptado
                             </p>
                         </div>

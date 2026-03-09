@@ -53,7 +53,7 @@ export default function HomePage() {
   }, [hasMore, isLoadingMore, lastDoc])
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       <Header />
 
       <main className="container mx-auto px-4 sm:px-5 py-6 sm:py-8 md:py-10 page-enter">
@@ -62,9 +62,9 @@ export default function HomePage() {
 
         <section>
           <div className="flex items-center justify-center gap-3 mb-6 sm:mb-8">
-            <div className="h-px flex-1 max-w-16 bg-linear-to-r from-transparent to-gray-200" />
-            <h2 className="text-lg sm:text-xl md:text-2xl font-semibold text-center tracking-tight text-gray-800">Produtos em Destaque</h2>
-            <div className="h-px flex-1 max-w-16 bg-linear-to-l from-transparent to-gray-200" />
+            <div className="h-px flex-1 max-w-16 bg-linear-to-r from-transparent to-gray-200 dark:to-gray-700" />
+            <h2 className="text-lg sm:text-xl md:text-2xl font-semibold text-center tracking-tight text-gray-800 dark:text-gray-100">Produtos em Destaque</h2>
+            <div className="h-px flex-1 max-w-16 bg-linear-to-l from-transparent to-gray-200 dark:to-gray-700" />
           </div>
           {isLoading ? (
             <div className="grid grid-cols-2 gap-3 sm:gap-4 md:gap-5 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
@@ -99,7 +99,7 @@ export default function HomePage() {
               )}
             </>
           ) : (
-            <div className="text-center py-16 text-gray-400">
+            <div className="text-center py-16 text-gray-400 dark:text-gray-500">
               <p className="text-base">De momento não temos novidades por aqui 🌿</p>
               <p className="text-sm mt-2">Estamos a preparar peças especiais — volta em breve!</p>
             </div>

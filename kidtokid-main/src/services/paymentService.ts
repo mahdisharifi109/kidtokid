@@ -6,8 +6,6 @@
  * para manter as chaves seguras no servidor.
  */
 
-import { doc, updateDoc, serverTimestamp } from "firebase/firestore"
-import { db } from "@/src/lib/firebase"
 import { getFunctions, httpsCallable } from "firebase/functions"
 
 // ─── Tipos ────────────────────────────────────────────────────────────
@@ -60,16 +58,17 @@ export async function initiateStripePayment(
 
 /**
  * Confirma o pagamento (atualiza o estado da encomenda).
- * Normalmente chamado pelo webhook do Stripe, mas pode ser usado pelo admin.
+ * REMOVED: Direct Firestore write bypassed Stripe verification.
+ * Payments are now only confirmed via:
+ * 1. Stripe webhook (stripeWebhook Cloud Function)
+ * 2. Admin action through Cloud Functions
+ * 
+ * @deprecated Use Stripe webhook or admin Cloud Function instead
  */
-export async function confirmPayment(orderId: string): Promise<void> {
-  const orderRef = doc(db, "orders", orderId)
-  await updateDoc(orderRef, {
-    paymentStatus: "paid",
-    status: "paid",
-    paidAt: serverTimestamp(),
-    updatedAt: serverTimestamp(),
-  })
+export async function confirmPayment(_orderId: string): Promise<void> {
+  throw new Error(
+    "confirmPayment removido por segurança. Os pagamentos são confirmados automaticamente pelo Stripe webhook."
+  )
 }
 
 /**

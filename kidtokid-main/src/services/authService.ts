@@ -299,12 +299,12 @@ export const getAuthErrorMessage = (errorCode: string): string => {
     "auth/wrong-password": "Password incorreta.",
     "auth/invalid-credential": "Email ou password incorretos.",
     "auth/too-many-requests": "Demasiadas tentativas. Tente novamente mais tarde.",
-    "auth/network-request-failed": "Erro de rede. Verifique a sua ligação à internet.",
+    "auth/network-request-failed": "Erro de rede. Verifica a tua ligação à internet.",
     "auth/popup-closed-by-user": "O popup foi fechado antes de completar o login.",
     "auth/cancelled-popup-request": "Operação cancelada.",
     "auth/account-exists-with-different-credential": "Já existe uma conta com este email mas com outro método de login.",
-    "auth/rate-limited": "Demasiadas tentativas. Aguarde alguns minutos.",
-    "auth/google-only-account": "A sua conta usa Google para login. Não é possível alterar a password por aqui.",
+    "auth/rate-limited": "Demasiadas tentativas. Aguarda alguns minutos.",
+    "auth/google-only-account": "A tua conta usa Google para login. Não é possível alterar a password por aqui.",
   }
 
   return errorMessages[errorCode] || "Ocorreu um erro. Tente novamente."
@@ -320,6 +320,8 @@ export const ADMIN_EMAILS = [
 ]
 
 // Verificar se o utilizador é admin
+// SECURITY: Only trust Firebase Auth custom claims and hardcoded email list.
+// Never check Firestore documents — users can write to their own profile.
 export const checkIsAdmin = async (user: User): Promise<boolean> => {
   if (!user || !user.email) return false
   
@@ -332,12 +334,6 @@ export const checkIsAdmin = async (user: User): Promise<boolean> => {
     
     // Método 2: Verificar na lista de emails (fallback)
     if (ADMIN_EMAILS.includes(user.email.toLowerCase())) {
-      return true
-    }
-    
-    // Método 3: Verificar no documento do utilizador no Firestore
-    const userDoc = await getDoc(doc(db, "users", user.uid))
-    if (userDoc.exists() && userDoc.data()?.role === "admin") {
       return true
     }
     
@@ -411,7 +407,7 @@ export const secureLogin = async (
   const rateCheck = checkRateLimit(email)
   if (!rateCheck.allowed) {
     return { 
-      error: `Demasiadas tentativas. Aguarde ${rateCheck.waitTime} minutos.`,
+      error: `Demasiadas tentativas. Aguarda ${rateCheck.waitTime} minutos.`,
       blocked: true,
       waitTime: rateCheck.waitTime
     }

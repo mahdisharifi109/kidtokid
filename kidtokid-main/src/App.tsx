@@ -81,13 +81,13 @@ function App() {
   // Maintenance mode — block non-admin users
   if (settingsLoaded && maintenanceMode && !isAdmin) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-gray-50 px-4 text-center">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-gray-50 dark:bg-gray-950 px-4 text-center">
         <Wrench className="h-16 w-16 text-blue-600 mb-6" />
-        <h1 className="text-2xl font-bold text-gray-900 mb-3">Em Manutenção</h1>
-        <p className="text-gray-600 max-w-md">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-3">Em Manutenção</h1>
+        <p className="text-gray-600 dark:text-gray-400 max-w-md">
           Estamos a melhorar a loja para ti. Volta em breve!
         </p>
-        <p className="text-sm text-gray-400 mt-4">Kid to Kid Braga</p>
+        <p className="text-sm text-gray-400 dark:text-gray-500 mt-4">Kid to Kid Braga</p>
       </div>
     )
   }

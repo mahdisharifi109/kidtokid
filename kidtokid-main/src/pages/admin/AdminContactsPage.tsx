@@ -104,7 +104,7 @@ export default function AdminContactsPage() {
         return (
             <AdminLayout title="Mensagens" subtitle="A carregar...">
                 <div className="flex items-center justify-center py-20">
-                    <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+                    <Loader2 className="h-8 w-8 animate-spin text-gray-400 dark:text-gray-500" />
                 </div>
             </AdminLayout>
         )
@@ -116,8 +116,8 @@ export default function AdminContactsPage() {
                 {/* List */}
                 <div className="lg:col-span-2">
                     <Card className="divide-y max-h-[75vh] overflow-y-auto">
-                        <div className="p-4 flex items-center justify-between sticky top-0 bg-white z-10 border-b">
-                            <h2 className="font-semibold text-gray-900 flex items-center gap-2">
+                        <div className="p-4 flex items-center justify-between sticky top-0 bg-white dark:bg-gray-900 z-10 border-b">
+                            <h2 className="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
                                 <MessageSquare className="h-5 w-5 text-green-600" />
                                 Mensagens
                             </h2>
@@ -127,7 +127,7 @@ export default function AdminContactsPage() {
                         </div>
 
                         {contacts.length === 0 ? (
-                            <div className="p-8 text-center text-gray-500">
+                            <div className="p-8 text-center text-gray-500 dark:text-gray-400">
                                 <MessageSquare className="h-10 w-10 mx-auto mb-3 text-gray-300" />
                                 <p>Nenhuma mensagem</p>
                             </div>
@@ -137,7 +137,7 @@ export default function AdminContactsPage() {
                                     key={contact.id}
                                     onClick={() => markAsRead(contact)}
                                     className={cn(
-                                        "w-full text-left p-4 hover:bg-gray-50 transition-colors",
+                                        "w-full text-left p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors",
                                         selected?.id === contact.id && "bg-blue-50/80",
                                         !contact.read && "bg-blue-50/40"
                                     )}
@@ -145,19 +145,19 @@ export default function AdminContactsPage() {
                                     <div className="flex items-start gap-3">
                                         <div className={cn(
                                             "w-10 h-10 rounded-full flex items-center justify-center shrink-0",
-                                            contact.read ? "bg-gray-100" : "bg-blue-100"
+                                            contact.read ? "bg-gray-100 dark:bg-gray-800" : "bg-blue-100 dark:bg-blue-900/30"
                                         )}>
-                                            <User className={cn("h-5 w-5", contact.read ? "text-gray-400" : "text-blue-600")} />
+                                            <User className={cn("h-5 w-5", contact.read ? "text-gray-400 dark:text-gray-500" : "text-blue-600")} />
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center gap-2">
-                                                <p className={cn("text-sm truncate", !contact.read && "font-semibold text-gray-900")}>
+                                                    <p className={cn("text-sm truncate", !contact.read && "font-semibold text-gray-900 dark:text-gray-100")}>
                                                     {contact.name}
                                                 </p>
                                                 {!contact.read && <span className="w-2 h-2 bg-blue-500 rounded-full shrink-0" />}
                                             </div>
-                                            <p className="text-xs text-gray-500 truncate">{contact.subject}</p>
-                                            <p className="text-xs text-gray-400 mt-1">
+                                            <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{contact.subject}</p>
+                                            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
                                                 {contact.createdAt.toLocaleDateString('pt-PT', { day: 'numeric', month: 'short', year: 'numeric' })}
                                             </p>
                                         </div>
@@ -174,8 +174,8 @@ export default function AdminContactsPage() {
                         <Card className="p-6">
                             <div className="flex items-start justify-between mb-6">
                                 <div>
-                                    <h2 className="text-lg font-semibold text-gray-900">{selected.subject}</h2>
-                                    <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
+                                    <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{selected.subject}</h2>
+                                    <div className="flex items-center gap-4 mt-2 text-sm text-gray-500 dark:text-gray-400">
                                         <span className="flex items-center gap-1">
                                             <User className="h-4 w-4" />
                                             {selected.name}
@@ -199,7 +199,7 @@ export default function AdminContactsPage() {
                                 </div>
                             </div>
 
-                            <div className="flex flex-wrap gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
+                            <div className="flex flex-wrap gap-4 mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
                                 <a href={`mailto:${selected.email}`} className="flex items-center gap-2 text-sm text-blue-600 hover:underline">
                                     <Mail className="h-4 w-4" />
                                     {selected.email}
@@ -212,7 +212,7 @@ export default function AdminContactsPage() {
                                 )}
                             </div>
 
-                            <div className="prose prose-sm max-w-none text-gray-700 whitespace-pre-wrap">
+                            <div className="prose prose-sm max-w-none text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
                                 {selected.message}
                             </div>
 
@@ -228,7 +228,7 @@ export default function AdminContactsPage() {
                     ) : (
                         <Card className="p-12 text-center">
                             <MessageSquare className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                            <p className="text-gray-500">Seleciona uma mensagem para ver os detalhes</p>
+                            <p className="text-gray-500 dark:text-gray-400">Seleciona uma mensagem para ver os detalhes</p>
                         </Card>
                     )}
                 </div>

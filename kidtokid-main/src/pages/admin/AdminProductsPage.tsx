@@ -149,18 +149,18 @@ export default function AdminProductsPage() {
             <div className="flex flex-col sm:flex-row gap-4 mb-6">
                 <div className="flex-1 flex gap-3">
                     <div className="relative flex-1 max-w-md">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                         <Input
                             placeholder="Pesquisar por nome, marca ou SKU..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="pl-10 rounded-lg border-gray-200 focus:border-blue-300"
+                            className="pl-10 rounded-lg border-gray-200 dark:border-gray-700 focus:border-blue-300"
                         />
                     </div>
                     <select
                         value={selectedCategory}
                         onChange={(e) => setSelectedCategory(e.target.value)}
-                        className="h-10 px-3 rounded-lg border border-gray-200 text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-200 bg-white"
+                        className="h-10 px-3 rounded-lg border border-gray-200 dark:border-gray-700 text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-200 bg-white dark:bg-gray-900"
                     >
                         {categories.map(cat => (
                             <option key={cat.value} value={cat.value}>{cat.label}</option>
@@ -172,7 +172,7 @@ export default function AdminProductsPage() {
                         variant="outline"
                         onClick={loadProducts}
                         disabled={loading}
-                        className="rounded-lg border-gray-200"
+                        className="rounded-lg border-gray-200 dark:border-gray-700"
                     >
                         <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
                     </Button>
@@ -186,21 +186,21 @@ export default function AdminProductsPage() {
             </div>
 
             {/* Products Table */}
-            <Card className="overflow-hidden border border-gray-200">
+            <Card className="overflow-hidden border border-gray-200 dark:border-gray-700">
                 {loading ? (
                     <div className="p-10 text-center">
                         <div className="w-14 h-14 rounded-full bg-blue-50 flex items-center justify-center mx-auto mb-4">
                             <RefreshCw className="h-6 w-6 animate-spin text-blue-400" />
                         </div>
-                        <p className="text-gray-500 font-medium">A carregar produtos...</p>
+                        <p className="text-gray-500 dark:text-gray-400 font-medium">A carregar produtos...</p>
                     </div>
                 ) : filteredProducts.length === 0 ? (
                     <div className="p-14 text-center">
-                        <div className="w-16 h-16 rounded-full bg-gray-50 flex items-center justify-center mx-auto mb-4">
+                        <div className="w-16 h-16 rounded-full bg-gray-50 dark:bg-gray-800 flex items-center justify-center mx-auto mb-4">
                             <Package className="h-7 w-7 text-gray-300" />
                         </div>
-                        <h3 className="font-semibold text-gray-900 mb-1">Nenhum produto encontrado</h3>
-                        <p className="text-gray-500 text-sm mb-5">
+                        <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Nenhum produto encontrado</h3>
+                        <p className="text-gray-500 dark:text-gray-400 text-sm mb-5">
                             {searchTerm || selectedCategory !== "all" 
                                 ? "Tenta ajustar os filtros de pesquisa"
                                 : "Começa por adicionar o primeiro produto"
@@ -218,15 +218,15 @@ export default function AdminProductsPage() {
                 ) : (
                     <div className="overflow-x-auto">
                         <table className="w-full">
-                            <thead className="bg-gray-50/80 border-b border-gray-100">
+                            <thead className="bg-gray-50/80 dark:bg-gray-800/80 border-b border-gray-100 dark:border-gray-800">
                                 <tr>
-                                    <th className="text-left p-4 font-semibold text-gray-500 text-xs uppercase tracking-wider">Produto</th>
-                                    <th className="text-left p-4 font-semibold text-gray-500 text-xs uppercase tracking-wider">Categoria</th>
-                                    <th className="text-left p-4 font-semibold text-gray-500 text-xs uppercase tracking-wider">Tamanho</th>
-                                    <th className="text-left p-4 font-semibold text-gray-500 text-xs uppercase tracking-wider">Condição</th>
-                                    <th className="text-left p-4 font-semibold text-gray-500 text-xs uppercase tracking-wider">Preço</th>
-                                    <th className="text-left p-4 font-semibold text-gray-500 text-xs uppercase tracking-wider">Stock</th>
-                                    <th className="text-right p-4 font-semibold text-gray-500 text-xs uppercase tracking-wider">Ações</th>
+                                    <th className="text-left p-4 font-semibold text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider">Produto</th>
+                                    <th className="text-left p-4 font-semibold text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider">Categoria</th>
+                                    <th className="text-left p-4 font-semibold text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider">Tamanho</th>
+                                    <th className="text-left p-4 font-semibold text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider">Condição</th>
+                                    <th className="text-left p-4 font-semibold text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider">Preço</th>
+                                    <th className="text-left p-4 font-semibold text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider">Stock</th>
+                                    <th className="text-right p-4 font-semibold text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider">Ações</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-50">
@@ -234,7 +234,7 @@ export default function AdminProductsPage() {
                                     <tr key={product.id} className="hover:bg-blue-50/30 transition-colors">
                                         <td className="p-4">
                                             <div className="flex items-center gap-3.5">
-                                                <div className="w-12 h-12 rounded-lg bg-gray-50 overflow-hidden shrink-0 border border-gray-100">
+                                                <div className="w-12 h-12 rounded-lg bg-gray-50 dark:bg-gray-800 overflow-hidden shrink-0 border border-gray-100 dark:border-gray-800">
                                                     {product.images?.[0] ? (
                                                         <img 
                                                             src={product.images[0]} 
@@ -248,28 +248,28 @@ export default function AdminProductsPage() {
                                                     )}
                                                 </div>
                                                 <div className="min-w-0">
-                                                    <p className="font-semibold text-gray-900 truncate max-w-50">
+                                                    <p className="font-semibold text-gray-900 dark:text-gray-100 truncate max-w-50">
                                                         {product.title}
                                                     </p>
-                                                    <p className="text-xs text-gray-500 mt-0.5">{product.brand}</p>
+                                                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{product.brand}</p>
                                                 </div>
                                             </div>
                                         </td>
                                         <td className="p-4">
-                                            <span className="text-sm text-gray-600 bg-gray-50 px-2.5 py-1 rounded-lg">
+                                            <span className="text-sm text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 px-2.5 py-1 rounded-lg">
                                                 {categories.find(c => c.value === product.category)?.label || product.category}
                                             </span>
                                         </td>
                                         <td className="p-4">
-                                            <span className="text-sm font-medium text-gray-700">{product.size}</span>
+                                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{product.size}</span>
                                         </td>
                                         <td className="p-4">
-                                            <span className="text-sm text-gray-600">
+                                            <span className="text-sm text-gray-600 dark:text-gray-400">
                                                 {getConditionLabel(product.condition)}
                                             </span>
                                         </td>
                                         <td className="p-4">
-                                            <span className="font-bold text-gray-900">
+                                            <span className="font-bold text-gray-900 dark:text-gray-100">
                                                 €{product.price.toFixed(2)}
                                             </span>
                                         </td>
@@ -298,12 +298,12 @@ export default function AdminProductsPage() {
                                         <td className="p-4">
                                             <div className="flex items-center justify-end gap-1">
                                                 <Link to={`/produto/${product.id}`} target="_blank">
-                                                    <Button variant="ghost" size="sm" className="rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600">
+                                                    <Button variant="ghost" size="sm" className="rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-400 dark:text-gray-500 hover:text-gray-600">
                                                         <Eye className="h-4 w-4" />
                                                     </Button>
                                                 </Link>
                                                 <Link to={`/admin/produtos/${product.id}`}>
-                                                    <Button variant="ghost" size="sm" className="rounded-lg hover:bg-blue-50 text-gray-400 hover:text-blue-600">
+                                                    <Button variant="ghost" size="sm" className="rounded-lg hover:bg-blue-50 text-gray-400 dark:text-gray-500 hover:text-blue-600">
                                                         <Edit className="h-4 w-4" />
                                                     </Button>
                                                 </Link>
@@ -312,7 +312,7 @@ export default function AdminProductsPage() {
                                                     size="sm"
                                                     onClick={() => handleDelete(product.id)}
                                                     disabled={deletingId === product.id}
-                                                    className="text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg"
+                                                    className="text-gray-400 dark:text-gray-500 hover:text-red-500 hover:bg-red-50 rounded-lg"
                                                 >
                                                     {deletingId === product.id ? (
                                                         <RefreshCw className="h-4 w-4 animate-spin" />
@@ -332,7 +332,7 @@ export default function AdminProductsPage() {
 
             {/* Stats */}
             {!loading && filteredProducts.length > 0 && (
-                <div className="mt-4 text-sm text-gray-400 flex items-center gap-1.5">
+                <div className="mt-4 text-sm text-gray-400 dark:text-gray-500 flex items-center gap-1.5">
                     <Package className="h-3.5 w-3.5" />
                     A mostrar {filteredProducts.length} de {products.length} produtos
                 </div>

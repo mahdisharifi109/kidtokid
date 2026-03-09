@@ -55,15 +55,15 @@ function ThemeSettingRow() {
         { value: "system", label: "Sistema", icon: <Monitor className="h-4 w-4" /> },
     ]
     return (
-        <div className="flex items-center justify-between p-4 hover:bg-gray-50 rounded-lg transition-colors -mx-2">
+        <div className="flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors -mx-2">
             <div className="flex items-center gap-3">
-                <Sun className="h-5 w-5 text-gray-400" />
+                <Sun className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                 <div>
-                    <p className="font-medium text-gray-900">Tema</p>
-                    <p className="text-sm text-gray-500">Escolhe o modo de visualização</p>
+                    <p className="font-medium text-gray-900 dark:text-gray-100">Tema</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Escolhe o modo de visualização</p>
                 </div>
             </div>
-            <div className="flex items-center gap-1 rounded-lg border border-gray-200 p-0.5">
+            <div className="flex items-center gap-1 rounded-lg border border-gray-200 dark:border-gray-700 p-0.5">
                 {options.map((opt) => (
                     <button
                         key={opt.value}
@@ -71,7 +71,7 @@ function ThemeSettingRow() {
                         className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
                             theme === opt.value
                                 ? "bg-blue-600 text-white"
-                                : "text-gray-600 hover:bg-gray-100"
+                                : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
                         }`}
                     >
                         {opt.icon}
@@ -174,7 +174,7 @@ export default function AccountPage() {
     // Carregar encomendas do Firebase
     useEffect(() => {
         const loadOrders = async () => {
-            if (user && activeTab === "encomendas") {
+            if (user) {
                 setOrdersLoading(true)
                 try {
                     const userOrders = await getUserOrders()
@@ -187,7 +187,7 @@ export default function AccountPage() {
             }
         }
         loadOrders()
-    }, [user, activeTab])
+    }, [user])
 
     const handleRefreshOrders = async () => {
         setOrdersLoading(true)
@@ -348,10 +348,10 @@ export default function AccountPage() {
 
     if (isLoading) {
         return (
-            <div className="min-h-screen bg-white flex items-center justify-center">
+            <div className="min-h-screen bg-white dark:bg-gray-900 flex items-center justify-center">
                 <div className="text-center">
                     <div className="h-8 w-8 animate-spin rounded-full border-2 border-k2k-blue border-t-transparent mx-auto mb-3" />
-                    <p className="text-gray-500 text-sm">Um momento...</p>
+                    <p className="text-gray-500 dark:text-gray-400 text-sm">Um momento...</p>
                 </div>
             </div>
         )
@@ -372,13 +372,13 @@ export default function AccountPage() {
     const userInitials = firstName ? firstName.charAt(0).toUpperCase() : "?"
 
     return (
-        <div className="min-h-screen bg-gray-50/50">
+        <div className="min-h-screen bg-gray-50/50 dark:bg-gray-950">
             <Header />
 
             <main className="container mx-auto px-4 py-6 md:py-8 max-w-5xl">
                 {/* Perfil do utilizador */}
                 <div className="mb-6">
-                    <div className="bg-white rounded-xl border p-6 md:p-8">
+                    <div className="bg-white dark:bg-gray-900 rounded-xl border p-6 md:p-8">
                         <div className="flex flex-col sm:flex-row sm:items-center gap-5">
                             {/* Avatar */}
                             <div className="shrink-0 relative group/avatar">
@@ -388,7 +388,7 @@ export default function AccountPage() {
                                         alt={firstName}
                                         fallbackInitials={userInitials}
                                         size="lg"
-                                        className="border-2 border-gray-100 rounded-full"
+                                        className="border-2 border-gray-100 dark:border-gray-800 rounded-full"
                                     />
                                 ) : (
                                     <div className="w-18 h-18 md:w-20 md:h-20 rounded-full bg-k2k-blue/10 flex items-center justify-center">
@@ -423,13 +423,13 @@ export default function AccountPage() {
 
                             {/* Info */}
                             <div className="flex-1">
-                                <h1 className="text-xl md:text-2xl font-semibold text-gray-900">Olá, {firstName}</h1>
-                                <p className="text-sm text-gray-500 mt-0.5">
+                                <h1 className="text-xl md:text-2xl font-semibold text-gray-900 dark:text-gray-100">Olá, {firstName}</h1>
+                                <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
                                     {memberSince ? `Membro desde ${memberSince}` : user?.email}
                                 </p>
 
                                 {/* Quick Stats */}
-                                <div className="flex flex-wrap items-center gap-4 mt-3 text-sm text-gray-500">
+                                <div className="flex flex-wrap items-center gap-4 mt-3 text-sm text-gray-500 dark:text-gray-400">
                                     <span className="flex items-center gap-1.5">
                                         <Heart className="h-3.5 w-3.5" />
                                         {totalFavorites} favoritos
@@ -458,8 +458,8 @@ export default function AccountPage() {
                                     className={cn(
                                         "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
                                         activeTab === "perfil"
-                                            ? "bg-gray-100 text-gray-900"
-                                            : "text-gray-500 hover:bg-gray-50 hover:text-gray-700"
+                                            ? "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                                            : "text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-200"
                                     )}
                                 >
                                     <User className="h-4 w-4" />
@@ -470,14 +470,14 @@ export default function AccountPage() {
                                     className={cn(
                                         "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
                                         activeTab === "encomendas"
-                                            ? "bg-gray-100 text-gray-900"
-                                            : "text-gray-500 hover:bg-gray-50 hover:text-gray-700"
+                                            ? "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                                            : "text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-200"
                                     )}
                                 >
                                     <Package className="h-4 w-4" />
                                     Encomendas
                                     {orders.length > 0 && activeTab !== "encomendas" && (
-                                        <span className="ml-auto text-xs text-gray-400">
+                                        <span className="ml-auto text-xs text-gray-400 dark:text-gray-500">
                                             {orders.length}
                                         </span>
                                     )}
@@ -487,14 +487,14 @@ export default function AccountPage() {
                                     className={cn(
                                         "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
                                         activeTab === "favoritos"
-                                            ? "bg-gray-100 text-gray-900"
-                                            : "text-gray-500 hover:bg-gray-50 hover:text-gray-700"
+                                            ? "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                                            : "text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-200"
                                     )}
                                 >
                                     <Heart className="h-4 w-4" />
                                     Favoritos
                                     {favorites.length > 0 && activeTab !== "favoritos" && (
-                                        <span className="ml-auto text-xs text-gray-400">
+                                        <span className="ml-auto text-xs text-gray-400 dark:text-gray-500">
                                             {favorites.length}
                                         </span>
                                     )}
@@ -504,14 +504,14 @@ export default function AccountPage() {
                                     className={cn(
                                         "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
                                         activeTab === "moradas"
-                                            ? "bg-gray-100 text-gray-900"
-                                            : "text-gray-500 hover:bg-gray-50 hover:text-gray-700"
+                                            ? "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                                            : "text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-200"
                                     )}
                                 >
                                     <MapPin className="h-4 w-4" />
                                     Moradas
                                     {addresses.length > 0 && activeTab !== "moradas" && (
-                                        <span className="ml-auto text-xs text-gray-400">
+                                        <span className="ml-auto text-xs text-gray-400 dark:text-gray-500">
                                             {addresses.length}
                                         </span>
                                     )}
@@ -521,8 +521,8 @@ export default function AccountPage() {
                                     className={cn(
                                         "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
                                         activeTab === "definicoes"
-                                            ? "bg-gray-100 text-gray-900"
-                                            : "text-gray-500 hover:bg-gray-50 hover:text-gray-700"
+                                            ? "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                                            : "text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-200"
                                     )}
                                 >
                                     <Settings className="h-4 w-4" />
@@ -533,7 +533,7 @@ export default function AccountPage() {
 
                                 <button
                                     onClick={handleLogout}
-                                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-400 hover:bg-red-50 hover:text-red-500 transition-colors"
+                                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-400 dark:text-gray-500 hover:bg-red-50 hover:text-red-500 transition-colors"
                                 >
                                     <LogOut className="h-4 w-4" />
                                     Terminar sessão
@@ -542,14 +542,14 @@ export default function AccountPage() {
                         </Card>
 
                         {/* Ajuda */}
-                        <div className="mt-4 p-4 bg-gray-50 rounded-lg border">
-                            <p className="text-sm font-medium text-gray-700">Precisas de ajuda?</p>
-                            <p className="text-xs text-gray-500 mt-1">
+                        <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border">
+                            <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Precisas de ajuda?</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                 Qualquer dúvida, estamos aqui.
                             </p>
                             <Link to="/ajuda" className="inline-flex items-center gap-1 text-xs text-k2k-blue hover:underline mt-2 font-medium">
                                 Fala connosco
-                                <ExternalLink className="h-3 w-3" />
+                                <ChevronRight className="h-3 w-3" />
                             </Link>
                         </div>
                     </div>
@@ -561,8 +561,8 @@ export default function AccountPage() {
                             <Card className="p-6">
                                 <div className="flex items-center justify-between mb-6">
                                     <div>
-                                        <h2 className="text-lg font-semibold text-gray-900">Dados Pessoais</h2>
-                                        <p className="text-sm text-gray-500">Informações da tua conta</p>
+                                        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Dados Pessoais</h2>
+                                        <p className="text-sm text-gray-500 dark:text-gray-400">Informações da tua conta</p>
                                     </div>
                                     {!isEditing ? (
                                         <Button
@@ -603,7 +603,7 @@ export default function AccountPage() {
                                 <div className="space-y-5">
                                     <div className="grid gap-5 sm:grid-cols-2">
                                         <div className="space-y-1.5">
-                                            <Label htmlFor="firstName" className="text-sm font-medium text-gray-700">Primeiro nome</Label>
+                                            <Label htmlFor="firstName" className="text-sm font-medium text-gray-700 dark:text-gray-300">Primeiro nome</Label>
                                             <Input
                                                 id="firstName"
                                                 value={formData.firstName}
@@ -614,7 +614,7 @@ export default function AccountPage() {
                                             />
                                         </div>
                                         <div className="space-y-1.5">
-                                            <Label htmlFor="lastName" className="text-sm font-medium text-gray-700">Apelido</Label>
+                                            <Label htmlFor="lastName" className="text-sm font-medium text-gray-700 dark:text-gray-300">Apelido</Label>
                                             <Input
                                                 id="lastName"
                                                 value={formData.lastName}
@@ -627,23 +627,23 @@ export default function AccountPage() {
                                     </div>
 
                                     <div className="space-y-1.5">
-                                        <Label htmlFor="email" className="text-sm font-medium text-gray-700">Email</Label>
+                                        <Label htmlFor="email" className="text-sm font-medium text-gray-700 dark:text-gray-300">Email</Label>
                                         <div className="relative">
-                                            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                                            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                                             <Input
                                                 id="email"
                                                 value={formData.email}
                                                 disabled
-                                                className="pl-10 bg-gray-50"
+                                                className="pl-10 bg-gray-50 dark:bg-gray-800"
                                             />
                                         </div>
-                                        <p className="text-xs text-gray-400 mt-1">Este é o email que usas para entrar</p>
+                                        <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Este é o email que usas para entrar</p>
                                     </div>
 
                                     <div>
-                                        <Label htmlFor="phone" className="text-sm text-gray-600">Telemóvel (opcional)</Label>
+                                        <Label htmlFor="phone" className="text-sm text-gray-600 dark:text-gray-400">Telemóvel (opcional)</Label>
                                         <div className="relative mt-1.5">
-                                            <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                                            <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                                             <Input
                                                 id="phone"
                                                 value={formData.phone}
@@ -653,21 +653,21 @@ export default function AccountPage() {
                                                 className="pl-10"
                                             />
                                         </div>
-                                        <p className="text-xs text-gray-400 mt-1">Só usamos para te contactar sobre encomendas</p>
+                                        <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Só usamos para te contactar sobre encomendas</p>
                                     </div>
                                 </div>
 
                                 {/* Info */}
                                 <div className="mt-8 pt-6 border-t">
-                                    <h3 className="text-sm font-medium text-gray-700 mb-3">Sobre a tua conta</h3>
+                                    <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Sobre a tua conta</h3>
                                     <div className="grid gap-3 sm:grid-cols-2 text-sm">
-                                        <div className="flex items-center gap-2.5 text-gray-600">
+                                        <div className="flex items-center gap-2.5 text-gray-600 dark:text-gray-400">
                                             <Mail className={`h-4 w-4 ${user?.emailVerified ? 'text-green-500' : 'text-yellow-500'}`} />
                                             <span>{user?.emailVerified ? 'Email verificado' : 'Email não verificado'}</span>
                                         </div>
                                         {memberSince && (
-                                            <div className="flex items-center gap-2.5 text-gray-600">
-                                                <User className="h-4 w-4 text-gray-400" />
+                                            <div className="flex items-center gap-2.5 text-gray-600 dark:text-gray-400">
+                                                <User className="h-4 w-4 text-gray-400 dark:text-gray-500" />
                                                 <span>Membro desde {memberSince}</span>
                                             </div>
                                         )}
@@ -681,8 +681,8 @@ export default function AccountPage() {
                             <Card className="p-6">
                                 <div className="flex items-center justify-between mb-6">
                                     <div>
-                                        <h2 className="text-lg font-semibold text-gray-900">As Minhas Encomendas</h2>
-                                        <p className="text-sm text-gray-500">Acompanha o estado das tuas compras</p>
+                                        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">As Minhas Encomendas</h2>
+                                        <p className="text-sm text-gray-500 dark:text-gray-400">Acompanha o estado das tuas compras</p>
                                     </div>
                                     <Button 
                                         variant="outline" 
@@ -700,14 +700,14 @@ export default function AccountPage() {
                                     <div className="flex justify-center py-16">
                                         <div className="text-center">
                                             <div className="h-6 w-6 animate-spin rounded-full border-2 border-k2k-blue border-t-transparent mx-auto mb-3" />
-                                            <p className="text-sm text-gray-500">A carregar encomendas...</p>
+                                            <p className="text-sm text-gray-500 dark:text-gray-400">A carregar encomendas...</p>
                                         </div>
                                     </div>
                                 ) : orders.length === 0 ? (
                                     <div className="text-center py-16">
                                         <Package className="h-10 w-10 text-gray-300 mx-auto mb-4" />
-                                        <h3 className="font-medium text-gray-900 mb-1">Ainda sem encomendas</h3>
-                                        <p className="text-sm text-gray-500 mb-5 max-w-xs mx-auto">
+                                        <h3 className="font-medium text-gray-900 dark:text-gray-100 mb-1">Ainda sem encomendas</h3>
+                                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-5 max-w-xs mx-auto">
                                             Quando fizeres uma compra, podes acompanhar tudo aqui.
                                         </p>
                                         <Link to="/">
@@ -726,7 +726,7 @@ export default function AccountPage() {
                                             >
                                                 <div className="flex items-start gap-4">
                                                     {/* Thumbnail do primeiro item */}
-                                                    <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden shrink-0">
+                                                    <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden shrink-0">
                                                         {order.items[0]?.image ? (
                                                             <img 
                                                                 src={order.items[0].image} 
@@ -743,10 +743,10 @@ export default function AccountPage() {
                                                     <div className="flex-1 min-w-0">
                                                         <div className="flex items-start justify-between gap-3">
                                                             <div>
-                                                                <p className="font-semibold text-gray-900">
+                                                                <p className="font-semibold text-gray-900 dark:text-gray-100">
                                                                     Encomenda #{order.orderNumber}
                                                                 </p>
-                                                                <p className="text-sm text-gray-500 mt-0.5">
+                                                                <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
                                                                     {order.createdAt.toLocaleDateString('pt-PT', { 
                                                                         day: 'numeric', 
                                                                         month: 'long', 
@@ -765,14 +765,14 @@ export default function AccountPage() {
                                                                 order.status === 'ready_pickup' && "bg-orange-100 text-orange-700",
                                                                 order.status === 'delivered' && "bg-green-100 text-green-700",
                                                                 order.status === 'cancelled' && "bg-red-100 text-red-700",
-                                                                order.status === 'refunded' && "bg-gray-100 text-gray-700"
+                                                                order.status === 'refunded' && "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300"
                                                             )}>
                                                                 {getOrderStatusLabel(order.status)}
                                                             </span>
                                                         </div>
                                                         
                                                         {/* Items preview */}
-                                                        <p className="text-sm text-gray-600 mt-2 line-clamp-1">
+                                                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 line-clamp-1">
                                                             {order.items.map(item => item.title).join(', ')}
                                                         </p>
 
@@ -823,8 +823,8 @@ export default function AccountPage() {
                             <Card className="p-6">
                                 <div className="flex items-center justify-between mb-6">
                                     <div>
-                                        <h2 className="text-lg font-semibold text-gray-900">Os Meus Favoritos</h2>
-                                        <p className="text-sm text-gray-500">
+                                        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Os Meus Favoritos</h2>
+                                        <p className="text-sm text-gray-500 dark:text-gray-400">
                                             {favorites.length > 0
                                                 ? `${favorites.length} artigo${favorites.length > 1 ? 's' : ''} guardado${favorites.length > 1 ? 's' : ''}`
                                                 : "Artigos que guardaste para mais tarde"
@@ -844,8 +844,8 @@ export default function AccountPage() {
                                 {favorites.length === 0 ? (
                                     <div className="text-center py-16">
                                         <Heart className="h-10 w-10 text-gray-300 mx-auto mb-4" />
-                                        <h3 className="font-medium text-gray-900 mb-1">A tua lista está vazia</h3>
-                                        <p className="text-sm text-gray-500 mb-5 max-w-xs mx-auto">
+                                        <h3 className="font-medium text-gray-900 dark:text-gray-100 mb-1">A tua lista está vazia</h3>
+                                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-5 max-w-xs mx-auto">
                                             Guarda os produtos que mais gostas para os encontrar facilmente.
                                         </p>
                                         <Link to="/">
@@ -859,9 +859,9 @@ export default function AccountPage() {
                                         {favorites.slice(0, 5).map((product) => (
                                             <div 
                                                 key={product.id} 
-                                                className="flex items-center gap-4 p-3 border rounded-lg hover:bg-gray-50 transition-colors"
+                                                className="flex items-center gap-4 p-3 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                                             >
-                                                <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden shrink-0">
+                                                <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden shrink-0">
                                                     {product.images && product.images.length > 0 ? (
                                                         <img
                                                             src={product.images[0]}
@@ -875,8 +875,8 @@ export default function AccountPage() {
                                                     )}
                                                 </div>
                                                 <div className="flex-1 min-w-0">
-                                                    <p className="font-medium text-gray-900 text-sm truncate">{product.title}</p>
-                                                    <p className="text-xs text-gray-500">{product.brand} • {product.size}</p>
+                                                    <p className="font-medium text-gray-900 dark:text-gray-100 text-sm truncate">{product.title}</p>
+                                                    <p className="text-xs text-gray-500 dark:text-gray-400">{product.brand} • {product.size}</p>
                                                     <p className="text-k2k-blue font-semibold text-sm mt-0.5">€{product.price.toFixed(2)}</p>
                                                 </div>
                                                 <div className="flex items-center gap-1">
@@ -896,7 +896,7 @@ export default function AccountPage() {
                                                             removeFromFavorites(product.id)
                                                             toast.success("Removido dos favoritos")
                                                         }}
-                                                        className="text-gray-400 hover:text-red-500 hover:bg-red-50"
+                                                        className="text-gray-400 dark:text-gray-500 hover:text-red-500 hover:bg-red-50"
                                                     >
                                                         <Trash2 className="h-4 w-4" />
                                                     </Button>
@@ -906,7 +906,7 @@ export default function AccountPage() {
                                         {favorites.length > 5 && (
                                             <div className="text-center pt-4">
                                                 <Link to="/favoritos">
-                                                    <Button variant="ghost" size="sm" className="text-gray-600">
+                                                    <Button variant="ghost" size="sm" className="text-gray-600 dark:text-gray-400">
                                                         Ver todos os {favorites.length} favoritos
                                                         <ChevronRight className="h-4 w-4 ml-1" />
                                                     </Button>
@@ -923,8 +923,8 @@ export default function AccountPage() {
                             <Card className="p-6">
                                 <div className="flex items-start justify-between mb-6">
                                     <div>
-                                        <h2 className="text-lg font-semibold text-gray-900">Moradas de Entrega</h2>
-                                        <p className="text-sm text-gray-500">{addresses.length} morada{addresses.length !== 1 ? 's' : ''} guardada{addresses.length !== 1 ? 's' : ''}</p>
+                                        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Moradas de Entrega</h2>
+                                        <p className="text-sm text-gray-500 dark:text-gray-400">{addresses.length} morada{addresses.length !== 1 ? 's' : ''} guardada{addresses.length !== 1 ? 's' : ''}</p>
                                     </div>
                                     <Button
                                         size="sm"
@@ -939,8 +939,8 @@ export default function AccountPage() {
                                 {addresses.length === 0 ? (
                                     <div className="text-center py-16">
                                         <MapPin className="h-10 w-10 text-gray-300 mx-auto mb-4" />
-                                        <h3 className="font-medium text-gray-900 mb-1">Sem moradas guardadas</h3>
-                                        <p className="text-sm text-gray-500 max-w-xs mx-auto mb-5">
+                                        <h3 className="font-medium text-gray-900 dark:text-gray-100 mb-1">Sem moradas guardadas</h3>
+                                        <p className="text-sm text-gray-500 dark:text-gray-400 max-w-xs mx-auto mb-5">
                                             Adiciona uma morada para tornar o checkout mais rápido.
                                         </p>
                                         <Button 
@@ -962,17 +962,17 @@ export default function AccountPage() {
                                                 <div className="flex items-start justify-between">
                                                     <div>
                                                             <div className="flex items-center gap-2">
-                                                                <p className="font-medium text-gray-900">{address.name}</p>
+                                                                <p className="font-medium text-gray-900 dark:text-gray-100">{address.name}</p>
                                                                 {address.isDefault && (
                                                                     <span className="text-xs bg-k2k-blue text-white px-2 py-0.5 rounded-full">
                                                                         Principal
                                                                     </span>
                                                                 )}
                                                             </div>
-                                                            <p className="text-sm text-gray-600 mt-1">{address.street}</p>
-                                                            <p className="text-sm text-gray-600">{address.postalCode} {address.city}</p>
+                                                            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{address.street}</p>
+                                                            <p className="text-sm text-gray-600 dark:text-gray-400">{address.postalCode} {address.city}</p>
                                                             {address.phone && (
-                                                                <p className="text-sm text-gray-500 mt-1">{address.phone}</p>
+                                                                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{address.phone}</p>
                                                             )}
                                                     </div>
                                                     <div className="flex items-center gap-1">
@@ -981,7 +981,7 @@ export default function AccountPage() {
                                                                 variant="ghost"
                                                                 size="sm"
                                                                 onClick={() => handleSetDefaultAddress(address.id)}
-                                                                className="text-gray-500 hover:text-k2k-blue"
+                                                                className="text-gray-500 dark:text-gray-400 hover:text-k2k-blue"
                                                             >
                                                                 <Check className="h-4 w-4" />
                                                             </Button>
@@ -990,7 +990,7 @@ export default function AccountPage() {
                                                             variant="ghost"
                                                             size="sm"
                                                             onClick={() => handleRemoveAddress(address.id)}
-                                                            className="text-gray-400 hover:text-red-500"
+                                                            className="text-gray-400 dark:text-gray-500 hover:text-red-500"
                                                         >
                                                             <Trash2 className="h-4 w-4" />
                                                         </Button>
@@ -1002,8 +1002,8 @@ export default function AccountPage() {
                                 )}
 
                                 {/* Info */}
-                                <div className="mt-6 p-4 bg-gray-50 rounded-lg text-sm text-gray-600">
-                                    <p className="font-medium text-gray-700 mb-2">Informações de entrega</p>
+                                <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg text-sm text-gray-600 dark:text-gray-400">
+                                    <p className="font-medium text-gray-700 dark:text-gray-300 mb-2">Informações de entrega</p>
                                     <ul className="space-y-1">
                                         <li>• Entrega em 2-5 dias úteis</li>
                                         <li>• Portes grátis acima de 50€</li>
@@ -1014,18 +1014,18 @@ export default function AccountPage() {
                                 {/* Modal de adicionar morada */}
                                 {showAddressModal && (
                                     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                                        <div className="bg-white rounded-2xl w-full max-w-md shadow-xl">
+                                        <div className="bg-white dark:bg-gray-900 rounded-2xl w-full max-w-md shadow-xl">
                                             {/* Header */}
                                             <div className="flex items-center justify-between p-6 border-b">
                                                 <div>
-                                                    <h3 className="text-lg font-semibold text-gray-900">Nova morada</h3>
-                                                    <p className="text-sm text-gray-500">Adiciona uma morada de entrega</p>
+                                                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Nova morada</h3>
+                                                    <p className="text-sm text-gray-500 dark:text-gray-400">Adiciona uma morada de entrega</p>
                                                 </div>
                                                 <button
                                                     onClick={() => setShowAddressModal(false)}
-                                                    className="w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center"
+                                                    className="w-8 h-8 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center justify-center"
                                                 >
-                                                    <X className="h-5 w-5 text-gray-500" />
+                                                    <X className="h-5 w-5 text-gray-500 dark:text-gray-400" />
                                                 </button>
                                             </div>
 
@@ -1095,7 +1095,7 @@ export default function AccountPage() {
                                                         onChange={(e) => setAddressForm({ ...addressForm, isDefault: e.target.checked })}
                                                         className="rounded border-gray-300 text-k2k-blue focus:ring-k2k-blue"
                                                     />
-                                                    <Label htmlFor="isDefault" className="text-sm text-gray-600 cursor-pointer">
+                                                    <Label htmlFor="isDefault" className="text-sm text-gray-600 dark:text-gray-400 cursor-pointer">
                                                         Definir como morada principal
                                                     </Label>
                                                 </div>
@@ -1128,8 +1128,8 @@ export default function AccountPage() {
                             <div className="space-y-4">
                                 <Card className="p-6">
                                     <div className="mb-6">
-                                        <h2 className="text-lg font-semibold text-gray-900">Definições</h2>
-                                        <p className="text-sm text-gray-500">Gere as preferências da tua conta</p>
+                                        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Definições</h2>
+                                        <p className="text-sm text-gray-500 dark:text-gray-400">Gere as preferências da tua conta</p>
                                     </div>
 
                                     <div className="space-y-1">
@@ -1137,12 +1137,12 @@ export default function AccountPage() {
                                         <ThemeSettingRow />
 
                                         {/* Newsletter */}
-                                        <div className="flex items-center justify-between p-4 hover:bg-gray-50 rounded-lg transition-colors -mx-2">
+                                        <div className="flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors -mx-2">
                                             <div className="flex items-center gap-3">
-                                                <Bell className="h-5 w-5 text-gray-400" />
+                                                <Bell className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                                                 <div>
-                                                    <p className="font-medium text-gray-900">Newsletter</p>
-                                                    <p className="text-sm text-gray-500">Recebe promoções e novidades por email</p>
+                                                    <p className="font-medium text-gray-900 dark:text-gray-100">Newsletter</p>
+                                                    <p className="text-sm text-gray-500 dark:text-gray-400">Recebe promoções e novidades por email</p>
                                                 </div>
                                             </div>
                                             <label className="relative inline-flex items-center cursor-pointer">
@@ -1157,18 +1157,18 @@ export default function AccountPage() {
                                         </div>
 
                                         {/* Password */}
-                                        <div className="flex items-center justify-between p-4 hover:bg-gray-50 rounded-lg transition-colors -mx-2">
+                                        <div className="flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors -mx-2">
                                             <div className="flex items-center gap-3">
-                                                <Lock className="h-5 w-5 text-gray-400" />
+                                                <Lock className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                                                 <div>
-                                                    <p className="font-medium text-gray-900">Alterar password</p>
-                                                    <p className="text-sm text-gray-500">Recebe um link por email para criar nova password</p>
+                                                    <p className="font-medium text-gray-900 dark:text-gray-100">Alterar password</p>
+                                                    <p className="text-sm text-gray-500 dark:text-gray-400">Recebe um link por email para criar nova password</p>
                                                 </div>
                                             </div>
                                             <Button
                                                 variant="ghost"
                                                 size="sm"
-                                                className="text-gray-600"
+                                                className="text-gray-600 dark:text-gray-400"
                                                 onClick={handleResetPassword}
                                                 disabled={isResettingPassword}
                                             >
@@ -1178,16 +1178,16 @@ export default function AccountPage() {
                                         </div>
 
                                         {/* Privacidade */}
-                                        <div className="flex items-center justify-between p-4 hover:bg-gray-50 rounded-lg transition-colors -mx-2">
+                                        <div className="flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors -mx-2">
                                             <div className="flex items-center gap-3">
-                                                <Shield className="h-5 w-5 text-gray-400" />
+                                                <Shield className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                                                 <div>
-                                                    <p className="font-medium text-gray-900">Privacidade</p>
-                                                    <p className="text-sm text-gray-500">Como tratamos os teus dados</p>
+                                                    <p className="font-medium text-gray-900 dark:text-gray-100">Privacidade</p>
+                                                    <p className="text-sm text-gray-500 dark:text-gray-400">Como tratamos os teus dados</p>
                                                 </div>
                                             </div>
                                             <Link to="/politica-de-privacidade">
-                                                <Button variant="ghost" size="sm" className="text-gray-600">
+                                                <Button variant="ghost" size="sm" className="text-gray-600 dark:text-gray-400">
                                                     Ver
                                                     <ChevronRight className="h-4 w-4 ml-1" />
                                                 </Button>
@@ -1202,8 +1202,8 @@ export default function AccountPage() {
                                         <div className="flex items-center gap-3">
                                             <Trash2 className="h-5 w-5 text-red-400" />
                                             <div>
-                                                <p className="font-medium text-gray-900">Apagar conta</p>
-                                                <p className="text-sm text-gray-500">Isto é permanente e não dá para voltar atrás</p>
+                                                <p className="font-medium text-gray-900 dark:text-gray-100">Apagar conta</p>
+                                                <p className="text-sm text-gray-500 dark:text-gray-400">Isto é permanente e não dá para voltar atrás</p>
                                             </div>
                                         </div>
                                 <Button
@@ -1211,9 +1211,9 @@ export default function AccountPage() {
                                             size="sm"
                                             className="text-red-500 hover:text-red-600 hover:bg-red-50"
                                             onClick={async () => {
-                                                const confirm1 = window.confirm("Tem a certeza que deseja apagar a sua conta? Esta ação é irreversível.")
+                                                const confirm1 = window.confirm("Tens a certeza que queres apagar a tua conta? Esta ação é irreversível.")
                                                 if (!confirm1) return
-                                                const confirm2 = window.confirm("ÚLTIMA CONFIRMAÇÃO: Todos os seus dados serão eliminados permanentemente. Continuar?")
+                                                const confirm2 = window.confirm("ÚLTIMA CONFIRMAÇÃO: Todos os teus dados serão eliminados permanentemente. Continuar?")
                                                 if (!confirm2) return
                                                 try {
                                                     // Delete user data from Firestore
@@ -1270,7 +1270,7 @@ export default function AccountPage() {
                                 <Button
                                     onClick={handleLogout}
                                     variant="outline"
-                                    className="w-full sm:hidden text-gray-600"
+                                    className="w-full sm:hidden text-gray-600 dark:text-gray-400"
                                 >
                                     <LogOut className="h-4 w-4 mr-2" />
                                     Terminar sessão

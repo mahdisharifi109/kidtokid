@@ -18,7 +18,7 @@ export default function ForgotPasswordPage() {
     e.preventDefault()
 
     if (!email) {
-      toast.error("Introduza o seu email")
+      toast.error("Introduz o teu email")
       return
     }
 
@@ -36,7 +36,7 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       <Header />
 
       <main className="container mx-auto px-4 py-8 md:py-12">
@@ -44,19 +44,19 @@ export default function ForgotPasswordPage() {
           {/* Logo */}
           <div className="text-center mb-8">
             <img src="/logo.png" alt="Kid to Kid" className="h-12 mx-auto mb-4" />
-            <h1 className="text-xl font-semibold text-gray-900">Recuperar Password</h1>
-            <p className="text-sm text-gray-500 mt-1">
-              Introduza o email associado à sua conta
+            <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Recuperar Password</h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+              Introduz o email associado à tua conta
             </p>
           </div>
 
-          <div className="bg-white rounded-lg shadow-sm border p-6">
+          <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm border p-6">
             {sent ? (
               <div className="text-center py-4">
                 <CheckCircle2 className="h-12 w-12 text-green-500 mx-auto mb-4" />
-                <h2 className="text-lg font-semibold text-gray-900 mb-2">Email enviado!</h2>
-                <p className="text-sm text-gray-600 mb-6">
-                  Verifique a sua caixa de entrada (e spam) para o email de recuperação de password enviado para <strong>{email}</strong>.
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Email enviado!</h2>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+                  Verifica a tua caixa de entrada (e spam) para o email de recuperação de password enviado para <strong>{email}</strong>.
                 </p>
                 <Link to="/entrar">
                   <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
@@ -67,11 +67,11 @@ export default function ForgotPasswordPage() {
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <Label htmlFor="email" className="text-sm text-gray-700">
+                  <Label htmlFor="email" className="text-sm text-gray-700 dark:text-gray-300">
                     Email
                   </Label>
                   <div className="relative mt-1.5">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                     <Input
                       id="email"
                       type="email"
@@ -97,7 +97,7 @@ export default function ForgotPasswordPage() {
 
           <Link
             to="/entrar"
-            className="flex items-center justify-center gap-2 mt-6 text-sm text-gray-600 hover:text-blue-600 transition-colors"
+            className="flex items-center justify-center gap-2 mt-6 text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
             Voltar ao login

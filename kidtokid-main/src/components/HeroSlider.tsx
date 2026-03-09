@@ -13,13 +13,13 @@ interface HeroSlide {
 const slides: HeroSlide[] = [
   {
     title: "Arrume e Ganhe",
-    subtitle: "Venda-nos o que os seus filhos já não podem usar",
+    subtitle: "Vende-nos o que os teus filhos já não usam",
     image: "/baby-clothes-onesie.jpg",
     link: "/sobre",
   },
   {
     title: "Brinquedos",
-    subtitle: "Milhares de brinquedos aos melhores preços",
+    subtitle: "Os melhores brinquedos a preços amigos",
     image: "/colorful-kids-toys.png",
     link: "/categoria/brinquedos",
   },
@@ -31,7 +31,7 @@ const slides: HeroSlide[] = [
   },
   {
     title: "Bebé",
-    subtitle: "Tudo para o seu bebé ao melhor preço",
+    subtitle: "Tudo para o teu bebé ao melhor preço",
     image: "/baby-cute-smiling.jpg",
     link: "/categoria/bebe",
   },
@@ -39,14 +39,16 @@ const slides: HeroSlide[] = [
 
 export function HeroSlider() {
   const [currentSlide, setCurrentSlide] = useState(0)
+  const [isPaused, setIsPaused] = useState(false)
 
   useEffect(() => {
+    if (isPaused) return
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % slides.length)
     }, 5000)
 
     return () => clearInterval(interval)
-  }, [])
+  }, [isPaused])
 
   const goToSlide = (index: number) => {
     setCurrentSlide(index)
@@ -61,7 +63,11 @@ export function HeroSlider() {
   }
 
   return (
-    <div className="relative mb-6 md:mb-10 overflow-hidden rounded-2xl md:rounded-3xl shadow-lg">
+    <div
+      className="relative mb-6 md:mb-10 overflow-hidden rounded-2xl md:rounded-3xl shadow-lg"
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+    >
       <div
         className="flex transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
         style={{ transform: `translateX(-${currentSlide * 100}%)` }}
@@ -91,7 +97,7 @@ export function HeroSlider() {
       <Button
         variant="ghost"
         size="icon"
-        className="absolute left-3 sm:left-5 top-1/2 -translate-y-1/2 bg-white/70 backdrop-blur-sm hover:bg-white/90 h-9 w-9 sm:h-11 sm:w-11 rounded-full shadow-md transition-all"
+        className="absolute left-3 sm:left-5 top-1/2 -translate-y-1/2 bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm hover:bg-white/90 dark:hover:bg-gray-800/90 h-9 w-9 sm:h-11 sm:w-11 rounded-full shadow-md transition-all"
         onClick={goToPrevious}
         aria-label="Slide anterior"
       >
@@ -100,7 +106,7 @@ export function HeroSlider() {
       <Button
         variant="ghost"
         size="icon"
-        className="absolute right-3 sm:right-5 top-1/2 -translate-y-1/2 bg-white/70 backdrop-blur-sm hover:bg-white/90 h-9 w-9 sm:h-11 sm:w-11 rounded-full shadow-md transition-all"
+        className="absolute right-3 sm:right-5 top-1/2 -translate-y-1/2 bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm hover:bg-white/90 dark:hover:bg-gray-800/90 h-9 w-9 sm:h-11 sm:w-11 rounded-full shadow-md transition-all"
         onClick={goToNext}
         aria-label="Próximo slide"
       >

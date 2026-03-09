@@ -145,7 +145,7 @@ export default function AdminCouponsPage() {
       <div className="space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <p className="text-sm text-gray-500">{coupons.length} cupões</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">{coupons.length} cupões</p>
           <Button onClick={() => setShowForm(!showForm)} className="bg-blue-600 hover:bg-blue-700">
             <Plus className="h-4 w-4 mr-2" />
             Novo Cupão
@@ -155,7 +155,7 @@ export default function AdminCouponsPage() {
         {/* Create Form */}
         {showForm && (
           <Card className="p-6">
-            <h3 className="font-semibold text-gray-900 mb-4">Novo Cupão</h3>
+            <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">Novo Cupão</h3>
             <form onSubmit={handleCreate} className="space-y-4">
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
@@ -188,7 +188,7 @@ export default function AdminCouponsPage() {
                     onChange={(e) =>
                       setFormData({ ...formData, discountType: e.target.value as "percentage" | "fixed" })
                     }
-                    className="mt-1 w-full h-10 px-3 rounded-lg border border-gray-200 text-sm"
+                    className="mt-1 w-full h-10 px-3 rounded-lg border border-gray-200 dark:border-gray-700 text-sm"
                   >
                     <option value="percentage">Percentagem (%)</option>
                     <option value="fixed">Valor Fixo (€)</option>
@@ -274,13 +274,13 @@ export default function AdminCouponsPage() {
         {/* Coupons List */}
         {loading ? (
           <div className="flex justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+            <Loader2 className="h-8 w-8 animate-spin text-gray-400 dark:text-gray-500" />
           </div>
         ) : coupons.length === 0 ? (
           <Card className="p-12 text-center">
             <Tag className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-            <p className="text-gray-500">Nenhum cupão criado</p>
-            <p className="text-sm text-gray-400 mt-1">Cria o primeiro cupão de desconto para os teus clientes</p>
+            <p className="text-gray-500 dark:text-gray-400">Nenhum cupão criado</p>
+            <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">Cria o primeiro cupão de desconto para os teus clientes</p>
           </Card>
         ) : (
           <div className="space-y-3">
@@ -289,9 +289,9 @@ export default function AdminCouponsPage() {
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-mono font-bold text-lg text-gray-900">{coupon.code}</span>
+                      <span className="font-mono font-bold text-lg text-gray-900 dark:text-gray-100">{coupon.code}</span>
                       {coupon.isActive && !isExpired(coupon) && !isMaxedOut(coupon) ? (
-                        <Badge className="bg-green-100 text-green-700">Ativo</Badge>
+                        <Badge className="bg-green-100 dark:bg-green-900/30 text-green-700">Ativo</Badge>
                       ) : isExpired(coupon) ? (
                         <Badge variant="destructive">Expirado</Badge>
                       ) : isMaxedOut(coupon) ? (
@@ -301,9 +301,9 @@ export default function AdminCouponsPage() {
                       )}
                     </div>
                     {coupon.description && (
-                      <p className="text-sm text-gray-500 mt-1">{coupon.description}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{coupon.description}</p>
                     )}
-                    <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-gray-400">
+                    <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-gray-400 dark:text-gray-500">
                       <span className="flex items-center gap-1">
                         {coupon.discountType === "percentage" ? (
                           <><Percent className="h-3 w-3" /> {coupon.discountValue}%</>
@@ -334,7 +334,7 @@ export default function AdminCouponsPage() {
                       {coupon.isActive ? (
                         <ToggleRight className="h-5 w-5 text-green-600" />
                       ) : (
-                        <ToggleLeft className="h-5 w-5 text-gray-400" />
+                        <ToggleLeft className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                       )}
                     </Button>
                     <Button

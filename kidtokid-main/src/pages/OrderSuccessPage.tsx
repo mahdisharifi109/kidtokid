@@ -75,9 +75,9 @@ export default function OrderSuccessPage() {
     }
 
     return (
-        <div className="min-h-screen bg-linear-to-b from-green-50 via-white to-gray-50">
+        <div className="min-h-screen bg-linear-to-b from-green-50 dark:from-green-950/20 via-white dark:via-gray-950 to-gray-50 dark:to-gray-950">
             {/* Minimal Header */}
-            <header className="bg-white/80 backdrop-blur-sm border-b sticky top-0 z-50">
+            <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-b sticky top-0 z-50">
                 <div className="container mx-auto px-4 h-14 flex items-center justify-center">
                     <Link to="/" className="flex items-center gap-2">
                         <img src="/logo.png" alt="Kid to Kid" className="h-7" />
@@ -104,24 +104,24 @@ export default function OrderSuccessPage() {
                             </div>
                         </div>
 
-                        <h1 className="mb-2 text-2xl md:text-3xl font-bold text-gray-900">
+                        <h1 className="mb-2 text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100">
                             Encomenda Confirmada
                         </h1>
-                        <p className="text-gray-600 max-w-sm mx-auto">
+                        <p className="text-gray-600 dark:text-gray-400 max-w-sm mx-auto">
                             Obrigado pela tua compra! Preparámos tudo com muito carinho para ti.
                         </p>
                     </div>
 
                     {/* Order Number - Vinted Style */}
-                    <div className="bg-white rounded-2xl border-2 border-dashed border-k2k-blue/30 p-5 mb-6 text-center">
-                        <p className="text-sm text-gray-500 mb-2">Número da Encomenda</p>
+                    <div className="bg-white dark:bg-gray-900 rounded-2xl border-2 border-dashed border-k2k-blue/30 p-5 mb-6 text-center">
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">Número da Encomenda</p>
                         <div className="flex items-center justify-center gap-3">
                             <p className="font-mono font-bold text-2xl md:text-3xl text-k2k-blue">
                                 #{orderNumber || '------'}
                             </p>
                             <button 
                                 onClick={handleCopyOrderNumber}
-                                className={`p-2 rounded-lg transition-all ${copied ? 'bg-green-100 text-green-600' : 'bg-gray-100 hover:bg-gray-200 text-gray-600'}`}
+                                className={`p-2 rounded-lg transition-all ${copied ? 'bg-green-100 text-green-600' : 'bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400'}`}
                             >
                                 {copied ? <Check className="h-5 w-5" /> : <Copy className="h-5 w-5" />}
                             </button>
@@ -134,14 +134,14 @@ export default function OrderSuccessPage() {
                         <Card className="p-8 rounded-2xl">
                             <div className="flex flex-col items-center gap-3">
                                 <div className="h-8 w-8 animate-spin rounded-full border-2 border-k2k-blue border-t-transparent" />
-                                <p className="text-sm text-gray-500">A carregar detalhes...</p>
+                                <p className="text-sm text-gray-500 dark:text-gray-400">A carregar detalhes...</p>
                             </div>
                         </Card>
                     ) : order ? (
                         <div className="space-y-4">
                             {/* Items Summary */}
                             <Card className="rounded-2xl overflow-hidden">
-                                <div className="p-4 border-b bg-gray-50">
+                                <div className="p-4 border-b bg-gray-50 dark:bg-gray-800">
                                     <h3 className="font-semibold flex items-center gap-2">
                                         <Package className="h-5 w-5 text-k2k-blue" />
                                         Os teus artigos ({order.items.length})
@@ -153,19 +153,19 @@ export default function OrderSuccessPage() {
                                             <img 
                                                 src={item.image} 
                                                 alt={item.title}
-                                                className="w-16 h-16 rounded-xl object-cover bg-gray-100"
+                                                className="w-16 h-16 rounded-xl object-cover bg-gray-100 dark:bg-gray-800"
                                             />
                                             <div className="flex-1 min-w-0">
                                                 <p className="font-medium text-sm line-clamp-1">{item.title}</p>
-                                                <p className="text-xs text-gray-500">{item.brand} • Tam. {item.size}</p>
+                                                <p className="text-xs text-gray-500 dark:text-gray-400">{item.brand} • Tam. {item.size}</p>
                                             </div>
-                                            <p className="font-semibold text-gray-900">€{item.price.toFixed(2)}</p>
+                                            <p className="font-semibold text-gray-900 dark:text-gray-100">€{item.price.toFixed(2)}</p>
                                         </div>
                                     ))}
                                 </div>
-                                <div className="border-t p-4 bg-gray-50">
+                                <div className="border-t p-4 bg-gray-50 dark:bg-gray-800">
                                     <div className="flex justify-between items-center">
-                                        <span className="font-semibold text-gray-900">Total pago</span>
+                                        <span className="font-semibold text-gray-900 dark:text-gray-100">Total pago</span>
                                         <span className="font-bold text-xl text-k2k-blue">€{order.total.toFixed(2)}</span>
                                     </div>
                                 </div>
@@ -177,10 +177,10 @@ export default function OrderSuccessPage() {
                                     <div className={`w-10 h-10 rounded-xl mb-3 flex items-center justify-center ${order.shippingMethod === 'pickup' ? 'bg-purple-100 text-purple-600' : 'bg-blue-100 text-k2k-blue'}`}>
                                         {order.shippingMethod === 'pickup' ? <Store className="h-5 w-5" /> : <Truck className="h-5 w-5" />}
                                     </div>
-                                    <p className="font-medium text-sm text-gray-900 mb-1">
+                                    <p className="font-medium text-sm text-gray-900 dark:text-gray-100 mb-1">
                                         {order.shippingMethod === 'pickup' ? 'Levantamento' : 'Envio'}
                                     </p>
-                                    <p className="text-xs text-gray-500 line-clamp-2">
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2">
                                         {order.shippingAddress.street}
                                     </p>
                                 </Card>
@@ -189,23 +189,23 @@ export default function OrderSuccessPage() {
                                     <div className="w-10 h-10 rounded-xl bg-green-100 text-green-600 mb-3 flex items-center justify-center">
                                         <CreditCard className="h-5 w-5" />
                                     </div>
-                                    <p className="font-medium text-sm text-gray-900 mb-1">Pagamento</p>
-                                    <p className="text-xs text-gray-500">{getPaymentMethodText(order.paymentMethod)}</p>
+                                    <p className="font-medium text-sm text-gray-900 dark:text-gray-100 mb-1">Pagamento</p>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400">{getPaymentMethodText(order.paymentMethod)}</p>
                                 </Card>
                             </div>
 
                             {/* Payment Instructions */}
                             {(order.paymentMethod as string) === 'multibanco' && order.paymentReference && (
-                                <Card className="p-4 rounded-2xl border-blue-200 bg-blue-50">
+                                <Card className="p-4 rounded-2xl border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/20">
                                     <div className="flex gap-3">
                                         <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center shrink-0">
                                             <CreditCard className="h-5 w-5 text-blue-600" />
                                         </div>
                                         <div className="flex-1">
                                             <p className="font-medium text-blue-800 text-sm mb-2">Dados Multibanco</p>
-                                            <div className="bg-white rounded-lg p-3 space-y-1 font-mono text-sm">
-                                                <p className="text-gray-600">{order.paymentReference}</p>
-                                                <p className="text-gray-600">Montante: <span className="font-bold text-gray-900">€{order.total.toFixed(2)}</span></p>
+                                            <div className="bg-white dark:bg-gray-900 rounded-lg p-3 space-y-1 font-mono text-sm">
+                                                <p className="text-gray-600 dark:text-gray-400">{order.paymentReference}</p>
+                                                <p className="text-gray-600 dark:text-gray-400">Montante: <span className="font-bold text-gray-900 dark:text-gray-100">€{order.total.toFixed(2)}</span></p>
                                             </div>
                                             <p className="text-xs text-blue-600 mt-2">Válido por 48 horas</p>
                                         </div>
@@ -213,9 +213,9 @@ export default function OrderSuccessPage() {
                                 </Card>
                             )}
 
-                            <Card className="p-4 rounded-2xl border-amber-200 bg-amber-50">
+                            <Card className="p-4 rounded-2xl border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/20">
                                 <div className="flex gap-3">
-                                    <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center shrink-0">
+                                    <div className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center shrink-0">
                                         <Clock className="h-5 w-5 text-amber-600" />
                                     </div>
                                     <div>
@@ -232,12 +232,12 @@ export default function OrderSuccessPage() {
                         <Card className="p-6 rounded-2xl">
                             <div className="space-y-4">
                                 <div className="flex gap-3">
-                                    <div className="h-10 w-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
+                                    <div className="h-10 w-10 rounded-xl bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center shrink-0">
                                         <Mail className="h-5 w-5 text-k2k-blue" />
                                     </div>
                                     <div>
-                                        <p className="font-medium text-gray-900 text-sm">Confirmação por Email</p>
-                                        <p className="text-xs text-gray-500 mt-1">
+                                        <p className="font-medium text-gray-900 dark:text-gray-100 text-sm">Confirmação por Email</p>
+                                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                             Enviámos todos os detalhes para o teu email.
                                         </p>
                                     </div>
@@ -248,8 +248,8 @@ export default function OrderSuccessPage() {
                                         <ShieldCheck className="h-5 w-5 text-green-600" />
                                     </div>
                                     <div>
-                                        <p className="font-medium text-gray-900 text-sm">Compra Protegida</p>
-                                        <p className="text-xs text-gray-500 mt-1">
+                                        <p className="font-medium text-gray-900 dark:text-gray-100 text-sm">Compra Protegida</p>
+                                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                             A tua encomenda está protegida até à entrega.
                                         </p>
                                     </div>
@@ -283,7 +283,7 @@ export default function OrderSuccessPage() {
                     </div>
 
                     {/* Help note */}
-                    <p className="text-center text-xs text-gray-500 mt-6">
+                    <p className="text-center text-xs text-gray-500 dark:text-gray-400 mt-6">
                         Dúvidas? Contacta-nos via{' '}
                         <a href="mailto:info@kidtokid.pt" className="text-k2k-blue hover:underline">info@kidtokid.pt</a>
                         {' '}ou visita a nossa <Link to="/ajuda" className="text-k2k-blue hover:underline">página de ajuda</Link>.

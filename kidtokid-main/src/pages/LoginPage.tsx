@@ -57,7 +57,7 @@ export default function LoginPage() {
       toast.success("Bem-vindo de volta!")
       navigate(redirectTo)
     } else if (result.blocked) {
-      toast.error(`Demasiadas tentativas. Aguarde ${result.waitTime} minutos.`)
+      toast.error(`Demasiadas tentativas. Aguarda ${result.waitTime} minutos.`)
     } else {
       toast.error(result.error || "Email ou password incorretos")
     }
@@ -78,14 +78,14 @@ export default function LoginPage() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center">
         <div className="h-6 w-6 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       <Header />
 
       <main className="container mx-auto px-4 py-8 md:py-12">
@@ -94,15 +94,15 @@ export default function LoginPage() {
           {/* Logo */}
           <div className="text-center mb-8">
             <img src="/logo.png" alt="Kid to Kid" className="h-12 mx-auto mb-4" />
-            <h1 className="text-xl font-semibold text-gray-900">Entrar na sua conta</h1>
+            <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Entrar na tua conta</h1>
           </div>
 
           {/* Formulário */}
-          <div className="bg-white rounded-lg shadow-sm border p-6">
+          <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm border p-6">
             <form onSubmit={handleSubmit} className="space-y-4">
               
               <div>
-                <Label htmlFor="email" className="text-sm text-gray-700">
+                <Label htmlFor="email" className="text-sm text-gray-700 dark:text-gray-300">
                   Email
                 </Label>
                 <Input
@@ -111,6 +111,7 @@ export default function LoginPage() {
                   type="email"
                   placeholder="o-seu-email@exemplo.com"
                   className="mt-1.5"
+                  autoComplete="email"
                   value={formData.email}
                   onChange={handleChange}
                   disabled={isLoading}
@@ -119,14 +120,14 @@ export default function LoginPage() {
 
               <div>
                 <div className="flex justify-between items-center">
-                  <Label htmlFor="password" className="text-sm text-gray-700">
+                  <Label htmlFor="password" className="text-sm text-gray-700 dark:text-gray-300">
                     Password
                   </Label>
                   <Link
                     to="/recuperar-senha"
                     className="text-xs text-blue-600 hover:underline"
                   >
-                    Esqueceu?
+                    Esqueceste?
                   </Link>
                 </div>
                 <div className="relative mt-1.5">
@@ -134,8 +135,9 @@ export default function LoginPage() {
                     id="password"
                     name="password"
                     type={showPassword ? "text" : "password"}
-                    placeholder="A sua password"
+                    placeholder="A tua password"
                     className="pr-10"
+                    autoComplete="current-password"
                     value={formData.password}
                     onChange={handleChange}
                     disabled={isLoading}
@@ -143,7 +145,8 @@ export default function LoginPage() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"
+                    aria-label={showPassword ? "Esconder password" : "Mostrar password"}
                   >
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
@@ -159,7 +162,7 @@ export default function LoginPage() {
                   }
                   disabled={isLoading}
                 />
-                <Label htmlFor="rememberMe" className="text-sm text-gray-600 cursor-pointer">
+                <Label htmlFor="rememberMe" className="text-sm text-gray-600 dark:text-gray-400 cursor-pointer">
                   Manter sessão
                 </Label>
               </div>
@@ -176,10 +179,10 @@ export default function LoginPage() {
             {/* Separador */}
             <div className="relative my-6">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-200" />
+                <div className="w-full border-t border-gray-200 dark:border-gray-700" />
               </div>
               <div className="relative flex justify-center">
-                <span className="bg-white px-3 text-xs text-gray-500">ou</span>
+                <span className="bg-white dark:bg-gray-900 px-3 text-xs text-gray-500 dark:text-gray-400">ou</span>
               </div>
             </div>
 
@@ -189,7 +192,7 @@ export default function LoginPage() {
                 type="button"
                 onClick={handleGoogleLogin}
                 disabled={isLoading}
-                className="w-full flex items-center justify-center gap-3 px-4 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+                className="w-full flex items-center justify-center gap-3 px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors disabled:opacity-50"
               >
                 <svg className="h-5 w-5" viewBox="0 0 24 24">
                   <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -197,13 +200,13 @@ export default function LoginPage() {
                   <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
                   <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
                 </svg>
-                <span className="text-sm text-gray-700">Continuar com Google</span>
+                <span className="text-sm text-gray-700 dark:text-gray-300">Continuar com Google</span>
               </button>
             </div>
           </div>
 
           {/* Link criar conta */}
-          <p className="text-center mt-6 text-sm text-gray-600">
+          <p className="text-center mt-6 text-sm text-gray-600 dark:text-gray-400">
             Ainda não tem conta?{" "}
             <Link to="/registar" className="text-blue-600 font-medium hover:underline">
               Criar conta
@@ -211,8 +214,11 @@ export default function LoginPage() {
           </p>
 
           {/* Info */}
-          <p className="text-center mt-4 text-xs text-gray-400">
-            Ao continuar, aceita os nossos Termos e Política de Privacidade
+          <p className="text-center mt-4 text-xs text-gray-400 dark:text-gray-500">
+            Ao continuar, aceitas os nossos{" "}
+            <Link to="/termos-e-condicoes" className="text-blue-600 hover:underline">Termos</Link>{" "}
+            e{" "}
+            <Link to="/politica-de-privacidade" className="text-blue-600 hover:underline">Política de Privacidade</Link>
           </p>
         </div>
       </main>

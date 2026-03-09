@@ -69,7 +69,7 @@ export function NotificationBell({ isAdmin }: NotificationBellProps) {
             case "new_contact":
                 return <MessageSquare className="h-4 w-4 text-green-500" />
             default:
-                return <Bell className="h-4 w-4 text-gray-400" />
+                return <Bell className="h-4 w-4 text-gray-400 dark:text-gray-500" />
         }
     }
 
@@ -87,7 +87,7 @@ export function NotificationBell({ isAdmin }: NotificationBellProps) {
         <div className="relative" ref={dropdownRef}>
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+                className="relative p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors"
                 aria-label="Notificações"
             >
                 <Bell className="h-5 w-5" />
@@ -99,9 +99,9 @@ export function NotificationBell({ isAdmin }: NotificationBellProps) {
             </button>
 
             {isOpen && (
-                <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-lg border border-gray-200 z-50 overflow-hidden">
-                    <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
-                        <h3 className="text-sm font-semibold text-gray-900">Notificações</h3>
+                <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 z-50 overflow-hidden">
+                    <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-gray-700">
+                        <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Notificações</h3>
                         {unreadCount > 0 && (
                             <button
                                 onClick={handleMarkAllRead}
@@ -116,29 +116,29 @@ export function NotificationBell({ isAdmin }: NotificationBellProps) {
                     <div className="max-h-80 overflow-y-auto">
                         {notifications.length === 0 ? (
                             <div className="px-4 py-8 text-center">
-                                <Bell className="h-8 w-8 text-gray-200 mx-auto mb-2" />
-                                <p className="text-sm text-gray-400">Sem notificações</p>
+                                <Bell className="h-8 w-8 text-gray-200 dark:text-gray-700 mx-auto mb-2" />
+                                <p className="text-sm text-gray-400 dark:text-gray-500">Sem notificações</p>
                             </div>
                         ) : (
                             notifications.slice(0, 15).map((notif) => (
                                 <button
                                     key={notif.id}
                                     onClick={() => handleClick(notif)}
-                                    className={`w-full text-left px-4 py-3 flex items-start gap-3 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0 ${!notif.read ? "bg-blue-50/40" : ""
+                                    className={`w-full text-left px-4 py-3 flex items-start gap-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors border-b border-gray-50 dark:border-gray-700 last:border-0 ${!notif.read ? "bg-blue-50/40 dark:bg-blue-900/30" : ""
                                         }`}
                                 >
                                     <div className="mt-0.5 shrink-0">{iconForType(notif.type)}</div>
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-center gap-2">
-                                            <p className={`text-sm truncate ${!notif.read ? "font-semibold text-gray-900" : "text-gray-700"}`}>
+                                            <p className={`text-sm truncate ${!notif.read ? "font-semibold text-gray-900 dark:text-gray-100" : "text-gray-700 dark:text-gray-300"}`}>
                                                 {notif.title}
                                             </p>
                                             {!notif.read && (
                                                 <span className="w-1.5 h-1.5 bg-blue-500 rounded-full shrink-0" />
                                             )}
                                         </div>
-                                        <p className="text-xs text-gray-500 truncate mt-0.5">{notif.message}</p>
-                                        <p className="text-xs text-gray-400 mt-1">{timeAgo(notif.createdAt)}</p>
+                                        <p className="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5">{notif.message}</p>
+                                        <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{timeAgo(notif.createdAt)}</p>
                                     </div>
                                 </button>
                             ))

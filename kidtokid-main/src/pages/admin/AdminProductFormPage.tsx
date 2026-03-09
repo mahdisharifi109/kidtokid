@@ -216,7 +216,7 @@ export default function AdminProductFormPage() {
         return (
             <AdminLayout title="A carregar..." subtitle="">
                 <div className="flex items-center justify-center py-20">
-                    <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+                    <Loader2 className="h-8 w-8 animate-spin text-gray-400 dark:text-gray-500" />
                 </div>
             </AdminLayout>
         )
@@ -243,7 +243,7 @@ export default function AdminProductFormPage() {
                     {/* Main Info */}
                     <div className="lg:col-span-2 space-y-6">
                         <Card className="p-6">
-                            <h2 className="font-semibold text-gray-900 mb-4">Informação Básica</h2>
+                            <h2 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">Informação Básica</h2>
 
                             <div className="space-y-4">
                                 <div>
@@ -292,14 +292,14 @@ export default function AdminProductFormPage() {
                                         onChange={handleInputChange}
                                         rows={4}
                                         placeholder="Descreve o produto..."
-                                        className="mt-1 w-full rounded-lg border border-gray-200 p-3 text-sm focus:border-k2k-blue focus:ring-1 focus:ring-k2k-blue focus:outline-none resize-none"
+                                        className="mt-1 w-full rounded-lg border border-gray-200 dark:border-gray-700 p-3 text-sm focus:border-k2k-blue focus:ring-1 focus:ring-k2k-blue focus:outline-none resize-none"
                                     />
                                 </div>
                             </div>
                         </Card>
 
                         <Card className="p-6">
-                            <h2 className="font-semibold text-gray-900 mb-4">Detalhes do Produto</h2>
+                            <h2 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">Detalhes do Produto</h2>
 
                             <div className="grid sm:grid-cols-2 gap-4">
                                 <div>
@@ -309,7 +309,7 @@ export default function AdminProductFormPage() {
                                         name="category"
                                         value={formData.category}
                                         onChange={handleInputChange}
-                                        className="mt-1 w-full h-10 px-3 rounded-lg border border-gray-200 text-sm focus:border-k2k-blue focus:ring-1 focus:ring-k2k-blue"
+                                        className="mt-1 w-full h-10 px-3 rounded-lg border border-gray-200 dark:border-gray-700 text-sm focus:border-k2k-blue focus:ring-1 focus:ring-k2k-blue"
                                     >
                                         {CATEGORY_OPTIONS.map(cat => (
                                             <option key={cat.value} value={cat.value}>{cat.label}</option>
@@ -324,14 +324,14 @@ export default function AdminProductFormPage() {
                                         name="subcategory"
                                         value={formData.subcategory}
                                         onChange={handleInputChange}
-                                        className="mt-1 w-full h-10 px-3 rounded-lg border border-gray-200 text-sm focus:border-k2k-blue focus:ring-1 focus:ring-k2k-blue"
+                                        className="mt-1 w-full h-10 px-3 rounded-lg border border-gray-200 dark:border-gray-700 text-sm focus:border-k2k-blue focus:ring-1 focus:ring-k2k-blue"
                                     >
-                                        <option value="">— Selecione —</option>
+                                        <option value="">— Seleciona —</option>
                                         {CATALOGUE[formData.category]?.subcategorias.map(sub => (
                                             <option key={sub.id} value={sub.id}>{sub.nome}</option>
                                         ))}
                                     </select>
-                                    <p className="text-xs text-gray-500 mt-1">
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                         Ajuda os clientes a encontrar o produto mais facilmente
                                     </p>
                                 </div>
@@ -343,7 +343,7 @@ export default function AdminProductFormPage() {
                                         name="condition"
                                         value={formData.condition}
                                         onChange={handleInputChange}
-                                        className="mt-1 w-full h-10 px-3 rounded-lg border border-gray-200 text-sm focus:border-k2k-blue focus:ring-1 focus:ring-k2k-blue"
+                                        className="mt-1 w-full h-10 px-3 rounded-lg border border-gray-200 dark:border-gray-700 text-sm focus:border-k2k-blue focus:ring-1 focus:ring-k2k-blue"
                                     >
                                         {CONDITIONS.map(cond => (
                                             <option key={cond.value} value={cond.value}>{cond.label}</option>
@@ -358,7 +358,7 @@ export default function AdminProductFormPage() {
                                         name="gender"
                                         value={formData.gender}
                                         onChange={handleInputChange}
-                                        className="mt-1 w-full h-10 px-3 rounded-lg border border-gray-200 text-sm focus:border-k2k-blue focus:ring-1 focus:ring-k2k-blue"
+                                        className="mt-1 w-full h-10 px-3 rounded-lg border border-gray-200 dark:border-gray-700 text-sm focus:border-k2k-blue focus:ring-1 focus:ring-k2k-blue"
                                     >
                                         {GENDERS.map(g => (
                                             <option key={g.value} value={g.value}>{g.label}</option>
@@ -393,13 +393,13 @@ export default function AdminProductFormPage() {
                         </Card>
 
                         <Card className="p-6">
-                            <h2 className="font-semibold text-gray-900 mb-4">Imagens</h2>
+                            <h2 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">Imagens</h2>
 
                             <div className="space-y-4">
                                 {/* File Upload */}
                                 <div>
-                                    <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-k2k-blue hover:bg-gray-50 transition-colors">
-                                        <div className="flex items-center gap-2 text-gray-500">
+                                    <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-k2k-blue hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                                        <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
                                             {uploading ? (
                                                 <><Loader2 className="h-5 w-5 animate-spin" /> A carregar...</>
                                             ) : (
@@ -456,7 +456,7 @@ export default function AdminProductFormPage() {
                                 {formData.images.length > 0 ? (
                                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                                         {formData.images.map((img, index) => (
-                                            <div key={index} className="relative aspect-square rounded-lg overflow-hidden bg-gray-100 group">
+                                            <div key={index} className="relative aspect-square rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800 group">
                                                 <img
                                                     src={img}
                                                     alt={`Imagem ${index + 1}`}
@@ -467,7 +467,7 @@ export default function AdminProductFormPage() {
                                                         <button
                                                             type="button"
                                                             onClick={() => moveImage(index, "up")}
-                                                            className="w-6 h-6 bg-white/90 text-gray-700 rounded-full flex items-center justify-center hover:bg-white shadow"
+                                                            className="w-6 h-6 bg-white/90 text-gray-700 dark:text-gray-300 rounded-full flex items-center justify-center hover:bg-white shadow"
                                                             title="Mover para a esquerda"
                                                         >
                                                             <ArrowUp className="h-3 w-3" />
@@ -477,7 +477,7 @@ export default function AdminProductFormPage() {
                                                         <button
                                                             type="button"
                                                             onClick={() => moveImage(index, "down")}
-                                                            className="w-6 h-6 bg-white/90 text-gray-700 rounded-full flex items-center justify-center hover:bg-white shadow"
+                                                            className="w-6 h-6 bg-white/90 text-gray-700 dark:text-gray-300 rounded-full flex items-center justify-center hover:bg-white shadow"
                                                             title="Mover para a direita"
                                                         >
                                                             <ArrowDown className="h-3 w-3" />
@@ -500,10 +500,10 @@ export default function AdminProductFormPage() {
                                         ))}
                                     </div>
                                 ) : (
-                                    <div className="border-2 border-dashed border-gray-200 rounded-lg p-8 text-center">
+                                    <div className="border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-lg p-8 text-center">
                                         <ImageIcon className="h-10 w-10 text-gray-300 mx-auto mb-2" />
-                                        <p className="text-sm text-gray-500">Nenhuma imagem adicionada</p>
-                                        <p className="text-xs text-gray-400 mt-1">Carregue ficheiros ou cole um URL acima</p>
+                                        <p className="text-sm text-gray-500 dark:text-gray-400">Nenhuma imagem adicionada</p>
+                                        <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Carregue ficheiros ou cole um URL acima</p>
                                     </div>
                                 )}
                             </div>
@@ -513,7 +513,7 @@ export default function AdminProductFormPage() {
                     {/* Sidebar */}
                     <div className="space-y-6">
                         <Card className="p-6">
-                            <h2 className="font-semibold text-gray-900 mb-4">Preço e Stock</h2>
+                            <h2 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">Preço e Stock</h2>
 
                             <div className="space-y-4">
                                 <div>
@@ -544,7 +544,7 @@ export default function AdminProductFormPage() {
                                         placeholder="Deixe vazio se não tem desconto"
                                         className="mt-1"
                                     />
-                                    <p className="text-xs text-gray-500 mt-1">
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                         Se preenchido, mostra o desconto ao cliente
                                     </p>
                                 </div>
@@ -560,7 +560,7 @@ export default function AdminProductFormPage() {
                                         onChange={handleInputChange}
                                         className="mt-1"
                                     />
-                                    <p className="text-xs text-gray-500 mt-1">
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                         Para produtos em segunda mão, normalmente é 1
                                     </p>
                                 </div>
@@ -568,7 +568,7 @@ export default function AdminProductFormPage() {
                         </Card>
 
                         <Card className="p-6">
-                            <h2 className="font-semibold text-gray-900 mb-4">Publicar</h2>
+                            <h2 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">Publicar</h2>
 
                             <div className="space-y-3">
                                 <Button

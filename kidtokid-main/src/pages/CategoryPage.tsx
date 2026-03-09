@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useCallback, useRef } from "react"
 import { usePageTitle } from "@/src/hooks/usePageTitle"
-import { useParams, Link } from "react-router-dom"
+import { useParams, Link, useSearchParams } from "react-router-dom"
 import { Header } from "@/src/components/layout/Header"
 import { Footer } from "@/src/components/Footer"
 import { ProductCard } from "@/src/components/product/ProductCard"
@@ -25,7 +25,10 @@ const CONDITIONS = [
 
 export default function CategoryPage() {
   const { slug = "" } = useParams<{ slug: string }>()
+  const [searchParams] = useSearchParams()
   const { addToCart } = useCart()
+  const subFilter = searchParams.get("sub") || ""
+  const itemFilter = searchParams.get("item") || ""
   const [showFilters, setShowFilters] = useState(false)
   const [sortBy, setSortBy] = useState("newest")
   const [products, setProducts] = useState<IProduct[]>([])
@@ -85,6 +88,20 @@ export default function CategoryPage() {
   const filteredProducts = useMemo(() => {
     let filtered = [...products]
 
+    // Filter by subcategory from URL query param (?sub=tops-tshirts)
+    if (subFilter) {
+      filtered = filtered.filter((p) => p.subcategory === subFilter)
+    }
+
+    // Filter by item name from URL query param (?item=T-shirts)
+    if (itemFilter) {
+      const normalizedItem = itemFilter.toLowerCase()
+      filtered = filtered.filter((p) => 
+        p.title?.toLowerCase().includes(normalizedItem) ||
+        p.subcategory === subFilter
+      )
+    }
+
     if (selectedConditions.length > 0) {
       filtered = filtered.filter((p) => selectedConditions.includes(p.condition))
     }
@@ -104,11 +121,11 @@ export default function CategoryPage() {
     } else if (sortBy === "price-desc") {
       filtered.sort((a, b) => b.price - a.price)
     } else if (sortBy === "newest") {
-      filtered.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+      filtered.sort((a, b) => (b.createdAt?.getTime?.() || 0) - (a.createdAt?.getTime?.() || 0))
     }
 
     return filtered
-  }, [products, selectedConditions, priceRange, selectedSizes, selectedBrands, sortBy])
+  }, [products, subFilter, itemFilter, selectedConditions, priceRange, selectedSizes, selectedBrands, sortBy])
 
   const activeFilterCount = useMemo(() => {
     let count = 0
@@ -145,12 +162,12 @@ export default function CategoryPage() {
 
   if (!categoryName) {
     return (
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-white dark:bg-gray-950">
         <Header />
         <main className="container mx-auto px-4 py-16 text-center">
           <p className="text-4xl mb-3">📦</p>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Categoria não encontrada</h1>
-          <p className="text-gray-500 mb-6">A categoria que procuras não existe.</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Categoria não encontrada</h1>
+          <p className="text-gray-500 dark:text-gray-400 mb-6">A categoria que procuras não existe.</p>
           <Link to="/" className="text-sm text-blue-600 hover:underline">
             Voltar ao Início
           </Link>
@@ -161,22 +178,22 @@ export default function CategoryPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white dark:bg-gray-950">
       <Header />
 
       <main className="container mx-auto px-4 py-6 md:py-8">
         {/* Breadcrumb */}
-        <div className="mb-4 text-xs text-gray-400">
+        <div className="mb-4 text-xs text-gray-400 dark:text-gray-500">
           <Link to="/" className="hover:text-blue-600">Início</Link>
           <span className="mx-1.5">/</span>
-          <span className="text-gray-600">{categoryName}</span>
+          <span className="text-gray-600 dark:text-gray-400">{categoryName}</span>
         </div>
 
         {/* Header: title + mobile filter toggle */}
         <div className="flex items-center justify-between gap-3 mb-5">
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{categoryName}</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">{categoryName}</h1>
           <button
-            className="md:hidden flex items-center gap-1.5 text-sm text-gray-600 border border-gray-200 rounded-lg px-3 py-1.5 hover:bg-gray-50 transition-colors"
+            className="md:hidden flex items-center gap-1.5 text-sm text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-1.5 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
             onClick={() => setShowFilters(!showFilters)}
           >
             <SlidersHorizontal className="h-3.5 w-3.5" />
@@ -196,7 +213,7 @@ export default function CategoryPage() {
               const cond = CONDITIONS.find(co => co.value === c)
               return (
                 <button key={c} onClick={() => toggleCondition(c)}
-                  className="inline-flex items-center gap-1 text-xs bg-gray-100 text-gray-700 rounded-full px-2.5 py-1 hover:bg-gray-200 transition-colors">
+                  className="inline-flex items-center gap-1 text-xs bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full px-2.5 py-1 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
                   {cond?.label || c}
                   <X className="h-3 w-3" />
                 </button>
@@ -204,21 +221,21 @@ export default function CategoryPage() {
             })}
             {selectedSizes.map(s => (
               <button key={s} onClick={() => toggleSize(s)}
-                className="inline-flex items-center gap-1 text-xs bg-gray-100 text-gray-700 rounded-full px-2.5 py-1 hover:bg-gray-200 transition-colors">
+                className="inline-flex items-center gap-1 text-xs bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full px-2.5 py-1 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
                 {s}
                 <X className="h-3 w-3" />
               </button>
             ))}
             {selectedBrands.map(b => (
               <button key={b} onClick={() => toggleBrand(b)}
-                className="inline-flex items-center gap-1 text-xs bg-gray-100 text-gray-700 rounded-full px-2.5 py-1 hover:bg-gray-200 transition-colors">
+                className="inline-flex items-center gap-1 text-xs bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full px-2.5 py-1 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
                 {b}
                 <X className="h-3 w-3" />
               </button>
             ))}
             {(priceRange[0] !== 0 || priceRange[1] !== 200) && (
               <button onClick={() => setPriceRange([0, 200])}
-                className="inline-flex items-center gap-1 text-xs bg-gray-100 text-gray-700 rounded-full px-2.5 py-1 hover:bg-gray-200 transition-colors">
+                className="inline-flex items-center gap-1 text-xs bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full px-2.5 py-1 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
                 €{priceRange[0]}–€{priceRange[1]}
                 <X className="h-3 w-3" />
               </button>
@@ -234,9 +251,9 @@ export default function CategoryPage() {
           <aside className={`w-full md:w-56 shrink-0 ${showFilters ? "block" : "hidden md:block"}`}>
             <div className="sticky top-24 space-y-5">
               <div className="flex items-center justify-between">
-                <h2 className="text-sm font-semibold text-gray-900">Filtros</h2>
+                <h2 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Filtros</h2>
                 {activeFilterCount > 0 && (
-                  <button onClick={clearFilters} className="text-xs text-gray-400 hover:text-gray-600">
+                  <button onClick={clearFilters} className="text-xs text-gray-400 dark:text-gray-500 hover:text-gray-600">
                     Limpar
                   </button>
                 )}
@@ -245,13 +262,13 @@ export default function CategoryPage() {
               {/* Subcategories */}
               {CATALOGUE[resolvedSlug] && (
                 <div>
-                  <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Subcategorias</h3>
+                  <h3 className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">Subcategorias</h3>
                   <div className="space-y-0.5">
                     {CATALOGUE[resolvedSlug].subcategorias.map((sub) => (
                       <Link
                         key={sub.id}
                         to={`/categoria/${resolvedSlug}?sub=${sub.id}`}
-                        className="block text-sm px-2 py-1.5 rounded text-gray-600 hover:bg-blue-50 hover:text-blue-700 transition-colors"
+                        className="block text-sm px-2 py-1.5 rounded text-gray-600 dark:text-gray-400 hover:bg-blue-50 dark:hover:bg-blue-950/30 hover:text-blue-700 transition-colors"
                       >
                         {sub.nome}
                       </Link>
@@ -262,15 +279,15 @@ export default function CategoryPage() {
 
               {/* Condition */}
               <div>
-                <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Estado</h3>
+                <h3 className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">Estado</h3>
                 <div className="flex flex-wrap gap-1.5">
                   {CONDITIONS.map((cond) => (
                     <button
                       key={cond.value}
                       onClick={() => toggleCondition(cond.value as ProductCondition)}
                       className={`text-xs px-2.5 py-1 rounded-full border transition-colors ${selectedConditions.includes(cond.value as ProductCondition)
-                        ? "border-blue-600 bg-blue-50 text-blue-700"
-                        : "border-gray-200 text-gray-600 hover:border-gray-300"
+                        ? "border-blue-600 bg-blue-50 dark:bg-blue-950/30 text-blue-700"
+                        : "border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-gray-300"
                         }`}
                     >
                       {cond.label}
@@ -281,9 +298,9 @@ export default function CategoryPage() {
 
               {/* Price */}
               <div>
-                <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-3">Preço</h3>
+                <h3 className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">Preço</h3>
                 <Slider value={priceRange} onValueChange={setPriceRange} max={200} step={1} className="w-full" />
-                <div className="flex items-center justify-between text-xs text-gray-500 mt-2">
+                <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mt-2">
                   <span>€{priceRange[0]}</span>
                   <span>€{priceRange[1]}</span>
                 </div>
@@ -291,15 +308,15 @@ export default function CategoryPage() {
 
               {/* Size */}
               <div>
-                <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Tamanho</h3>
+                <h3 className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">Tamanho</h3>
                 <div className="flex flex-wrap gap-1.5">
                   {SIZES.map((size) => (
                     <button
                       key={size}
                       onClick={() => toggleSize(size)}
                       className={`text-xs px-2 py-1 rounded border transition-colors ${selectedSizes.includes(size)
-                        ? "border-blue-600 bg-blue-50 text-blue-700 font-medium"
-                        : "border-gray-200 text-gray-600 hover:border-gray-300"
+                        ? "border-blue-600 bg-blue-50 dark:bg-blue-950/30 text-blue-700 font-medium"
+                        : "border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-gray-300"
                         }`}
                     >
                       {size}
@@ -311,15 +328,15 @@ export default function CategoryPage() {
               {/* Brand */}
               {availableBrands.length > 0 && (
                 <div>
-                  <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Marca</h3>
+                  <h3 className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">Marca</h3>
                   <div className="max-h-44 overflow-y-auto space-y-0.5">
                     {availableBrands.map((brand) => (
                       <button
                         key={brand}
                         onClick={() => toggleBrand(brand)}
                         className={`w-full text-left text-sm px-2 py-1.5 rounded transition-colors ${selectedBrands.includes(brand)
-                          ? "bg-blue-50 text-blue-700 font-medium"
-                          : "text-gray-600 hover:bg-gray-50"
+                          ? "bg-blue-50 dark:bg-blue-950/30 text-blue-700 font-medium"
+                          : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800"
                           }`}
                       >
                         {brand}
@@ -335,7 +352,7 @@ export default function CategoryPage() {
           <div className="flex-1 min-w-0">
             {/* Sort and count bar */}
             <div className="flex items-center justify-between gap-2 mb-4">
-              <p className="text-sm text-gray-400">{filteredProducts.length} produtos</p>
+              <p className="text-sm text-gray-400 dark:text-gray-500">{filteredProducts.length} produtos</p>
               <Select value={sortBy} onValueChange={setSortBy}>
                 <SelectTrigger className="w-40 text-sm h-9">
                   <SelectValue placeholder="Ordenar por" />
@@ -351,7 +368,7 @@ export default function CategoryPage() {
             {isLoading ? (
               <div className="flex flex-col items-center justify-center py-20 gap-3">
                 <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
-                <p className="text-sm text-gray-400">A carregar...</p>
+                <p className="text-sm text-gray-400 dark:text-gray-500">A carregar...</p>
               </div>
             ) : filteredProducts.length > 0 ? (
               <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
@@ -362,8 +379,8 @@ export default function CategoryPage() {
             ) : (
               <div className="py-16 text-center">
                 <p className="text-4xl mb-3">📦</p>
-                <p className="font-medium text-gray-900">Nenhum produto encontrado</p>
-                <p className="mt-1 text-sm text-gray-500">Tenta ajustar os filtros</p>
+                <p className="font-medium text-gray-900 dark:text-gray-100">Nenhum produto encontrado</p>
+                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Tenta ajustar os filtros</p>
                 {activeFilterCount > 0 && (
                   <button onClick={clearFilters} className="mt-4 text-sm text-blue-600 hover:underline">
                     Limpar filtros

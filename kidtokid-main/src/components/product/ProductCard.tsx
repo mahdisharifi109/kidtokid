@@ -53,12 +53,12 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
   }
 
   return (
-    <Card className="group relative overflow-hidden rounded-2xl border-0 bg-white shadow-sm transition-all duration-400 hover:shadow-xl hover:-translate-y-1">
+    <Card className="group relative overflow-hidden rounded-2xl border-0 bg-white dark:bg-gray-900 shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
       <button
         onClick={handleToggleFavorite}
         className={cn(
           "absolute right-2.5 top-2.5 z-10 rounded-full p-2 shadow-sm backdrop-blur-sm transition-all duration-200 hover:scale-110 active:scale-95",
-          favorite ? "bg-pink-50/90 hover:bg-pink-100" : "bg-white/80 hover:bg-white"
+          favorite ? "bg-pink-50/90 dark:bg-pink-950/60 hover:bg-pink-100" : "bg-white/80 dark:bg-gray-800/80 hover:bg-white"
         )}
         aria-label={favorite ? "Remover dos favoritos" : "Adicionar aos favoritos"}
       >
@@ -71,10 +71,10 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
       </button>
 
       <Link to={`/produto/${product.id}`}>
-        <div className="aspect-square overflow-hidden rounded-t-2xl bg-gray-50 relative">
+        <div className="aspect-square overflow-hidden rounded-t-2xl bg-gray-50 dark:bg-gray-800 relative">
           {imgError ? (
-            <div className="h-full w-full flex items-center justify-center bg-gray-100">
-              <ImageOff className="h-10 w-10 text-gray-300" />
+            <div className="h-full w-full flex items-center justify-center bg-gray-100 dark:bg-gray-800">
+              <ImageOff className="h-10 w-10 text-gray-300 dark:text-gray-600" />
             </div>
           ) : (
             <OptimizedImage
@@ -101,22 +101,22 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
       </Link>
 
       <CardContent className="p-3 sm:p-4">
-        <p className="text-[11px] text-gray-400 uppercase tracking-wider truncate">{product.brand}</p>
+        <p className="text-[11px] text-gray-400 dark:text-gray-500 uppercase tracking-wider truncate">{product.brand}</p>
 
         <Link to={`/produto/${product.id}`}>
-          <h3 className="mt-1 line-clamp-2 text-sm font-medium text-gray-800 hover:text-k2k-blue transition-colors leading-snug min-h-[2.5em]">{product.title}</h3>
+          <h3 className="mt-1 line-clamp-2 text-sm font-medium text-gray-800 dark:text-gray-100 hover:text-k2k-blue transition-colors leading-snug min-h-[2.5em]">{product.title}</h3>
         </Link>
 
-        <div className="mt-1.5 flex items-center gap-2 text-[11px] text-gray-400">
+        <div className="mt-1.5 flex items-center gap-2 text-[11px] text-gray-400 dark:text-gray-500">
           <span>{product.size}</span>
           <span className="w-1 h-1 rounded-full bg-gray-300" />
           <span>{getConditionLabel(product.condition)}</span>
         </div>
 
         <div className="mt-3 flex items-center gap-2 flex-wrap">
-          <span className="text-base sm:text-lg font-semibold text-k2k-blue">{product.price.toFixed(2)}&euro;</span>
+          <span className="text-base sm:text-lg font-semibold text-k2k-blue">{product.price.toFixed(2)}€</span>
           {hasDiscount && (
-            <span className="text-xs text-gray-300 line-through">{product.originalPrice?.toFixed(2)}&euro;</span>
+            <span className="text-xs text-gray-300 dark:text-gray-600 line-through">{product.originalPrice?.toFixed(2)}€</span>
           )}
         </div>
       </CardContent>
@@ -143,7 +143,7 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
 
 export function ProductCardSkeleton() {
   return (
-    <div className="rounded-2xl border-0 bg-white shadow-sm overflow-hidden">
+    <div className="rounded-2xl border-0 bg-white dark:bg-gray-900 shadow-sm overflow-hidden">
       <div className="aspect-square skeleton" />
       <div className="p-3 sm:p-4 space-y-2.5">
         <div className="h-3 w-16 skeleton rounded" />

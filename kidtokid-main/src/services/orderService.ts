@@ -188,7 +188,7 @@ export async function getOrderByNumber(orderNumber: string): Promise<Order | nul
   }
 
   const ordersRef = collection(db, "orders")
-  const q = query(ordersRef, where("orderNumber", "==", orderNumber))
+  const q = query(ordersRef, where("orderNumber", "==", orderNumber), where("userId", "==", user.uid))
   
   const snapshot = await getDocs(q)
   
@@ -197,11 +197,6 @@ export async function getOrderByNumber(orderNumber: string): Promise<Order | nul
   }
 
   const order = convertToOrder(snapshot.docs[0])
-  
-  // Verificar se a encomenda pertence ao utilizador
-  if (order.userId !== user.uid) {
-    throw new Error("Não tem permissão para ver esta encomenda")
-  }
 
   return order
 }
@@ -233,7 +228,7 @@ export async function cancelOrder(orderId: string): Promise<void> {
   if (order.status !== "pending") {
     throw new Error(
       order.status === "paid"
-        ? "Encomendas pagas só podem ser canceladas pelo suporte. Contacte-nos."
+        ? "Encomendas pagas só podem ser canceladas pelo suporte. Contacta-nos."
         : "Esta encomenda já não pode ser cancelada"
     )
   }

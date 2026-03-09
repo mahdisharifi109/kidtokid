@@ -2,13 +2,13 @@ import {
   collection,
   doc,
   getDocs,
-  getDoc,
   setDoc,
   updateDoc,
   deleteDoc,
   query,
   where,
   Timestamp,
+  increment,
 } from "firebase/firestore"
 import { db } from "@/src/lib/firebase"
 
@@ -102,91 +102,39 @@ export async function deleteCoupon(id: string): Promise<void> {
 }
 
 // ─── Validação de cupões (checkout) ───────────────────────────────────
+// NOTE: Coupon reads are now admin-only in Firestore rules.
+// For non-admin checkout validation, we call a Cloud Function.
+// The server-side createSecureOrder also validates coupons atomically.
 
 export async function validateCoupon(
   code: string,
   orderTotal: number
 ): Promise<CouponValidation> {
   if (!code || !code.trim()) {
-    return { valid: false, error: "Introduza um código de cupão" }
+    return { valid: false, error: "Introduz um código de cupão" }
   }
 
-  const normalizedCode = code.toUpperCase().trim()
-
-  // Procurar cupão pelo código
-  const q = query(
-    collection(db, COUPONS_COLLECTION),
-    where("code", "==", normalizedCode)
-  )
-  const snapshot = await getDocs(q)
-
-  if (snapshot.empty) {
-    return { valid: false, error: "Cupão não encontrado" }
-  }
-
-  const docData = snapshot.docs[0].data()
-  const coupon: Coupon = {
-    id: snapshot.docs[0].id,
-    code: docData.code,
-    description: docData.description || "",
-    discountType: docData.discountType,
-    discountValue: docData.discountValue,
-    minOrderValue: docData.minOrderValue || 0,
-    maxUses: docData.maxUses || 0,
-    usedCount: docData.usedCount || 0,
-    isActive: docData.isActive ?? true,
-    validFrom: docData.validFrom?.toDate() || new Date(),
-    validUntil: docData.validUntil?.toDate() || new Date(),
-    createdAt: docData.createdAt?.toDate() || new Date(),
-  }
-
-  // Verificar se está ativo
-  if (!coupon.isActive) {
-    return { valid: false, error: "Este cupão está desativado" }
-  }
-
-  // Verificar validade temporal
-  const now = new Date()
-  if (now < coupon.validFrom) {
-    return { valid: false, error: "Este cupão ainda não é válido" }
-  }
-  if (now > coupon.validUntil) {
-    return { valid: false, error: "Este cupão já expirou" }
-  }
-
-  // Verificar limite de utilizações
-  if (coupon.maxUses > 0 && coupon.usedCount >= coupon.maxUses) {
-    return { valid: false, error: "Este cupão já atingiu o limite de utilizações" }
-  }
-
-  // Verificar valor mínimo
-  if (orderTotal < coupon.minOrderValue) {
-    return {
-      valid: false,
-      error: `Encomenda mínima de €${coupon.minOrderValue.toFixed(2)} para usar este cupão`,
-    }
-  }
-
-  // Calcular desconto
-  const discount = coupon.discountType === "percentage"
-    ? (orderTotal * coupon.discountValue) / 100
-    : Math.min(coupon.discountValue, orderTotal) // não desconta mais que o total
-
-  return {
-    valid: true,
-    coupon,
-    discount: Math.round(discount * 100) / 100,
+  try {
+    const { getFunctions, httpsCallable } = await import("firebase/functions")
+    const functions = getFunctions(undefined, "europe-west1")
+    const validateFn = httpsCallable<
+      { code: string; orderTotal: number },
+      CouponValidation
+    >(functions, "validateCouponCode")
+    const result = await validateFn({ code: code.toUpperCase().trim(), orderTotal })
+    return result.data
+  } catch (error: unknown) {
+    const err = error as { code?: string; message?: string }
+    console.error("Coupon validation error:", err)
+    return { valid: false, error: "Erro ao validar cupão. Tente novamente." }
   }
 }
 
 /**
  * Incrementar o contador de uso do cupão (chamar após encomenda bem sucedida)
+ * Uses atomic increment to prevent race conditions with concurrent orders.
  */
 export async function incrementCouponUsage(couponId: string): Promise<void> {
   const docRef = doc(db, COUPONS_COLLECTION, couponId)
-  const docSnap = await getDoc(docRef)
-  if (docSnap.exists()) {
-    const currentCount = docSnap.data().usedCount || 0
-    await updateDoc(docRef, { usedCount: currentCount + 1 })
-  }
+  await updateDoc(docRef, { usedCount: increment(1) })
 }

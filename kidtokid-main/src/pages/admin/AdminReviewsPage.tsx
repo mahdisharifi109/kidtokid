@@ -143,7 +143,7 @@ export default function AdminReviewsPage() {
         return (
             <AdminLayout title="Avaliações" subtitle="A carregar...">
                 <div className="flex items-center justify-center py-20">
-                    <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+                    <Loader2 className="h-8 w-8 animate-spin text-gray-400 dark:text-gray-500" />
                 </div>
             </AdminLayout>
         )
@@ -158,31 +158,31 @@ export default function AdminReviewsPage() {
             {/* Stats */}
             <div className="grid sm:grid-cols-4 gap-4 mb-6">
                 <Card className="p-4 flex items-center gap-3">
-                    <Star className="h-5 w-5 text-gray-400" />
+                    <Star className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                     <div>
-                        <p className="text-2xl font-bold text-gray-900">{reviews.length}</p>
-                        <p className="text-xs text-gray-500">Total avaliações</p>
+                        <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{reviews.length}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">Total avaliações</p>
                     </div>
                 </Card>
                 <Card className="p-4 flex items-center gap-3">
-                    <ThumbsUp className="h-5 w-5 text-gray-400" />
+                    <ThumbsUp className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                     <div>
-                        <p className="text-2xl font-bold text-gray-900">{avgRating}</p>
-                        <p className="text-xs text-gray-500">Média</p>
+                        <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{avgRating}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">Média</p>
                     </div>
                 </Card>
                 <Card className="p-4 flex items-center gap-3">
-                    <CheckCircle2 className="h-5 w-5 text-gray-400" />
+                    <CheckCircle2 className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                     <div>
-                        <p className="text-2xl font-bold text-gray-900">{reviews.filter(r => r.verified).length}</p>
-                        <p className="text-xs text-gray-500">Verificadas</p>
+                        <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{reviews.filter(r => r.verified).length}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">Verificadas</p>
                     </div>
                 </Card>
                 <Card className="p-4 flex items-center gap-3">
-                    <Flag className="h-5 w-5 text-gray-400" />
+                    <Flag className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                     <div>
-                        <p className="text-2xl font-bold text-gray-900">{reportedReviews.length}</p>
-                        <p className="text-xs text-gray-500">Denunciadas</p>
+                        <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{reportedReviews.length}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">Denunciadas</p>
                     </div>
                 </Card>
             </div>
@@ -220,7 +220,7 @@ export default function AdminReviewsPage() {
             {/* Reviews List */}
             <Card>
                 {displayedReviews.length === 0 ? (
-                    <div className="p-12 text-center text-gray-500">
+                    <div className="p-12 text-center text-gray-500 dark:text-gray-400">
                         <Star className="h-10 w-10 mx-auto mb-3 text-gray-300" />
                         <p>{activeTab === "reported" ? "Nenhuma avaliação denunciada" : "Nenhuma avaliação"}</p>
                     </div>
@@ -229,36 +229,36 @@ export default function AdminReviewsPage() {
                         {displayedReviews.map(review => {
                             const reviewReports = reports.filter(r => r.reviewId === review.id)
                             return (
-                                <div key={review.id} className={cn("p-4 hover:bg-gray-50 transition-colors", review.reported && "bg-red-50/50")}>
+                                <div key={review.id} className={cn("p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors", review.reported && "bg-red-50/50")}>
                                     <div className="flex items-start gap-4">
-                                        <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
+                                        <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center shrink-0">
                                             {review.userPhoto ? (
                                                 <img src={review.userPhoto} alt="" className="w-10 h-10 rounded-full object-cover" />
                                             ) : (
-                                                <User className="h-5 w-5 text-gray-400" />
+                                                <User className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                                             )}
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center gap-2 flex-wrap">
-                                                <span className="font-medium text-gray-900 text-sm">{review.userName}</span>
+                                                <span className="font-medium text-gray-900 dark:text-gray-100 text-sm">{review.userName}</span>
                                                 {review.verified && (
-                                                    <span className="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
+                                                    <span className="text-xs bg-green-100 dark:bg-green-900/30 text-green-700 px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
                                                         <CheckCircle2 className="h-3 w-3" /> Verificada
                                                     </span>
                                                 )}
                                                 {review.reported && (
-                                                    <span className="text-xs bg-red-100 text-red-700 px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
+                                                    <span className="text-xs bg-red-100 dark:bg-red-900/30 text-red-700 px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
                                                         <AlertTriangle className="h-3 w-3" /> Denunciada
                                                     </span>
                                                 )}
-                                                <span className="text-xs text-gray-400">
+                                                <span className="text-xs text-gray-400 dark:text-gray-500">
                                                     {review.createdAt.toLocaleDateString('pt-PT', { day: 'numeric', month: 'short', year: 'numeric' })}
                                                 </span>
                                             </div>
                                             <div className="mt-1">{renderStars(review.rating)}</div>
-                                            {review.title && <p className="font-medium text-gray-800 mt-1 text-sm">{review.title}</p>}
-                                            <p className="text-gray-600 text-sm mt-1 line-clamp-3">{review.comment}</p>
-                                            <div className="flex items-center gap-3 mt-2 text-xs text-gray-400">
+                                            {review.title && <p className="font-medium text-gray-800 dark:text-gray-100 mt-1 text-sm">{review.title}</p>}
+                                            <p className="text-gray-600 dark:text-gray-400 text-sm mt-1 line-clamp-3">{review.comment}</p>
+                                            <div className="flex items-center gap-3 mt-2 text-xs text-gray-400 dark:text-gray-500">
                                                 <Link to={`/produto/${review.productId}`} className="text-blue-600 hover:underline flex items-center gap-1">
                                                     <Eye className="h-3 w-3" /> Ver produto
                                                 </Link>

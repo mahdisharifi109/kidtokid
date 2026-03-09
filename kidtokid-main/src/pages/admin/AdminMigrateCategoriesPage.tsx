@@ -136,14 +136,14 @@ export default function AdminMigrateCategoriesPage() {
                     <div className="flex gap-3">
                         <Database className="h-5 w-5 text-blue-600 mt-0.5 shrink-0" />
                         <div>
-                            <h3 className="font-semibold text-gray-900 mb-1">O que faz esta ferramenta?</h3>
-                            <p className="text-sm text-gray-600 mb-3">
+                            <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">O que faz esta ferramenta?</h3>
+                            <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
                                 Atualiza o campo <code className="bg-white px-1.5 py-0.5 rounded text-xs border">category</code> dos
                                 produtos no Firestore, substituindo os slugs antigos pelos novos.
                             </p>
                             <div className="grid grid-cols-2 gap-2 text-xs">
-                                <div className="bg-white rounded-lg p-2.5 border">
-                                    <p className="font-medium text-gray-500 mb-1.5">Slugs Antigos →</p>
+                                <div className="bg-white dark:bg-gray-900 rounded-lg p-2.5 border">
+                                    <p className="font-medium text-gray-500 dark:text-gray-400 mb-1.5">Slugs Antigos →</p>
                                     {Object.entries(LEGACY_SLUG_MAP).map(([old, newSlug]) => (
                                         <div key={old} className="flex items-center gap-1.5 py-0.5">
                                             <span className="text-red-600 line-through">{old}</span>
@@ -152,12 +152,12 @@ export default function AdminMigrateCategoriesPage() {
                                         </div>
                                     ))}
                                 </div>
-                                <div className="bg-white rounded-lg p-2.5 border">
-                                    <p className="font-medium text-gray-500 mb-1.5">Categorias Válidas ✓</p>
+                                <div className="bg-white dark:bg-gray-900 rounded-lg p-2.5 border">
+                                    <p className="font-medium text-gray-500 dark:text-gray-400 mb-1.5">Categorias Válidas ✓</p>
                                     {Object.entries(CATEGORY_NAMES).map(([slug, label]) => (
                                         <div key={slug} className="py-0.5">
                                             <span className="text-green-700 font-medium">{slug}</span>
-                                            <span className="text-gray-400 ml-1">({label})</span>
+                                            <span className="text-gray-400 dark:text-gray-500 ml-1">({label})</span>
                                         </div>
                                     ))}
                                 </div>
@@ -168,8 +168,8 @@ export default function AdminMigrateCategoriesPage() {
 
                 {/* Passo 1: Scan */}
                 <Card className="p-6">
-                    <h2 className="font-semibold text-gray-900 mb-1">Passo 1 — Escanear Produtos</h2>
-                    <p className="text-sm text-gray-500 mb-4">
+                    <h2 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Passo 1 — Escanear Produtos</h2>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
                         Verifica quantos produtos usam categorias antigas e quantos já estão atualizados.
                     </p>
                     <Button onClick={handleScan} disabled={scanning || migrating}>
@@ -192,7 +192,7 @@ export default function AdminMigrateCategoriesPage() {
                             {/* Correct */}
                             <div className="flex items-center gap-2 text-sm">
                                 <CheckCircle2 className="h-4 w-4 text-green-600" />
-                                <span className="text-gray-700">
+                                <span className="text-gray-700 dark:text-gray-300">
                                     <strong>{alreadyCorrect}</strong> produtos já com categoria correta
                                 </span>
                             </div>
@@ -204,7 +204,7 @@ export default function AdminMigrateCategoriesPage() {
                                 ) : (
                                     <CheckCircle2 className="h-4 w-4 text-green-600" />
                                 )}
-                                <span className="text-gray-700">
+                                <span className="text-gray-700 dark:text-gray-300">
                                     <strong>{toMigrate.length}</strong> produtos precisam de migração
                                 </span>
                             </div>
@@ -213,7 +213,7 @@ export default function AdminMigrateCategoriesPage() {
                             {unknown.length > 0 && (
                                 <div className="flex items-center gap-2 text-sm">
                                     <AlertTriangle className="h-4 w-4 text-red-500" />
-                                    <span className="text-gray-700">
+                                    <span className="text-gray-700 dark:text-gray-300">
                                         <strong>{unknown.length}</strong> produtos com categoria desconhecida
                                     </span>
                                 </div>
@@ -223,17 +223,17 @@ export default function AdminMigrateCategoriesPage() {
                             {toMigrate.length > 0 && (
                                 <div className="mt-3 max-h-60 overflow-y-auto rounded-lg border">
                                     <table className="w-full text-sm">
-                                        <thead className="bg-gray-50 sticky top-0">
+                                        <thead className="bg-gray-50 dark:bg-gray-800 sticky top-0">
                                             <tr>
-                                                <th className="text-left p-2.5 font-medium text-gray-500">Produto</th>
-                                                <th className="text-left p-2.5 font-medium text-gray-500">Antiga</th>
+                                                <th className="text-left p-2.5 font-medium text-gray-500 dark:text-gray-400">Produto</th>
+                                                <th className="text-left p-2.5 font-medium text-gray-500 dark:text-gray-400">Antiga</th>
                                                 <th className="p-2.5"></th>
-                                                <th className="text-left p-2.5 font-medium text-gray-500">Nova</th>
+                                                <th className="text-left p-2.5 font-medium text-gray-500 dark:text-gray-400">Nova</th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y">
                                             {toMigrate.map((p) => (
-                                                <tr key={p.id} className="hover:bg-gray-50">
+                                                <tr key={p.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
                                                     <td className="p-2.5 truncate max-w-48">{p.title}</td>
                                                     <td className="p-2.5">
                                                         <span className="text-red-600 bg-red-50 px-2 py-0.5 rounded text-xs">{p.oldCategory}</span>
@@ -269,8 +269,8 @@ export default function AdminMigrateCategoriesPage() {
                 {/* Passo 2: Migrar */}
                 {scanned && toMigrate.length > 0 && (
                     <Card className="p-6 border-amber-200 bg-amber-50/30">
-                        <h2 className="font-semibold text-gray-900 mb-1">Passo 2 — Executar Migração</h2>
-                        <p className="text-sm text-gray-500 mb-4">
+                        <h2 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Passo 2 — Executar Migração</h2>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
                             Isto vai atualizar o campo <code className="bg-white px-1 py-0.5 rounded text-xs border">category</code> de{" "}
                             <strong>{toMigrate.length}</strong> produtos no Firestore. A operação é segura — apenas muda o valor da categoria.
                         </p>
@@ -297,14 +297,14 @@ export default function AdminMigrateCategoriesPage() {
                 {/* Migration Results */}
                 {results.length > 0 && (
                     <Card className="p-6">
-                        <h2 className="font-semibold text-gray-900 mb-3">Resultados da Migração</h2>
+                        <h2 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">Resultados da Migração</h2>
                         <div className="max-h-60 overflow-y-auto rounded-lg border">
                             <table className="w-full text-sm">
-                                <thead className="bg-gray-50 sticky top-0">
+                                <thead className="bg-gray-50 dark:bg-gray-800 sticky top-0">
                                     <tr>
-                                        <th className="text-left p-2.5 font-medium text-gray-500">Produto</th>
-                                        <th className="text-left p-2.5 font-medium text-gray-500">De → Para</th>
-                                        <th className="text-right p-2.5 font-medium text-gray-500">Estado</th>
+                                        <th className="text-left p-2.5 font-medium text-gray-500 dark:text-gray-400">Produto</th>
+                                        <th className="text-left p-2.5 font-medium text-gray-500 dark:text-gray-400">De → Para</th>
+                                        <th className="text-right p-2.5 font-medium text-gray-500 dark:text-gray-400">Estado</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y">
@@ -312,7 +312,7 @@ export default function AdminMigrateCategoriesPage() {
                                         <tr key={r.id} className={r.success ? "bg-green-50/50" : "bg-red-50/50"}>
                                             <td className="p-2.5 truncate max-w-48">{r.title}</td>
                                             <td className="p-2.5 text-xs">
-                                                <span className="text-gray-500">{r.oldCategory}</span>
+                                                <span className="text-gray-500 dark:text-gray-400">{r.oldCategory}</span>
                                                 <ArrowRight className="h-3 w-3 inline mx-1 text-gray-400" />
                                                 <span className="font-medium">{r.newCategory}</span>
                                             </td>
@@ -328,7 +328,7 @@ export default function AdminMigrateCategoriesPage() {
                                 </tbody>
                             </table>
                         </div>
-                        <p className="mt-3 text-xs text-gray-500">
+                        <p className="mt-3 text-xs text-gray-500 dark:text-gray-400">
                             {results.filter((r) => r.success).length} de {results.length} migrados com sucesso.
                         </p>
                     </Card>
