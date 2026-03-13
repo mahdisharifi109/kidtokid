@@ -312,16 +312,21 @@ export const getAuthErrorMessage = (errorCode: string): string => {
 
 // Admin verification
 
-// Lista de emails de administradores (configurar no Firebase Console para produção)
-export const ADMIN_EMAILS = [
-  "info@kidtokid.pt",
-  "mahdisharifi4561@gmail.com",  // Admin principal
-  // Adicione aqui os emails dos administradores
-]
+// Lista de emails de administradores — lida de variável de ambiente para evitar
+// expor endereços pessoais no código fonte. Defina VITE_ADMIN_EMAILS no .env
+// como uma lista separada por vírgulas (ex: "info@kidtokid.pt,outro@exemplo.pt").
+// Em produção, a abordagem mais segura é usar apenas Firebase custom claims (Método 1).
+const _envAdminEmails = import.meta.env.VITE_ADMIN_EMAILS
+export const ADMIN_EMAILS: string[] = _envAdminEmails
+  ? _envAdminEmails
+      .split(",")
+      .map((e: string) => e.trim().toLowerCase())
+      .filter((e: string) => e.includes("@") && e.includes("."))
+  : []
 
 // Verificar se o utilizador é admin
-// SECURITY: Only trust Firebase Auth custom claims and hardcoded email list.
-// Never check Firestore documents — users can write to their own profile.
+// SECURITY: Only trust Firebase Auth custom claims and the environment-configured
+// email list. Never check Firestore documents — users can write to their own profile.
 export const checkIsAdmin = async (user: User): Promise<boolean> => {
   if (!user || !user.email) return false
   
@@ -332,8 +337,8 @@ export const checkIsAdmin = async (user: User): Promise<boolean> => {
       return true
     }
     
-    // Método 2: Verificar na lista de emails (fallback)
-    if (ADMIN_EMAILS.includes(user.email.toLowerCase())) {
+    // Método 2: Verificar na lista de emails (fallback via variável de ambiente)
+    if (ADMIN_EMAILS.length > 0 && ADMIN_EMAILS.includes(user.email.toLowerCase())) {
       return true
     }
     

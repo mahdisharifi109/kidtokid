@@ -32,26 +32,31 @@ export default function ProductPage() {
   }, [])
 
   useEffect(() => {
+    let cancelled = false
     async function loadProduct() {
       setIsLoading(true)
       setSelectedImage(0)
       try {
         const fetchedProduct = await getProductById(id)
+        if (cancelled) return
         setProduct(fetchedProduct)
 
         // Carregar produtos relacionados da mesma categoria
         if (fetchedProduct) {
           const related = await getProductsByCategory(fetchedProduct.category)
+          if (cancelled) return
           // Excluir o produto atual e limitar a 4
           setRelatedProducts(related.filter(p => p.id !== id).slice(0, 4))
         }
       } catch (error) {
+        if (cancelled) return
         console.error("Erro ao carregar produto:", error)
       } finally {
-        setIsLoading(false)
+        if (!cancelled) setIsLoading(false)
       }
     }
     loadProduct()
+    return () => { cancelled = true }
   }, [id])
 
   if (isLoading) {

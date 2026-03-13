@@ -17,6 +17,24 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | undefined>(undefined)
 
+/** Validate that a value loaded from localStorage is a valid ICartItem array. */
+function isValidCartItems(data: unknown): data is ICartItem[] {
+  if (!Array.isArray(data)) return false
+  return data.every((item) => {
+    if (!item || typeof item !== "object") return false
+    const { product, quantity } = item as Record<string, unknown>
+    if (!product || typeof product !== "object") return false
+    const p = product as Record<string, unknown>
+    return (
+      typeof p.id === "string" && p.id.length > 0 &&
+      typeof p.title === "string" &&
+      typeof p.price === "number" && p.price > 0 &&
+      typeof p.stock === "number" && p.stock >= 0 &&
+      typeof quantity === "number" && quantity > 0
+    )
+  })
+}
+
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<ICartItem[]>(() => {
     if (typeof window !== 'undefined') {
@@ -24,9 +42,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
       if (saved) {
         try {
           const parsed = JSON.parse(saved)
-          if (Array.isArray(parsed)) {
+          if (isValidCartItems(parsed)) {
             return parsed
           }
+          // Data failed schema validation — discard to prevent stale/tampered data
+          localStorage.removeItem('k2k-cart')
         } catch (e) {
           console.error('Failed to parse cart from localStorage', e)
         }
@@ -106,7 +126,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
       }
 
       setItems((currentItems) =>
-        currentItems.map((item) => (item.product.id === productId ? { ...item, quantity } : item)),
+        currentItems.map((item) => {
+          if (item.product.id !== productId) return item
+          // Cap quantity at available stock to prevent ordering more than available
+          const safeQty = Math.min(quantity, item.product.stock)
+          return { ...item, quantity: safeQty }
+        }),
       )
     },
     [removeFromCart],

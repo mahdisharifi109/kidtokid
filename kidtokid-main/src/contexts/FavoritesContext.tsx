@@ -1,5 +1,3 @@
-
-
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 import type { IProduct } from "@/src/types"
 import { useAuth } from "@/src/contexts/AuthContext"
@@ -24,6 +22,16 @@ interface FavoritesContextType {
 
 const FavoritesContext = createContext<FavoritesContextType | undefined>(undefined)
 
+/** Basic schema validation for cached favorites data from localStorage. */
+function isValidFavorites(data: unknown): data is IProduct[] {
+  if (!Array.isArray(data)) return false
+  return data.every((item) => {
+    if (!item || typeof item !== "object") return false
+    const p = item as Record<string, unknown>
+    return typeof p.id === "string" && p.id.length > 0 && typeof p.title === "string"
+  })
+}
+
 export function FavoritesProvider({ children }: { children: ReactNode }) {
   const [favorites, setFavorites] = useState<IProduct[]>([])
   const [isLoaded, setIsLoaded] = useState(false)
@@ -42,7 +50,12 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
           const stored = localStorage.getItem(`k2k-favorites-${user.uid}`)
           if (stored) {
             try {
-              setFavorites(JSON.parse(stored))
+              const parsed = JSON.parse(stored)
+              if (isValidFavorites(parsed)) {
+                setFavorites(parsed)
+              } else {
+                localStorage.removeItem(`k2k-favorites-${user.uid}`)
+              }
             } catch {
               // ignore
             }
