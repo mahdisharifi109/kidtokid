@@ -1,0 +1,19 @@
+[nginx-rate-limit]
+enabled  = true
+port     = http,https
+filter   = nginx-rate-limit
+logpath  = /var/log/nginx/error.log
+findtime = 60
+maxretry = 1
+bantime  = 3600
+backend  = auto
+
+[nginx-404-fuzzing]
+enabled  = true
+port     = http,https
+filter   = nginx-404-fuzzing
+logpath  = /var/log/nginx/access.log
+findtime = 60
+maxretry = 4
+bantime  = 3600
+backend  = auto

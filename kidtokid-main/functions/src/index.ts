@@ -967,6 +967,57 @@ export const createStripeCheckoutSession = functions.region("europe-west1").http
   }
 );
 
+async function findOrderIdByStripeSessionId(sessionId: string): Promise<string | null> {
+  const snap = await db
+    .collection("orders")
+    .where("stripeSessionId", "==", sessionId)
+    .limit(1)
+    .get();
+
+  if (snap.empty) return null;
+  return snap.docs[0].id;
+}
+
+async function findOrderIdByPaymentIntentId(paymentIntentId: string): Promise<string | null> {
+  const snap = await db
+    .collection("orders")
+    .where("stripePaymentIntentId", "==", paymentIntentId)
+    .limit(1)
+    .get();
+
+  if (snap.empty) return null;
+  return snap.docs[0].id;
+}
+
+async function reserveStripeWebhookEvent(event: Stripe.Event): Promise<boolean> {
+  const eventRef = db.collection("stripe_webhook_events").doc(event.id);
+
+  const shouldProcess = await db.runTransaction(async (tx) => {
+    const existing = await tx.get(eventRef);
+    if (existing.exists) return false;
+
+    tx.set(eventRef, {
+      eventId: event.id,
+      type: event.type,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      livemode: event.livemode,
+    });
+
+    return true;
+  });
+
+  return shouldProcess;
+}
+
+async function markStripeWebhookEventDone(eventId: string): Promise<void> {
+  await db.collection("stripe_webhook_events").doc(eventId).set(
+    {
+      processedAt: admin.firestore.FieldValue.serverTimestamp(),
+    },
+    { merge: true }
+  );
+}
+
 // ======================================
 // 💳 STRIPE — WEBHOOK
 // ======================================
@@ -999,17 +1050,28 @@ export const stripeWebhook = functions.region("europe-west1").https.onRequest(
       return;
     }
 
+    const processThisEvent = await reserveStripeWebhookEvent(event);
+    if (!processThisEvent) {
+      functions.logger.info(`Skipping duplicate Stripe webhook event ${event.id} (${event.type}).`);
+      res.status(200).json({ received: true, duplicate: true });
+      return;
+    }
+
     if (event.type === "checkout.session.completed") {
       const session = event.data.object as Stripe.Checkout.Session;
-      const orderId = session.metadata?.orderId;
+      const paymentIntentId = typeof session.payment_intent === "string" ? session.payment_intent : undefined;
+
+      let orderId = session.metadata?.orderId || null;
+      if (!orderId) {
+        orderId = await findOrderIdByStripeSessionId(session.id);
+      }
 
       if (!orderId) {
-        functions.logger.error("No orderId in session metadata");
+        functions.logger.error(`No orderId found for checkout.session.completed (session=${session.id}).`);
         res.status(400).send("Missing orderId");
         return;
       }
 
-      // Mark order as paid
       const orderRef = db.collection("orders").doc(orderId);
       const orderDoc = await orderRef.get();
 
@@ -1017,13 +1079,71 @@ export const stripeWebhook = functions.region("europe-west1").https.onRequest(
         await orderRef.update({
           paymentStatus: "paid",
           status: "paid",
-          stripePaymentIntentId: session.payment_intent as string,
+          stripePaymentIntentId: paymentIntentId || null,
+          stripeLastWebhookEventId: event.id,
           paidAt: admin.firestore.FieldValue.serverTimestamp(),
           updatedAt: admin.firestore.FieldValue.serverTimestamp(),
         });
         functions.logger.info(`Order ${orderId} marked as paid via Stripe webhook.`);
       }
     }
+
+    if (event.type === "checkout.session.async_payment_failed") {
+      const session = event.data.object as Stripe.Checkout.Session;
+
+      let orderId = session.metadata?.orderId || null;
+      if (!orderId) {
+        orderId = await findOrderIdByStripeSessionId(session.id);
+      }
+
+      if (orderId) {
+        await db.collection("orders").doc(orderId).update({
+          paymentStatus: "failed",
+          stripeLastWebhookEventId: event.id,
+          paymentErrorMessage: "Pagamento assíncrono falhou no Stripe Checkout.",
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+        functions.logger.warn(`Order ${orderId} marked as payment failed (async).`);
+      }
+    }
+
+    if (event.type === "payment_intent.payment_failed") {
+      const intent = event.data.object as Stripe.PaymentIntent;
+      const orderId = await findOrderIdByPaymentIntentId(intent.id);
+
+      if (orderId) {
+        await db.collection("orders").doc(orderId).update({
+          paymentStatus: "failed",
+          stripeLastWebhookEventId: event.id,
+          paymentErrorCode: intent.last_payment_error?.code || null,
+          paymentErrorMessage: intent.last_payment_error?.message || "Falha no pagamento.",
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+        functions.logger.warn(`Order ${orderId} marked as payment failed (intent=${intent.id}).`);
+      }
+    }
+
+    if (event.type === "charge.refunded") {
+      const charge = event.data.object as Stripe.Charge;
+      const paymentIntentId = typeof charge.payment_intent === "string" ? charge.payment_intent : null;
+
+      if (paymentIntentId) {
+        const orderId = await findOrderIdByPaymentIntentId(paymentIntentId);
+
+        if (orderId) {
+          await db.collection("orders").doc(orderId).update({
+            paymentStatus: "refunded",
+            status: "refunded",
+            stripeLastWebhookEventId: event.id,
+            refundedAt: admin.firestore.FieldValue.serverTimestamp(),
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+          });
+          functions.logger.info(`Order ${orderId} marked as refunded (charge=${charge.id}).`);
+        }
+      }
+    }
+
+    await markStripeWebhookEventDone(event.id);
 
     res.status(200).json({ received: true });
   }

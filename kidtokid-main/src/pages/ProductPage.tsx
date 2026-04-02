@@ -42,7 +42,7 @@ export default function ProductPage() {
         // Carregar produtos relacionados da mesma categoria
         if (fetchedProduct) {
           const related = await getProductsByCategory(fetchedProduct.category)
-          // Excluir o produto atual e limitar a 4
+          // Excluir o produto atual e limitar a 4 (vendidos já excluídos pelo service)
           setRelatedProducts(related.filter(p => p.id !== id).slice(0, 4))
         }
       } catch (error) {

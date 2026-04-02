@@ -75,12 +75,13 @@ export async function getProductById(id: string): Promise<IProduct | null> {
   return null
 }
 
-// Buscar produtos por categoria
+// Buscar produtos por categoria (exclui vendidos — apenas para páginas públicas)
 export async function getProductsByCategory(category: string): Promise<IProduct[]> {
   const productsRef = collection(db, PRODUCTS_COLLECTION)
   const q = query(
     productsRef,
     where("category", "==", category),
+    where("stock", ">", 0),
     orderBy("createdAt", "desc")
   )
   const snapshot = await getDocs(q)
@@ -129,10 +130,13 @@ export async function getProductsWithFilters(filters: IFilter): Promise<IProduct
     )
   }
 
+  // Excluir produtos vendidos (stock === 0) das listagens públicas
+  products = products.filter(p => p.stock > 0)
+
   return products
 }
 
-// Buscar produtos com paginação
+// Buscar produtos com paginação (exclui vendidos para páginas públicas)
 export async function getProductsPaginated(
   pageSize: number = 20,
   lastDoc?: DocumentData,
@@ -145,6 +149,8 @@ export async function getProductsPaginated(
     constraints.push(where("category", "==", category))
   }
 
+  // Excluir produtos vendidos (stock === 0)
+  constraints.push(where("stock", ">", 0))
   constraints.push(orderBy("createdAt", "desc"))
 
   if (lastDoc) {
@@ -302,6 +308,9 @@ export async function searchProducts(
       }
       break
   }
+
+  // Excluir produtos vendidos (stock === 0) das pesquisas públicas
+  products = products.filter(p => p.stock > 0)
 
   return products
 }

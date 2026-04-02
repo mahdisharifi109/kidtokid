@@ -206,16 +206,9 @@ html {
 /* Better touch targets on mobile */
 @media (max-width: 768px) {
 
-  button,
-  a {
+  /* Only enforce touch targets on primary/standalone buttons */
+  button:not([class*="rounded-full"]):not([class*="text-xs"]):not([aria-label]) {
     min-height: 44px;
-    min-width: 44px;
-  }
-
-  /* Exceptions for inline elements */
-  a:not(.btn):not([class*="button"]) {
-    min-height: auto;
-    min-width: auto;
   }
 }
 
@@ -613,11 +606,16 @@ img[loading="lazy"]:not([src=""]) {
 }
 
 /* Shadow overrides for dark mode */
-.dark [data-slot="card"],
-.dark .shadow-sm,
-.dark .shadow-lg,
-.dark .shadow-xl {
+.dark .shadow-sm {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+}
+
+.dark .shadow-lg {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35), 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+}
+
+.dark .shadow-xl {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 4px 8px rgba(0, 0, 0, 0.25) !important;
 }
 
 /* Input overrides */

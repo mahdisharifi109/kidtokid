@@ -47,7 +47,7 @@ export function OptimizedImage({
   }, [priority])
 
   return (
-    <div ref={imgRef} className={cn("overflow-hidden", className)}>
+    <div ref={imgRef} className={cn("relative overflow-hidden", className)}>
       {isInView && (
         <img
           src={src}
