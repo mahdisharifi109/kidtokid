@@ -424,15 +424,15 @@ export function Header() {
                 <div className="flex items-center">
                   <Link
                     to={`/categoria/${cat.id}`}
-                    className="flex-1 flex items-center gap-3 px-3 py-2 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                    className="flex-1 flex items-center gap-3 rounded px-3 py-2.5 bg-black/30 hover:bg-black/40 text-white dark:text-gray-100 font-medium transition-colors"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    <span className="font-medium dark:text-gray-100">{cat.nome}</span>
+                    <span>{cat.nome}</span>
                   </Link>
                   {cat.subcategorias.length > 0 && (
                     <button
                       onClick={() => setExpandedMobileCat(expandedMobileCat === cat.id ? null : cat.id)}
-                      className="p-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                      className="px-3 py-2.5 text-white hover:bg-black/40 transition-colors rounded"
                       aria-label={`Expandir ${cat.nome}`}
                     >
                       <ChevronDown className={`h-4 w-4 transition-transform ${expandedMobileCat === cat.id ? "rotate-180" : ""}`} />
@@ -441,12 +441,12 @@ export function Header() {
                 </div>
                 {/* Mobile Subcategories */}
                 {expandedMobileCat === cat.id && (
-                  <div className="ml-6 mb-2 space-y-0.5 border-l-2 border-blue-100 dark:border-blue-900 pl-3">
+                  <div className="ml-6 mb-2 space-y-0.5 border-l-2 border-blue-300 dark:border-blue-700 pl-3">
                     {cat.subcategorias.map((sub) => (
                       <Link
                         key={sub.id}
                         to={`/categoria/${cat.id}?sub=${sub.id}`}
-                        className="block rounded px-3 py-2 text-sm text-gray-600 dark:text-gray-400 hover:bg-blue-50 dark:hover:bg-blue-950/30 hover:text-blue-700 dark:hover:text-blue-400 transition-colors"
+                        className="block rounded px-3 py-2 text-sm text-white bg-black/25 hover:bg-black/35 transition-colors"
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
                         {sub.nome}
