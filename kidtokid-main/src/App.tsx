@@ -41,7 +41,6 @@ const AdminContactsPage = lazy(() => import('./pages/admin/AdminContactsPage'))
 const AdminReviewsPage = lazy(() => import('./pages/admin/AdminReviewsPage'))
 const AdminAnalyticsPage = lazy(() => import('./pages/admin/AdminAnalyticsPage'))
 const AdminNewsletterPage = lazy(() => import('./pages/admin/AdminNewsletterPage'))
-const AdminMigrateCategoriesPage = lazy(() => import('./pages/admin/AdminMigrateCategoriesPage'))
 
 // Loading component
 function PageLoader() {
@@ -196,11 +195,6 @@ function App() {
         <Route path="/admin/newsletter" element={
           <AdminRoute>
             <AdminNewsletterPage />
-          </AdminRoute>
-        } />
-        <Route path="/admin/migrar-categorias" element={
-          <AdminRoute>
-            <AdminMigrateCategoriesPage />
           </AdminRoute>
         } />
 

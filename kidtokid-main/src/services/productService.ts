@@ -81,11 +81,11 @@ export async function getProductsByCategory(category: string): Promise<IProduct[
   const q = query(
     productsRef,
     where("category", "==", category),
-    where("stock", ">", 0),
     orderBy("createdAt", "desc")
   )
   const snapshot = await getDocs(q)
-  return snapshot.docs.map(convertToProduct)
+  // Filtragem de stock feita no cliente (evita índice composto)
+  return snapshot.docs.map(convertToProduct).filter(p => p.stock > 0)
 }
 
 // Buscar produtos com filtros
@@ -149,22 +149,24 @@ export async function getProductsPaginated(
     constraints.push(where("category", "==", category))
   }
 
-  // Excluir produtos vendidos (stock === 0)
-  constraints.push(where("stock", ">", 0))
+  // Ordenar por data (sem filtro stock no Firestore — filtramos no cliente)
   constraints.push(orderBy("createdAt", "desc"))
 
   if (lastDoc) {
     constraints.push(startAfter(lastDoc))
   }
 
-  constraints.push(limit(pageSize))
+  // Buscar mais do que o necessário para compensar filtro de stock no cliente
+  constraints.push(limit(pageSize * 3))
 
   const q = query(productsRef, ...constraints)
   const snapshot = await getDocs(q)
-  const products = snapshot.docs.map(convertToProduct)
+  // Filtrar stock no cliente
+  const allProducts = snapshot.docs.map(convertToProduct).filter(p => p.stock > 0)
+  const products = allProducts.slice(0, pageSize)
   const newLastDoc = snapshot.docs[snapshot.docs.length - 1] || null
 
-  return { products, lastDoc: newLastDoc, hasMore: snapshot.docs.length === pageSize }
+  return { products, lastDoc: newLastDoc, hasMore: allProducts.length >= pageSize }
 }
 
 // Adicionar novo produto

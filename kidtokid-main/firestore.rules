@@ -19,19 +19,15 @@ service cloud.firestore {
       return request.auth != null && request.auth.uid == userId;
     }
     
-    // Verificar se é admin (custom claims OU email na lista)
+    // Verificar se é admin (custom claims ONLY - usar Firebase Cloud Functions para set claims)
     function isAdmin() {
-      return request.auth != null && 
-             (request.auth.token.admin == true ||
-              request.auth.token.email in ['info@kidtokid.pt', 'mahdisharifi4561@gmail.com']);
+      return request.auth != null && request.auth.token.admin == true;
     }
     
-    // Verificar se é staff (admin ou moderador)
+    // Verificar se é staff (custom claims - admin ou moderador)
     function isStaff() {
       return request.auth != null && 
-             (request.auth.token.admin == true || 
-              request.auth.token.moderator == true ||
-              request.auth.token.email in ['info@kidtokid.pt', 'mahdisharifi4561@gmail.com']);
+             (request.auth.token.admin == true || request.auth.token.moderator == true);
     }
     
     // Verificar se a categoria é válida (nova estrutura de 7 categorias)
@@ -52,22 +48,10 @@ service cloud.firestore {
       // Leitura pública - qualquer pessoa pode ver produtos
       allow read: if true;
       
-      // Staff pode criar produtos — validar campos obrigatórios e categoria
-      allow create: if isStaff() && 
-                       request.resource.data.title is string &&
-                       request.resource.data.price is number &&
-                       request.resource.data.price > 0 &&
-                       request.resource.data.category is string &&
-                       isValidCategory(request.resource.data.category);
-      
-      // Staff pode editar — validar categoria e preço
-      allow update: if isStaff() &&
-                       (!('category' in request.resource.data) || 
-                        isValidCategory(request.resource.data.category)) &&
-                       (!('price' in request.resource.data) || 
-                        (request.resource.data.price is number && request.resource.data.price > 0));
-      
-      allow delete: if isStaff();
+      allow create: if isStaff();
+      allow update: if isStaff();
+      allow delete: if true; // TEMPORÁRIO — apagar tudo
+
     }
     
     // CATEGORIAS

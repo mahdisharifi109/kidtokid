@@ -3,6 +3,10 @@ import { createContext, useContext, useState, useEffect, useCallback, type React
 import type { IProduct, ICartItem } from "@/src/types"
 import { toast } from "sonner"
 import { getProductById } from "@/src/services/productService"
+import { doc, setDoc, onSnapshot } from "firebase/firestore"
+import { db } from "@/src/lib/firebase"
+import { useAuth } from "@/src/contexts/AuthContext"
+import { validateCartFromStorage } from "@/src/lib/validators"
 
 interface CartContextType {
   items: ICartItem[]
@@ -18,19 +22,12 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined)
 
 export function CartProvider({ children }: { children: ReactNode }) {
+  const { user } = useAuth()
+  
   const [items, setItems] = useState<ICartItem[]>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('k2k-cart')
-      if (saved) {
-        try {
-          const parsed = JSON.parse(saved)
-          if (Array.isArray(parsed)) {
-            return parsed
-          }
-        } catch (e) {
-          console.error('Failed to parse cart from localStorage', e)
-        }
-      }
+      return validateCartFromStorage(saved)
     }
     return []
   })
@@ -39,6 +36,121 @@ export function CartProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     localStorage.setItem('k2k-cart', JSON.stringify(items))
   }, [items])
+
+  // Sync cart to Firestore for authenticated users (fire-and-forget with error catching)
+  useEffect(() => {
+    if (!user || !user.uid) return
+    
+    const syncToFirebase = async () => {
+      try {
+        const cartRef = doc(db, 'carts', user.uid)
+        const cartData = {
+          items: items.map(item => ({
+            productId: item.product.id,
+            quantity: item.quantity,
+            // Store product snapshot for quick access
+            product: {
+              id: item.product.id,
+              title: item.product.title,
+              price: item.product.price,
+              condition: item.product.condition,
+            }
+          })),
+          lastUpdated: new Date().toISOString(),
+        }
+        
+        await setDoc(cartRef, cartData, { merge: true })
+        console.debug('[Cart] Synced to Firestore')
+      } catch (error) {
+        // Fail silently - localStorage is primary fallback
+        console.warn('[Cart] Failed to sync to Firestore:', error)
+      }
+    }
+    
+    // Debounce: only sync if no changes for 2 seconds
+    const timeoutId = setTimeout(() => {
+      syncToFirebase()
+    }, 2000)
+    
+    return () => clearTimeout(timeoutId)
+  }, [items, user])
+
+  // Load cart from Firestore on user login (merge with localStorage)
+  useEffect(() => {
+    if (!user || !user.uid) return
+    
+    let unsubscribe: (() => void) | undefined
+    
+    const setupListener = async () => {
+      try {
+        const cartRef = doc(db, 'carts', user.uid)
+        unsubscribe = onSnapshot(
+          cartRef,
+          (snapshot) => {
+            if (!snapshot.exists()) {
+              console.debug('[Cart] No cart found in Firestore')
+              return
+            }
+            
+            const data = snapshot.data() as { items?: unknown[] } | undefined
+            if (!data?.items) return
+            
+            // Only update if Firestore has a more recent version
+            const localCart = items
+            const remoteItems = data.items as Array<{
+              productId: string
+              quantity: number
+              product?: Record<string, unknown>
+            }>
+            
+            // Merge: keep local additions but update quantities from Firestore
+            const mergedItems = localCart.map(item => {
+              const remoteItem = remoteItems.find(r => r.productId === item.product.id)
+              return remoteItem ? { ...item, quantity: remoteItem.quantity } : item
+            })
+            
+            // Add items that are in Firestore but not locally
+            const localProductIds = new Set(localCart.map(item => item.product.id))
+            for (const remoteItem of remoteItems) {
+              if (!localProductIds.has(remoteItem.productId) && remoteItem.product) {
+                const productData = remoteItem.product as Record<string, unknown>
+                // Validate product has required fields before adding
+                if (
+                  typeof productData.id === 'string' &&
+                  typeof productData.title === 'string' &&
+                  typeof productData.price === 'number' &&
+                  productData.price > 0
+                ) {
+                  const product = productData as unknown as IProduct
+                  mergedItems.push({
+                    product,
+                    quantity: remoteItem.quantity,
+                  })
+                }
+              }
+            }
+            
+            setItems(mergedItems)
+            console.debug('[Cart] Loaded from Firestore and merged with local')
+          },
+          (error) => {
+            // Fail silently on listener setup error
+            console.warn('[Cart] Failed to setup Firestore listener:', error)
+          }
+        )
+      } catch (error) {
+        console.warn('[Cart] Failed to setup cart sync:', error)
+      }
+    }
+    
+    setupListener()
+    
+    return () => {
+      if (unsubscribe) {
+        unsubscribe()
+      }
+    }
+  }, [user])
 
   // Validate cart items on load — remove unavailable/out-of-stock products
   useEffect(() => {

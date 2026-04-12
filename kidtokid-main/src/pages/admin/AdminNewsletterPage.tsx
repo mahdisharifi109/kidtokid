@@ -32,7 +32,7 @@ import {
   where,
 } from "firebase/firestore"
 import { db } from "@/src/lib/firebase"
-import { getFunctions, httpsCallable } from "firebase/functions"
+import { sendPromoNewsletterWithTimeout } from "@/src/lib/cloudFunctions"
 import type { IProduct } from "@/src/types"
 
 interface Subscriber {
@@ -241,17 +241,16 @@ export default function AdminNewsletterPage() {
 
     setSending(true)
     try {
-      const functions = getFunctions(undefined, "europe-west1")
-      const sendPromo = httpsCallable(functions, "sendPromoNewsletter")
-      const result = await sendPromo({
+      const promoData = {
         subject,
         headline,
         message,
         products: selectedProducts.length > 0 ? selectedProducts : undefined,
         ctaText: ctaText || undefined,
         ctaUrl: ctaUrl || undefined,
-      })
-
+      }
+      
+      const result = await sendPromoNewsletterWithTimeout(promoData, 60_000)
       const data = result.data as { success: boolean; sent: number; failed: number; total: number }
 
       if (data.success) {

@@ -11,7 +11,8 @@ import { initiateStripePayment } from "@/src/services/paymentService"
 import { validateCoupon } from "@/src/services/couponService"
 import { getStoreSettings, type StoreSettings, defaultSettings } from "@/src/services/settingsService"
 import { getConditionLabel } from "@/src/types"
-import { getFunctions, httpsCallable } from "firebase/functions"
+import { createSecureOrderWithTimeout } from "@/src/lib/cloudFunctions"
+import { validateEmail, validatePhone, validatePostalCode } from "@/src/lib/validators"
 
 export default function CheckoutPage() {
     const { items, totalPrice, clearCart } = useCart()
@@ -119,27 +120,23 @@ export default function CheckoutPage() {
         setCouponError('')
     }
 
-    const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
-    const isValidPostalCode = (code: string) => /^\d{4}-\d{3}$/.test(code)
-    const isValidPhone = (phone: string) => /^(9[1236]\d{7}|2\d{8})$/.test(phone.replace(/\s/g, ''))
-
     const hasValidAddress = () => {
         if (formData.shippingMethod === 'pickup') return true
-        return formData.address.trim() && formData.city.trim() && isValidPostalCode(formData.postalCode)
+        return formData.address.trim() && formData.city.trim() && validatePostalCode(formData.postalCode)
     }
 
     const canProceed = () => {
         return formData.name.trim() && 
-               isValidEmail(formData.email) && 
-               isValidPhone(formData.phone) &&
+               validateEmail(formData.email) && 
+               validatePhone(formData.phone) &&
                hasValidAddress()
     }
 
     const handleFinishOrder = async () => {
         if (!canProceed()) {
             if (!formData.name.trim()) toast.error("Introduz o teu nome")
-            else if (!isValidEmail(formData.email)) toast.error("Email inválido")
-            else if (!isValidPhone(formData.phone)) toast.error("Telemóvel inválido (9xxxxxxxx)")
+            else if (!validateEmail(formData.email)) toast.error("Email inválido")
+            else if (!validatePhone(formData.phone)) toast.error("Telemóvel inválido (9xxxxxxxx)")
             else if (!hasValidAddress()) toast.error("Completa a morada de entrega")
             return
         }
@@ -147,9 +144,6 @@ export default function CheckoutPage() {
         setIsProcessing(true)
 
         try {
-            const functions = getFunctions(undefined, 'europe-west1')
-            const createSecureOrder = httpsCallable(functions, 'createSecureOrder')
-
             const orderData = {
                 items: items.map(item => ({
                     productId: item.product.id,
@@ -170,7 +164,7 @@ export default function CheckoutPage() {
                 couponCode: couponApplied ? couponCode.trim() : undefined,
             }
 
-            const result = await createSecureOrder(orderData)
+            const result = await createSecureOrderWithTimeout(orderData, 30_000)
             const order = result.data as { orderId: string; orderNumber: string; total: number }
 
             if (formData.paymentMethod === 'card') {

@@ -44,6 +44,14 @@ import {
     Moon,
     Monitor
 } from "lucide-react"
+import {
+  AccountCardHeader,
+  AccountFormField,
+  AccountEditButtons,
+  AccountInfoItem,
+  AccountEmptyState,
+  AccountLoadingState,
+} from "@/src/components/account/AccountComponents"
 
 type TabType = "perfil" | "encomendas" | "favoritos" | "moradas" | "definicoes"
 
@@ -213,8 +221,8 @@ export default function AccountPage() {
             })
             setNewsletter(userData.newsletter || false)
             // Carregar moradas do userData
-            if ((userData as unknown as { addresses?: Address[] }).addresses) {
-                setAddresses((userData as unknown as { addresses: Address[] }).addresses)
+            if (userData.addresses && Array.isArray(userData.addresses)) {
+                setAddresses(userData.addresses)
             }
         }
     }, [userData, user])

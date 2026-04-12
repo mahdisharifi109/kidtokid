@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react"
+import { useState, useCallback, useEffect } from "react"
 import { User } from "lucide-react"
 
 const FAILED_URLS_KEY = "k2k_failed_avatar_urls"
@@ -43,12 +43,10 @@ export function UserAvatar({ src, alt = "", fallbackInitials, size = "sm", class
     return getFailedUrls().has(src)
   })
 
-  // Reset se o src mudar para um novo URL
-  const [prevSrc, setPrevSrc] = useState(src)
-  if (src !== prevSrc) {
-    setPrevSrc(src)
+  // Reset image state when src changes (use useEffect instead of direct setState in render)
+  useEffect(() => {
     setImgFailed(!src || getFailedUrls().has(src))
-  }
+  }, [src])
 
   const handleError = useCallback(() => {
     if (src) markUrlAsFailed(src)

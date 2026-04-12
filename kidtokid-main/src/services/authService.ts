@@ -12,6 +12,8 @@ import {
 import { doc, setDoc, getDoc, serverTimestamp, onSnapshot, Timestamp } from "firebase/firestore"
 import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage"
 import { auth, db, storage } from "@/src/lib/firebase"
+import { customPasswordResetWithTimeout } from "@/src/lib/cloudFunctions"
+import { isFirebaseError } from "@/src/lib/validators"
 
 // Providers para login social
 const googleProvider = new GoogleAuthProvider()
@@ -118,27 +120,26 @@ export const logout = async (): Promise<void> => {
 // Recuperar password (via Cloud Function que usa SMTP do Gmail, com fallback para Firebase nativo)
 export const resetPassword = async (email: string): Promise<void> => {
   try {
-    const { getFunctions, httpsCallable } = await import("firebase/functions")
-    const functions = getFunctions(undefined, 'europe-west1')
-    const sendReset = httpsCallable(functions, 'customPasswordReset')
-    const result = await sendReset({
+    const result = await customPasswordResetWithTimeout({
       email,
       continueUrl: window.location.origin + '/entrar',
-    })
+    }, 15_000)
     const data = result.data as { success?: boolean }
     if (!data.success) {
       throw new Error("Falha ao enviar email")
     }
   } catch (error: unknown) {
-    const err = error as { code?: string; message?: string }
+    // Use type guard for safe error property access
+    const code = isFirebaseError(error) ? error.code : undefined
+    const message = isFirebaseError(error) ? error.message : undefined
     // Google-only accounts — show specific message
-    if (err?.code === 'functions/failed-precondition') {
-      throw { code: 'auth/google-only-account', message: err.message }
+    if (code === "functions/failed-precondition") {
+      throw { code: "auth/google-only-account", message }
     }
     // For any other Cloud Function error, fallback to Firebase native reset
-    console.warn("Cloud Function password reset failed, using Firebase native:", err?.code, err?.message)
+    console.warn("Cloud Function password reset failed, using Firebase native:", code, message)
     const actionCodeSettings = {
-      url: window.location.origin + '/entrar',
+      url: window.location.origin + "/entrar",
       handleCodeInApp: false,
     }
     await sendPasswordResetEmail(auth, email, actionCodeSettings)
@@ -419,7 +420,8 @@ export const secureLogin = async (
     resetRateLimit(email)
     return { user }
   } catch (error: unknown) {
-    const errorCode = (error as { code?: string }).code || ""
+    // Use type guard for safe error property access
+    const errorCode = isFirebaseError(error) ? error.code || "" : ""
     return { error: getAuthErrorMessage(errorCode) }
   }
 }

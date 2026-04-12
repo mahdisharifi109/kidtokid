@@ -1,6 +1,5 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 import type { User } from "firebase/auth"
-import { getFunctions, httpsCallable } from "firebase/functions"
 import {
   onAuthChange,
   loginWithEmail,
@@ -19,6 +18,8 @@ import {
   type UserData,
   type Address,
 } from "@/src/services/authService"
+import { setAdminClaimsWithTimeout } from "@/src/lib/cloudFunctions"
+import { isFirebaseError } from "@/src/lib/validators"
 
 interface AuthContextType {
   user: User | null
@@ -87,15 +88,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             const idToken = await firebaseUser.getIdTokenResult()
             if (idToken.claims.admin !== true) {
               try {
-                const functions = getFunctions(undefined, 'europe-west1')
-                const setAdminClaims = httpsCallable(functions, 'setAdminClaims')
-                await setAdminClaims({})
+                await setAdminClaimsWithTimeout(10_000)
                 // Force token refresh to pick up new claims
                 await firebaseUser.getIdToken(true)
               } catch (e) {
                 console.warn("Could not auto-set admin claims via Cloud Function:", e)
                 // Even without Cloud Functions, force a token refresh
-                // so Firestore rules can read request.auth.token.email
                 try {
                   await firebaseUser.getIdToken(true)
                 } catch (refreshErr) {
@@ -129,7 +127,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await loginWithEmail(email, password)
       return { success: true }
     } catch (error: unknown) {
-      const errorCode = (error as { code?: string }).code || ""
+      const errorCode = isFirebaseError(error) ? error.code || "" : ""
       return { success: false, error: getAuthErrorMessage(errorCode) }
     }
   }
@@ -139,7 +137,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await loginWithGoogle()
       return { success: true }
     } catch (error: unknown) {
-      const errorCode = (error as { code?: string }).code || ""
+      const errorCode = isFirebaseError(error) ? error.code || "" : ""
       return { success: false, error: getAuthErrorMessage(errorCode) }
     }
   }
@@ -156,7 +154,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await registerWithEmail(email, password, firstName, lastName, phone, newsletter)
       return { success: true }
     } catch (error: unknown) {
-      const errorCode = (error as { code?: string }).code || ""
+      const errorCode = isFirebaseError(error) ? error.code || "" : ""
       return { success: false, error: getAuthErrorMessage(errorCode) }
     }
   }
@@ -174,7 +172,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await resetPassword(email)
       return { success: true }
     } catch (error: unknown) {
-      const errorCode = (error as { code?: string }).code || ""
+      const errorCode = isFirebaseError(error) ? error.code || "" : ""
       console.error("Password reset error:", errorCode, error)
       return { success: false, error: getAuthErrorMessage(errorCode) }
     }
