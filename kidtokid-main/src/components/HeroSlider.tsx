@@ -82,10 +82,10 @@ export function HeroSlider() {
                   loading={index === 0 ? "eager" : "lazy"}
                   className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-103"
                 />
-                <div className="absolute inset-0 bg-linear-to-r from-black/55 via-black/20 to-transparent" />
+                <div className="absolute inset-0 bg-linear-to-r from-black/70 via-black/40 to-black/10" />
                 <div className="absolute inset-0 flex flex-col justify-center p-5 sm:p-10 md:p-16">
-                  <h2 className="mb-2 md:mb-3 text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-semibold text-white tracking-tight">{slide.title}</h2>
-                  {slide.subtitle && <p className="text-sm sm:text-base md:text-lg text-white/85 max-w-md font-light">{slide.subtitle}</p>}
+                  <h2 className="mb-2 md:mb-3 text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-semibold text-white tracking-tight drop-shadow-lg" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.8)' }}>{slide.title}</h2>
+                  {slide.subtitle && <p className="text-sm sm:text-base md:text-lg text-white/90 max-w-md font-light drop-shadow" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.7)' }}>{slide.subtitle}</p>}
                 </div>
               </div>
             </Link>

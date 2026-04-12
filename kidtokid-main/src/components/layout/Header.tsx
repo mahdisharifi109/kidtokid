@@ -401,12 +401,12 @@ export function Header() {
 
       {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
-        <div className="fixed inset-0 z-50 bg-black/50" onClick={() => setIsMobileMenuOpen(false)} />
+        <div className="fixed inset-0 z-40 bg-black/50" onClick={() => setIsMobileMenuOpen(false)} />
       )}
 
       {/* Mobile Menu */}
       <div
-        className={`fixed left-0 top-0 z-50 h-full w-80 max-w-[85%] transform bg-white dark:bg-gray-900 transition-transform duration-300 ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+        className={`fixed left-0 top-0 z-50 h-full w-64 max-w-[75%] transform bg-white dark:bg-gray-900 transition-transform duration-300 ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
           }`}
       >
         <div className="flex items-center justify-between border-b dark:border-gray-700 p-4">
@@ -424,7 +424,7 @@ export function Header() {
                 <div className="flex items-center">
                   <Link
                     to={`/categoria/${cat.id}`}
-                    className="flex-1 flex items-center gap-3 rounded-lg p-3 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                    className="flex-1 flex items-center gap-3 px-3 py-2 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     <span className="font-medium dark:text-gray-100">{cat.nome}</span>
@@ -464,18 +464,17 @@ export function Header() {
             {isAuthenticated ? (
               <>
                 {/* Informações do utilizador logado */}
-                <div className="flex items-center gap-3 rounded-lg bg-gray-50 dark:bg-gray-800 p-3 mb-2">
+                <div className="flex items-center gap-2 px-3 py-2 mb-2 border-b dark:border-gray-700">
                   <UserAvatar
                     src={user?.photoURL}
                     alt="Foto de perfil"
                     fallbackInitials={user?.displayName?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || "U"}
-                    size="md"
+                    size="sm"
                   />
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-gray-900 dark:text-gray-100 truncate">
+                    <p className="text-xs font-medium text-gray-900 dark:text-gray-100 truncate">
                       {user?.displayName || "Utilizador"}
                     </p>
-                    <p className="text-xs text-gray-500 truncate">{user?.email}</p>
                   </div>
                 </div>
                 <Link
