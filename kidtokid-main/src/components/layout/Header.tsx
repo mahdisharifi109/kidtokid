@@ -80,9 +80,10 @@ export function Header() {
   const activeCategoryData = activeCategory ? catalogo[activeCategory as keyof typeof catalogo] : null
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-white/95 dark:bg-gray-900/95 backdrop-blur-md shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
-      {/* Top Bar */}
-      <div className="hidden border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 md:block">
+    <>
+      <header className="sticky top-0 z-50 w-full bg-white/95 dark:bg-gray-900/95 backdrop-blur-md shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+        {/* Top Bar */}
+        <div className="hidden border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 md:block">
         <div className="container mx-auto flex items-center justify-end px-4 py-1.5 text-xs text-gray-600 dark:text-gray-400">
           <div className="flex items-center gap-4">
             <Link to="/ajuda" className="hover:text-blue-600">Ajuda</Link>
@@ -398,159 +399,162 @@ export function Header() {
           </div>
         </div>
       </nav>
+    </header>
 
-      {/* Mobile Menu Overlay */}
-      {isMobileMenuOpen && (
-        <div className="fixed inset-0 z-40 bg-black/50" onClick={() => setIsMobileMenuOpen(false)} />
-      )}
+    {/* Mobile Menu Overlay */}
+    {isMobileMenuOpen && (
+      <div className="fixed inset-0 z-100 bg-black/60 transition-opacity" onClick={() => setIsMobileMenuOpen(false)} />
+    )}
 
-      {/* Mobile Menu */}
-      <div
-        className={`fixed left-0 top-0 z-50 h-full w-64 max-w-[75%] transform bg-white dark:bg-gray-900 transition-transform duration-300 ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
-          }`}
-      >
-        <div className="flex items-center justify-between border-b dark:border-gray-700 p-4">
-          <span className="text-lg font-bold text-blue-600">Kid to Kid</span>
-          <Button variant="ghost" size="icon" onClick={() => setIsMobileMenuOpen(false)} aria-label="Fechar menu">
-            <X className="h-5 w-5" />
-          </Button>
-        </div>
+    {/* Mobile Menu */}
+    <div
+      className={`fixed inset-y-0 left-0 z-100 h-full w-[80%] max-w-sm transform bg-white dark:bg-gray-900 shadow-2xl transition-transform duration-300 flex flex-col ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+    >
+      <div className="flex-none flex items-center justify-between border-b border-gray-200 dark:border-gray-800 p-4">
+        <Link to="/" className="flex items-center gap-2" onClick={() => setIsMobileMenuOpen(false)}>
+          <img src="/logo.png" alt="Kid to Kid" className="h-8" />
+        </Link>
+        <Button variant="ghost" size="icon" onClick={() => setIsMobileMenuOpen(false)} aria-label="Fechar menu">
+          <X className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+        </Button>
+      </div>
 
-        <div className="overflow-y-auto p-4">
-          <p className="mb-3 text-xs font-semibold uppercase text-gray-500 dark:text-gray-400">Categorias</p>
-          <div className="space-y-1">
-            {Object.values(catalogo).map((cat) => (
-              <div key={cat.id}>
-                <div className="flex items-center">
-                  <Link
-                    to={`/categoria/${cat.id}`}
-                    className="flex-1 flex items-center gap-3 rounded px-3 py-2.5 bg-black/30 hover:bg-black/40 text-white dark:text-gray-100 font-medium transition-colors"
-                    onClick={() => setIsMobileMenuOpen(false)}
+      <div className="flex-1 overflow-y-auto p-4">
+        <p className="mb-3 text-xs font-semibold uppercase text-gray-500 dark:text-gray-400">Categorias</p>
+        <div className="space-y-1">
+          {Object.values(catalogo).map((cat) => (
+            <div key={cat.id}>
+              <div className="flex items-center">
+                <Link
+                  to={`/categoria/${cat.id}`}
+                  className="flex-1 flex items-center gap-3 rounded-lg px-4 py-3 bg-gray-100 dark:bg-gray-900 hover:bg-gray-200 dark:hover:bg-gray-800 text-gray-900 dark:text-gray-100 font-medium transition-colors"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <span>{cat.nome}</span>
+                </Link>
+                {cat.subcategorias.length > 0 && (
+                  <button
+                    onClick={() => setExpandedMobileCat(expandedMobileCat === cat.id ? null : cat.id)}
+                    className="px-4 py-3 ml-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-900 hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors rounded-lg"
+                    aria-label={`Expandir ${cat.nome}`}
                   >
-                    <span>{cat.nome}</span>
-                  </Link>
-                  {cat.subcategorias.length > 0 && (
-                    <button
-                      onClick={() => setExpandedMobileCat(expandedMobileCat === cat.id ? null : cat.id)}
-                      className="px-3 py-2.5 text-white hover:bg-black/40 transition-colors rounded"
-                      aria-label={`Expandir ${cat.nome}`}
-                    >
-                      <ChevronDown className={`h-4 w-4 transition-transform ${expandedMobileCat === cat.id ? "rotate-180" : ""}`} />
-                    </button>
-                  )}
-                </div>
-                {/* Mobile Subcategories */}
-                {expandedMobileCat === cat.id && (
-                  <div className="ml-6 mb-2 space-y-0.5 border-l-2 border-blue-300 dark:border-blue-700 pl-3">
-                    {cat.subcategorias.map((sub) => (
-                      <Link
-                        key={sub.id}
-                        to={`/categoria/${cat.id}?sub=${sub.id}`}
-                        className="block rounded px-3 py-2 text-sm text-white bg-black/25 hover:bg-black/35 transition-colors"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        {sub.nome}
-                      </Link>
-                    ))}
-                  </div>
+                    <ChevronDown className={`h-4 w-4 transition-transform ${expandedMobileCat === cat.id ? "rotate-180" : ""}`} />
+                  </button>
                 )}
               </div>
-            ))}
-          </div>
-
-          <hr className="my-4 dark:border-gray-700" />
-
-          <div className="space-y-1">
-            {isAuthenticated ? (
-              <>
-                {/* Informações do utilizador logado */}
-                <div className="flex items-center gap-2 px-3 py-2 mb-2 border-b dark:border-gray-700">
-                  <UserAvatar
-                    src={user?.photoURL}
-                    alt="Foto de perfil"
-                    fallbackInitials={user?.displayName?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || "U"}
-                    size="sm"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-medium text-gray-900 dark:text-gray-100 truncate">
-                      {user?.displayName || "Utilizador"}
-                    </p>
-                  </div>
+              {/* Mobile Subcategories */}
+              {expandedMobileCat === cat.id && (
+                <div className="mt-2 ml-4 space-y-1 border-l-2 border-gray-100 dark:border-gray-800 pl-3">
+                  {cat.subcategorias.map((sub) => (
+                    <Link
+                      key={sub.id}
+                      to={`/categoria/${cat.id}?sub=${sub.id}`}
+                      className="block rounded-lg px-4 py-2.5 text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      {sub.nome}
+                    </Link>
+                  ))}
                 </div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        <hr className="my-4 dark:border-gray-700" />
+
+        <div className="space-y-1">
+          {isAuthenticated ? (
+            <>
+              {/* Informações do utilizador logado */}
+              <div className="flex items-center gap-2 px-3 py-2 mb-2 border-b dark:border-gray-700">
+                <UserAvatar
+                  src={user?.photoURL}
+                  alt="Foto de perfil"
+                  fallbackInitials={user?.displayName?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || "U"}
+                  size="sm"
+                />
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-medium text-gray-900 dark:text-gray-100 truncate">
+                    {user?.displayName || "Utilizador"}
+                  </p>
+                </div>
+              </div>
+              <Link
+                to="/minha-conta"
+                className="flex items-center gap-3 rounded-lg p-3 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                <User className="h-5 w-5" />
+                <span className="font-medium">Minha Conta</span>
+              </Link>
+              <Link
+                to="/minha-conta?tab=encomendas"
+                className="flex items-center gap-3 rounded-lg p-3 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                <ShoppingCart className="h-5 w-5" />
+                <span className="font-medium">As Minhas Encomendas</span>
+              </Link>
+              {isAdmin && (
                 <Link
-                  to="/minha-conta"
-                  className="flex items-center gap-3 rounded-lg p-3 hover:bg-gray-100 dark:hover:bg-gray-800 dark:text-gray-100 transition-colors"
+                  to="/admin"
+                  className="flex items-center gap-3 rounded-lg p-3 bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-950/50 transition-colors"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
-                  <User className="h-5 w-5" />
-                  <span className="font-medium">Minha Conta</span>
+                  <Shield className="h-5 w-5" />
+                  <span className="font-medium">Painel Admin</span>
                 </Link>
-                <Link
-                  to="/minha-conta?tab=encomendas"
-                  className="flex items-center gap-3 rounded-lg p-3 hover:bg-gray-100 dark:hover:bg-gray-800 dark:text-gray-100 transition-colors"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  <ShoppingCart className="h-5 w-5" />
-                  <span className="font-medium">As Minhas Encomendas</span>
-                </Link>
-                {isAdmin && (
-                  <Link
-                    to="/admin"
-                    className="flex items-center gap-3 rounded-lg p-3 bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-950/50 transition-colors"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    <Shield className="h-5 w-5" />
-                    <span className="font-medium">Painel Admin</span>
-                  </Link>
-                )}
-                <button
-                  onClick={() => {
-                    handleLogout()
-                    setIsMobileMenuOpen(false)
-                  }}
-                  className="flex w-full items-center gap-3 rounded-lg p-3 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
-                >
-                  <LogOut className="h-5 w-5" />
-                  <span className="font-medium">Terminar Sessão</span>
-                </button>
-              </>
-            ) : (
-              <>
-                <Link
-                  to="/entrar"
-                  className="flex items-center gap-3 rounded-lg p-3 hover:bg-gray-100 dark:hover:bg-gray-800 dark:text-gray-100 transition-colors"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  <User className="h-5 w-5" />
-                  <span className="font-medium">Entrar</span>
-                </Link>
-                <Link
-                  to="/registar"
-                  className="flex items-center gap-3 rounded-lg p-3 hover:bg-gray-100 dark:hover:bg-gray-800 text-blue-600 dark:text-blue-400 transition-colors"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  <span className="font-medium">Criar Conta</span>
-                </Link>
-              </>
-            )}
-            <Link
-              to="/sobre"
-              className="block rounded-lg p-3 hover:bg-gray-100 dark:hover:bg-gray-800 dark:text-gray-100 transition-colors"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Sobre nós
-            </Link>
-            <Link
-              to="/ajuda"
-              className="block rounded-lg p-3 hover:bg-gray-100 dark:hover:bg-gray-800 dark:text-gray-100 transition-colors"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Ajuda
-            </Link>
-          </div>
+              )}
+              <button
+                onClick={() => {
+                  handleLogout()
+                  setIsMobileMenuOpen(false)
+                }}
+                className="flex w-full items-center gap-3 rounded-lg p-3 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+              >
+                <LogOut className="h-5 w-5" />
+                <span className="font-medium">Terminar Sessão</span>
+              </button>
+            </>
+          ) : (
+            <>
+              <Link
+                to="/entrar"
+                className="flex items-center gap-3 rounded-lg p-3 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                <User className="h-5 w-5" />
+                <span className="font-medium">Entrar</span>
+              </Link>
+              <Link
+                to="/registar"
+                className="flex items-center gap-3 rounded-lg p-3 hover:bg-gray-100 dark:hover:bg-gray-800 text-blue-600 dark:text-blue-500 hover:text-blue-700 dark:hover:text-blue-400 transition-colors"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                <span className="font-medium">Criar Conta</span>
+              </Link>
+            </>
+          )}
+          <Link
+            to="/sobre"
+            className="block rounded-lg p-3 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            Sobre nós
+          </Link>
+          <Link
+            to="/ajuda"
+            className="block rounded-lg p-3 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            Ajuda
+          </Link>
         </div>
       </div>
-    </header>
+    </div>
+  </>
   )
 }
 

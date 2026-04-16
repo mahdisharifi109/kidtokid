@@ -78,7 +78,7 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
             </div>
           ) : (
             <OptimizedImage
-              src={product.images[0] || "/placeholder.svg?height=300&width=300"}
+              src={(product.images && product.images[0]) || product.imageUrl || "/placeholder.svg?height=300&width=300"}
               alt={product.title}
               onError={() => setImgError(true)}
               className="h-full w-full"

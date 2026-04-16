@@ -141,7 +141,7 @@ export default function CartPage() {
                     {/* Image */}
                     <Link to={`/produto/${item.product.id}`} className="shrink-0 w-20 h-20 sm:w-24 sm:h-24 rounded-lg overflow-hidden bg-gray-50 dark:bg-gray-800">
                       <img
-                        src={item.product.images[0] || "/placeholder.svg"}
+                        src={(item.product.images && item.product.images[0]) || item.product.imageUrl || "/placeholder.svg"}
                         alt={item.product.title}
                         className="h-full w-full object-cover"
                       />

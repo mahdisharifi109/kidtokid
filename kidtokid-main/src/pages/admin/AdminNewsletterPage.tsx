@@ -227,7 +227,7 @@ export default function AdminNewsletterPage() {
         name: p.title,
         originalPrice: p.originalPrice,
         promoPrice: p.price,
-        imageUrl: p.images[0] || "",
+        imageUrl: (p.images && p.images[0]) || p.imageUrl || "",
         link: `https://kidtokid.pt/produto/${p.id}`,
       }))
 
@@ -474,9 +474,9 @@ export default function AdminNewsletterPage() {
                             checked={p.selected}
                             onCheckedChange={() => toggleProduct(p.id)}
                           />
-                          {p.images[0] && (
+                          {((p.images && p.images[0]) || p.imageUrl) && (
                             <img
-                              src={p.images[0]}
+                              src={(p.images && p.images[0]) || p.imageUrl}
                               alt={p.title}
                               className="w-10 h-10 rounded object-cover"
                             />

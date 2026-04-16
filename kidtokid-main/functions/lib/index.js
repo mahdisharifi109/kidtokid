@@ -36,8 +36,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sendPromoNewsletter = exports.onNewsletterSubscribe = exports.refundOrder = exports.onNewReview = exports.onNewContact = exports.onOrderUpdate = exports.stripeWebhook = exports.createStripeCheckoutSession = exports.onNewOrder = exports.createSecureOrder = exports.customPasswordReset = exports.validateCouponCode = exports.setAdminClaims = exports.onUserCreated = void 0;
+exports.removePurchasedProductAndImage = exports.sendPromoNewsletter = exports.onNewsletterSubscribe = exports.refundOrder = exports.onNewReview = exports.onNewContact = exports.onOrderUpdate = exports.stripeWebhook = exports.createStripeCheckoutSession = exports.onNewOrder = exports.createSecureOrder = exports.customPasswordReset = exports.validateCouponCode = exports.setAdminClaims = exports.onUserCreated = void 0;
 const functions = __importStar(require("firebase-functions"));
+const firestore_1 = require("firebase-functions/v2/firestore");
 const admin = __importStar(require("firebase-admin"));
 const nodemailer = __importStar(require("nodemailer"));
 const stripe_1 = __importDefault(require("stripe"));
@@ -1538,4 +1539,113 @@ exports.sendPromoNewsletter = functions
         total: subscribers.length,
     };
 });
+// ======================================
+// 🧹 REMOVE PURCHASED PRODUCT & IMAGE
+// ======================================
+/**
+ * Trigger (v2): Quando um pedido (order) é inserido ou atualizado.
+ * Ação: Se o status mudar para "paid" ou "confirmed", remove o produto do catálogo
+ * e exclui a imagem física associada do Cloud Storage para economizar espaço.
+ */
+exports.removePurchasedProductAndImage = (0, firestore_1.onDocumentWritten)({ document: "orders/{orderId}", region: "europe-west1" }, async (event) => {
+    var _a;
+    // Apenas projeta se o documento existe após a alteração
+    const afterSnap = (_a = event.data) === null || _a === void 0 ? void 0 : _a.after;
+    if (!afterSnap || !afterSnap.exists)
+        return;
+    const orderData = afterSnap.data();
+    if (!orderData)
+        return;
+    // Verifica se a encomenda foi efetivamente paga/confirmada
+    if (orderData.status !== "paid" && orderData.status !== "confirmed") {
+        return;
+    }
+    const items = orderData.items || [];
+    if (items.length === 0)
+        return;
+    // Acessa o bucket default configurado para o app
+    const bucket = admin.storage().bucket();
+    const firestoreDb = admin.firestore();
+    for (const item of items) {
+        const productId = item.productId;
+        if (!productId)
+            continue;
+        const productRef = firestoreDb.collection("products").doc(productId);
+        try {
+            // Usa transação para deleção atômica no banco de dados
+            const productData = await firestoreDb.runTransaction(async (transaction) => {
+                const doc = await transaction.get(productRef);
+                if (!doc.exists) {
+                    return null; // Já processado ou deletado
+                }
+                const data = doc.data();
+                transaction.delete(productRef);
+                return data;
+            });
+            if (!productData) {
+                functions.logger.info(`Produto ${productId} não encontrado ou já removido.`);
+                continue;
+            }
+            // Extração de caminhos das imagens
+            const imagePaths = [];
+            if (productData.images && Array.isArray(productData.images)) {
+                for (const url of productData.images) {
+                    const path = extractStoragePath(url);
+                    if (path)
+                        imagePaths.push(path);
+                }
+            }
+            else if (productData.imageUrl) {
+                const path = extractStoragePath(productData.imageUrl);
+                if (path)
+                    imagePaths.push(path);
+            }
+            // 3. Deleta do Storage os arquivos físicos de forma segura
+            const deletePromises = imagePaths.map(async (filePath) => {
+                try {
+                    const file = bucket.file(filePath);
+                    const [exists] = await file.exists();
+                    if (exists) {
+                        await file.delete();
+                        functions.logger.info(`✅ Imagem removida do Storage: ${filePath}`);
+                    }
+                }
+                catch (storageError) {
+                    functions.logger.error(`❌ Erro ao deletar imagem ${filePath}:`, storageError);
+                }
+            });
+            await Promise.all(deletePromises);
+            functions.logger.info(`✅ Produto ${productId} purgado com sucesso do catálogo e Storage.`);
+        }
+        catch (error) {
+            functions.logger.error(`❌ Erro crítico ao purgar produto ${productId}:`, error);
+        }
+    }
+});
+/**
+ * Função utilitária para extrair o caminho do arquivo no Storage a partir de uma URL HTTP.
+ */
+function extractStoragePath(urlOrPath) {
+    if (!urlOrPath)
+        return "";
+    if (urlOrPath.startsWith("gs://")) {
+        return urlOrPath.split("/").slice(3).join("/");
+    }
+    if (!urlOrPath.startsWith("http"))
+        return urlOrPath;
+    try {
+        const urlObj = new URL(urlOrPath);
+        // Extrai o caminho e reverte formatação %2F para "/"
+        const pathRegex = /\/o\/(.+?)\?/;
+        const match = urlObj.pathname.match(pathRegex) || urlOrPath.match(pathRegex);
+        if (match && match[1]) {
+            return decodeURIComponent(match[1]);
+        }
+        return "";
+    }
+    catch (e) {
+        functions.logger.warn(`Falha ao formatar URL da imagem: ${urlOrPath}`);
+        return "";
+    }
+}
 //# sourceMappingURL=index.js.map

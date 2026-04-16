@@ -48,7 +48,11 @@ self.addEventListener("fetch", (event) => {
     fetch(request)
       .then((response) => {
         // Cache successful responses for static assets
-        if (response.ok && (request.url.endsWith(".js") || request.url.endsWith(".css") || request.url.endsWith(".png") || request.url.endsWith(".jpg"))) {
+        if (
+          response.ok &&
+          request.url.startsWith("http") &&
+          (request.url.endsWith(".js") || request.url.endsWith(".css") || request.url.endsWith(".png") || request.url.endsWith(".jpg"))
+        ) {
           const clone = response.clone()
           caches.open(CACHE_NAME).then((cache) => cache.put(request, clone))
         }
