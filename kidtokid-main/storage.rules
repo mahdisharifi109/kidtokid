@@ -46,7 +46,7 @@ service firebase.storage {
       allow read: if true;
       // Apenas staff pode gerir imagens de produtos
       allow create, update: if isStaff() && isValidImage();
-      allow delete: if isStaff();
+      allow delete: if isAdmin();
     }
     
     // ========================================
@@ -54,7 +54,8 @@ service firebase.storage {
     // ========================================
     match /categories/{categoryId}/{fileName} {
       allow read: if true;
-      allow write: if isStaff() && isValidImage();
+      allow create, update: if isStaff() && isValidImage();
+      allow delete: if isAdmin();
     }
     
     // ========================================
@@ -83,12 +84,14 @@ service firebase.storage {
     // ========================================
     match /banners/{fileName} {
       allow read: if true;
-      allow write: if isStaff() && isValidImage();
+      allow create, update: if isStaff() && isValidImage();
+      allow delete: if isAdmin();
     }
     
     match /sliders/{fileName} {
       allow read: if true;
-      allow write: if isStaff() && isValidImage();
+      allow create, update: if isStaff() && isValidImage();
+      allow delete: if isAdmin();
     }
     
     // ========================================
@@ -109,7 +112,8 @@ service firebase.storage {
       // Apenas staff pode aceder a documentos de encomendas
       // (clientes acedem via Cloud Function que valida ownership)
       allow read: if isStaff();
-      allow write: if isStaff();
+      allow create, update: if isStaff();
+      allow delete: if isAdmin();
     }
     
     // ========================================

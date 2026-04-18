@@ -32,7 +32,7 @@ export function Footer() {
         subscribedAt: Timestamp.now(),
         active: true,
       })
-      toast.success("Subscrito com sucesso! 🎉")
+      toast.success("Subscrito com sucesso!")
       setNewsletterEmail("")
     } catch (error: unknown) {
       const code = (error as { code?: string })?.code
@@ -58,7 +58,7 @@ export function Footer() {
               <img src="/logo.png" alt={settings.storeName} className="h-8 md:h-10" />
             </div>
             <p className="mb-3 md:mb-4 text-sm text-muted-foreground">
-              Roupa e artigos de criança com nova vida, a preços amigos ❤️
+              Roupa e artigos de criança com nova vida, a preços amigos.
             </p>
             <div className="flex gap-4 justify-center sm:justify-start">
               <a

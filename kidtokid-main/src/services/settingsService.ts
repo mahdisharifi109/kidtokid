@@ -70,7 +70,7 @@ export const defaultSettings: StoreSettings = {
     lowStockThreshold: 5,
     emailNotificationsEnabled: true,
     
-    seoTitle: "Kid to Kid Braga | Roupa de Criança em Segunda Mão",
+    seoTitle: "Kid to Kid Braga | Roupa de Criança",
     seoDescription: "Descubra roupa de qualidade para crianças a preços acessíveis. Sustentabilidade e economia para a tua família.",
     
     maintenanceMode: false,

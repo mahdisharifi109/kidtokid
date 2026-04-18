@@ -580,19 +580,6 @@ export default function AdminSettingsPage() {
                                     <AlertCircle className="h-5 w-5 text-red-500" />
                                 </label>
 
-                                <label className="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-                                    <input
-                                        type="checkbox"
-                                        checked={settings.allowGuestCheckout}
-                                        onChange={(e) => handleInputChange('allowGuestCheckout', e.target.checked)}
-                                        className="h-5 w-5 rounded border-gray-300 text-k2k-blue focus:ring-k2k-blue"
-                                    />
-                                    <div className="flex-1">
-                                        <p className="font-medium text-gray-900 dark:text-gray-100">Checkout sem Conta</p>
-                                        <p className="text-sm text-gray-500 dark:text-gray-400">Permitir compras sem registo (prático, mas menos seguro)</p>
-                                    </div>
-                                </label>
-
                                 <div className="border-t border-gray-100 dark:border-gray-800 pt-6 mt-6">
                                     <h3 className="font-medium text-gray-900 dark:text-gray-100 mb-3">Estatísticas de Segurança</h3>
                                     <div className="grid sm:grid-cols-3 gap-4">

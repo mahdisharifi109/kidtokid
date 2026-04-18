@@ -429,7 +429,7 @@ export default function AdminClientsPage() {
                                 <div className="flex items-center gap-3 text-sm">
                                     <Mail className="h-4 w-4 text-gray-400 dark:text-gray-500" />
                                     <span className="text-gray-700 dark:text-gray-300">
-                                        Newsletter: {selectedClient.newsletter ? "Sim ✅" : "Não"}
+                                        Newsletter: {selectedClient.newsletter ? "Sim" : "Não"}
                                     </span>
                                 </div>
                             </div>

@@ -57,6 +57,7 @@ export default function HomePage() {
       <Header />
 
       <main className="container mx-auto px-4 sm:px-5 py-6 sm:py-8 md:py-10 page-enter">
+        <h1 className="sr-only">Kid to Kid Braga | Roupa de Criança</h1>
         <HeroSlider />
         <CategoryGrid />
 
@@ -100,7 +101,7 @@ export default function HomePage() {
             </>
           ) : (
             <div className="text-center py-16 text-gray-400 dark:text-gray-500">
-              <p className="text-base">De momento não temos novidades por aqui 🌿</p>
+              <p className="text-base">De momento não temos novidades por aqui</p>
               <p className="text-sm mt-2">Estamos a preparar peças especiais — volta em breve!</p>
             </div>
           )}

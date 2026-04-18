@@ -3,7 +3,6 @@
 # dependencies
 /node_modules
 functions/node_modules
-scripts/node_modules
 
 # next.js
 /.next/

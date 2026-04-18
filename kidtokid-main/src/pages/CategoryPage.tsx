@@ -165,7 +165,6 @@ export default function CategoryPage() {
       <div className="min-h-screen bg-white dark:bg-gray-950">
         <Header />
         <main className="container mx-auto px-4 py-16 text-center">
-          <p className="text-4xl mb-3">📦</p>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Categoria não encontrada</h1>
           <p className="text-gray-500 dark:text-gray-400 mb-6">A categoria que procuras não existe.</p>
           <Link to="/" className="text-sm text-blue-600 hover:underline">
@@ -378,7 +377,6 @@ export default function CategoryPage() {
               </div>
             ) : (
               <div className="py-16 text-center">
-                <p className="text-4xl mb-3">📦</p>
                 <p className="font-medium text-gray-900 dark:text-gray-100">Nenhum produto encontrado</p>
                 <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Tenta ajustar os filtros</p>
                 {activeFilterCount > 0 && (

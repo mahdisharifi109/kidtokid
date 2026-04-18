@@ -364,7 +364,7 @@ export default function AdminNewsletterPage() {
                     id="subject"
                     value={subject}
                     onChange={(e) => setSubject(e.target.value)}
-                    placeholder="Ex: 🎉 Promoções de até 60% — Só esta semana!"
+                    placeholder="Ex: Promoções de até 60% — Só esta semana!"
                     disabled={sending}
                   />
                 </div>

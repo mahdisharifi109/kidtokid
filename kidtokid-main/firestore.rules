@@ -50,7 +50,7 @@ service cloud.firestore {
       
       allow create: if isStaff();
       allow update: if isStaff();
-      allow delete: if true; // TEMPORÁRIO — apagar tudo
+      allow delete: if isAdmin(); // Corrigido para restringir eliminação a admins
 
     }
     
@@ -106,7 +106,8 @@ service cloud.firestore {
                        isStaff() || 
                        (resource.data.userId == request.auth.uid && 
                         request.resource.data.status == "cancelled" &&
-                        resource.data.status == "pending")
+                        resource.data.status == "pending" &&
+                        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status']))
                     );
       
       // Eliminar - nunca (manter histórico)
@@ -241,7 +242,8 @@ service cloud.firestore {
     // CONFIGURAÇÕES
     match /settings/{settingId} {
       allow read: if true;
-      allow write: if isStaff();
+      allow create, update: if isStaff();
+      allow delete: if isAdmin();
     }
     
     // LOGS
