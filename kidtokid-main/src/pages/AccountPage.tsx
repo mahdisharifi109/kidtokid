@@ -44,14 +44,7 @@ import {
     Moon,
     Monitor
 } from "lucide-react"
-import {
-  AccountCardHeader,
-  AccountFormField,
-  AccountEditButtons,
-  AccountInfoItem,
-  AccountEmptyState,
-  AccountLoadingState,
-} from "@/src/components/account/AccountComponents"
+// Account sub-components (available for future extraction)
 
 type TabType = "perfil" | "encomendas" | "favoritos" | "moradas" | "definicoes"
 
@@ -148,7 +141,7 @@ export default function AccountPage() {
         if (result.success) {
             toast.success("Foto atualizada com sucesso!")
         } else {
-            toast.error(result.error || "Erro ao carregar foto")
+            toast.error(result.error || "Ups! Problema ao carregar foto")
         }
         // Reset input
         e.target.value = ""
@@ -162,7 +155,7 @@ export default function AccountPage() {
         if (result.success) {
             toast.success("Foto removida")
         } else {
-            toast.error(result.error || "Erro ao remover foto")
+            toast.error(result.error || "Ups! Problema ao remover foto")
         }
     }
 
@@ -188,7 +181,7 @@ export default function AccountPage() {
                     const userOrders = await getUserOrders()
                     setOrders(userOrders)
                 } catch (error) {
-                    console.error('Erro ao carregar encomendas:', error)
+                    console.error('Ups! Problema ao carregar encomendas:', error)
                 } finally {
                     setOrdersLoading(false)
                 }
@@ -204,8 +197,8 @@ export default function AccountPage() {
             setOrders(userOrders)
             toast.success("Encomendas atualizadas!")
         } catch (error) {
-            console.error('Erro ao atualizar encomendas:', error)
-            toast.error("Erro ao atualizar encomendas")
+            console.error('Ups! Problema ao atualizar encomendas:', error)
+            toast.error("Ups! Problema ao atualizar encomendas")
         } finally {
             setOrdersLoading(false)
         }
@@ -246,7 +239,7 @@ export default function AccountPage() {
             toast.success("Alterações guardadas!")
             setIsEditing(false)
         } else {
-            toast.error(result.error || "Erro ao guardar")
+            toast.error(result.error || "Ups! Problema ao guardar")
         }
     }
 
@@ -260,11 +253,11 @@ export default function AccountPage() {
             } else {
                 // Revert on failure
                 setNewsletter(previousValue)
-                toast.error(result.error || "Erro ao atualizar newsletter. Tenta novamente.")
+                toast.error(result.error || "Ups! Problema ao atualizar newsletter. Tenta novamente.")
             }
         } catch (error) {
             setNewsletter(previousValue)
-            toast.error("Erro ao atualizar newsletter. Tenta novamente.")
+            toast.error("Ups! Problema ao atualizar newsletter. Tenta novamente.")
             console.error("Erro newsletter:", error)
         }
     }
@@ -304,7 +297,7 @@ export default function AccountPage() {
             })
             toast.success("Morada adicionada!")
         } else {
-            toast.error("Erro ao guardar morada")
+            toast.error("Ups! Problema ao guardar morada")
         }
     }
 
@@ -334,7 +327,7 @@ export default function AccountPage() {
     // Reset de password
     const handleResetPassword = async () => {
         if (!user?.email) {
-            toast.error("Não foi possível determinar o teu email. Tenta fazer logout e login novamente.")
+            toast.error("Infelizmente não conseguimos determinar o teu email. Tenta fazer logout e login novamente.")
             return
         }
 
@@ -344,11 +337,11 @@ export default function AccountPage() {
             if (result.success) {
                 toast.success("Email enviado! Verifica a tua caixa de correio (e a pasta de spam).")
             } else {
-                toast.error(result.error || "Erro ao enviar email de recuperação. Tenta novamente.")
+                toast.error(result.error || "Ups! Problema ao enviar email de recuperação. Tenta novamente.")
             }
         } catch (error) {
-            console.error("Erro ao enviar reset de password:", error)
-            toast.error("Erro ao enviar email. Verifica a tua ligação à internet.")
+            console.error("Ups! Problema ao enviar reset de password:", error)
+            toast.error("Ups! Problema ao enviar email. Verifica a tua ligação à internet.")
         } finally {
             setIsResettingPassword(false)
         }
@@ -1264,7 +1257,7 @@ export default function AccountPage() {
                                                     if (code === "auth/requires-recent-login") {
                                                         toast.error("Por segurança, faz logout e login novamente antes de apagar a conta.")
                                                     } else {
-                                                        toast.error("Erro ao apagar conta. Contacta-nos: info@kidtokid.pt")
+                                                        toast.error("Ups! Problema ao apagar conta. Contacta-nos: info@kidtokid.pt")
                                                     }
                                                 }
                                             }}

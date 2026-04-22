@@ -34,8 +34,8 @@ export default function TermsPage() {
                         4710-926 Braga, email:{" "}
                         <a href="mailto:braga@kidtokid.pt" className="text-blue-600 hover:underline">
                             braga@kidtokid.pt
-                        </a>), e quem faz compras no nosso site — ou seja, você.
-                        Ao fazer uma encomenda, está a aceitar estas condições.
+                        </a>), e a pessoa super especial que faz compras connosco — ou seja, tu!
+                        Ao fazeres uma encomenda, concordas com as regras do nosso serviço.
                     </p>
                 </div>
 
@@ -50,15 +50,15 @@ export default function TermsPage() {
                         </h2>
                         <div className="text-gray-600 dark:text-gray-400 leading-relaxed space-y-3">
                             <p>
-                                Estas condições definem como funcionam as vendas na nossa loja online,
-                                desde o momento em que faz a encomenda até a entrega em tua casa.
+                                Estas condições definem como funciona a nossa magia de vendas na nossa loja online,
+                                desde o momento em que fazes a encomenda até a entrega em tua casa.
                             </p>
                             <p>
                                 Regulam todas as etapas — encomenda, pagamento, envio e entrega —
                                 para que tudo corra bem para ambas as partes.
                             </p>
                             <p>
-                                Ao fazer uma encomenda, está a confirmar que leu e aceita estas condições,
+                                Ao fazer uma encomenda, est�s a confirmar que leste e aceita estas condições,
                                 bem como os preços e produtos da tua compra.
                             </p>
                         </div>
@@ -76,7 +76,7 @@ export default function TermsPage() {
                         </div>
                         <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">
                             Os artigos do site também estão na nossa loja física, por isso pode
-                            haver pontualmente falhas de stock. Se isso acontecer, devolvemos-lhe
+                            haver pontualmente falhas de stock. Se isso acontecer, devolvemos-te
                             o dinheiro correspondente.
                         </p>
                     </section>
@@ -127,7 +127,7 @@ export default function TermsPage() {
 
                         <div className="mt-4 text-gray-600 dark:text-gray-400 leading-relaxed space-y-3">
                             <p className="text-sm text-gray-500 dark:text-gray-400">
-                                <strong className="text-gray-700 dark:text-gray-300">Açores e Madeira:</strong> contacte-nos para informações sobre envios para as ilhas.
+                                <strong className="text-gray-700 dark:text-gray-300">Açores e Madeira:</strong> fala connosco para informações sobre envios para as ilhas.
                             </p>
                             <p>
                                 Depois de enviarmos, recebe um código de tracking no teu email

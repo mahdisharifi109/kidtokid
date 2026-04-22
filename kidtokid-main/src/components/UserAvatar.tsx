@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react"
+import { useState, useCallback } from "react"
 import { User } from "lucide-react"
 
 const FAILED_URLS_KEY = "k2k_failed_avatar_urls"
@@ -38,15 +38,20 @@ const sizeClasses = {
 }
 
 export function UserAvatar({ src, alt = "", fallbackInitials, size = "sm", className = "" }: UserAvatarProps) {
+  const [prevSrc, setPrevSrc] = useState(src)
   const [imgFailed, setImgFailed] = useState(() => {
     if (!src) return true
     return getFailedUrls().has(src)
   })
 
-  // Reset image state when src changes (use useEffect instead of direct setState in render)
-  useEffect(() => {
-    setImgFailed(!src || getFailedUrls().has(src))
-  }, [src])
+  // Synchronously update state on prop change
+  if (src !== prevSrc) {
+    setPrevSrc(src)
+    setImgFailed(() => {
+      if (!src) return true
+      return getFailedUrls().has(src)
+    })
+  }
 
   const handleError = useCallback(() => {
     if (src) markUrlAsFailed(src)

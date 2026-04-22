@@ -97,8 +97,8 @@ export default function AdminProductFormPage() {
                 navigate("/admin/produtos")
             }
         } catch (error) {
-            console.error("Erro ao carregar produto:", error)
-            toast.error("Erro ao carregar produto")
+            console.error("Ups! Problema ao carregar produto:", error)
+            toast.error("Ups! Problema ao carregar produto")
         } finally {
             setLoading(false)
         }
@@ -164,7 +164,7 @@ export default function AdminProductFormPage() {
             toast.error("Preço inválido")
             return
         }
-        if (!formData.size.trim()) {
+        if (!formData.size.trim() && !['brinquedos', 'equipamento'].includes(formData.category)) {
             toast.error("O tamanho é obrigatório")
             return
         }
@@ -205,8 +205,8 @@ export default function AdminProductFormPage() {
 
             navigate("/admin/produtos")
         } catch (error) {
-            console.error("Erro ao guardar:", error)
-            toast.error("Erro ao guardar produto")
+            console.error("Ups! Problema ao guardar:", error)
+            toast.error("Ups! Problema ao guardar produto")
         } finally {
             setSaving(false)
         }
@@ -367,7 +367,7 @@ export default function AdminProductFormPage() {
                                 </div>
 
                                 <div>
-                                    <Label htmlFor="size">Tamanho *</Label>
+                                    <Label htmlFor="size">Tamanho {!['brinquedos', 'equipamento'].includes(formData.category) && '*'}</Label>
                                     <Input
                                         id="size"
                                         name="size"
@@ -429,7 +429,7 @@ export default function AdminProductFormPage() {
                                                     toast.success(`${urls.length} imagem(ns) carregada(s)!`)
                                                 } catch (error) {
                                                     console.error("Erro no upload:", error)
-                                                    toast.error(error instanceof Error ? error.message : "Erro ao carregar imagem")
+                                                    toast.error(error instanceof Error ? error.message : "Ups! Problema ao carregar imagem")
                                                 } finally {
                                                     setUploading(false)
                                                     e.target.value = ""
@@ -461,6 +461,14 @@ export default function AdminProductFormPage() {
                                                     src={img}
                                                     alt={`Imagem ${index + 1}`}
                                                     className="w-full h-full object-cover"
+                                                    referrerPolicy="no-referrer"
+                                                    onError={(e) => {
+                                                        const target = e.currentTarget as HTMLImageElement;
+                                                        if (!target.src.includes("placeholder.svg")) {
+                                                            target.src = "/placeholder.svg";
+                                                            target.classList.add("opacity-50");
+                                                        }
+                                                    }}
                                                 />
                                                 <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                                     {index > 0 && (

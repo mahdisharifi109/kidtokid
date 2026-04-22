@@ -28,6 +28,7 @@ const FavoritesPage = lazy(() => import('./pages/FavoritesPage'))
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'))
 const ForgotPasswordPage = lazy(() => import('./pages/ForgotPasswordPage'))
 const ContactPage = lazy(() => import('./pages/ContactPage'))
+const NotificationsPage = lazy(() => import('./pages/NotificationsPage'))
 
 // Admin Pages
 const AdminDashboardPage = lazy(() => import('./pages/admin/AdminDashboardPage'))
@@ -128,6 +129,11 @@ function App() {
         <Route path="/sucesso" element={
           <ProtectedRoute>
             <OrderSuccessPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/notificacoes" element={
+          <ProtectedRoute>
+            <NotificationsPage />
           </ProtectedRoute>
         } />
 

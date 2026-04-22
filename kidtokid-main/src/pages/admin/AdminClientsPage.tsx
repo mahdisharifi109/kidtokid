@@ -70,7 +70,7 @@ export default function AdminClientsPage() {
             const snapshot = await getCountFromServer(collection(db, "users"))
             setTotalClients(snapshot.data().count)
         } catch (error) {
-            console.error("Erro ao contar clientes:", error)
+            console.error("Ups! Problema ao contar clientes:", error)
         }
     }, [])
 
@@ -121,8 +121,8 @@ export default function AdminClientsPage() {
             setLastDoc(snapshot.docs[snapshot.docs.length - 1] || null)
             setHasMore(snapshot.docs.length === CLIENTS_PER_PAGE)
         } catch (error) {
-            console.error("Erro ao carregar clientes:", error)
-            toast.error("Erro ao carregar clientes")
+            console.error("Ups! Problema ao carregar clientes:", error)
+            toast.error("Ups! Problema ao carregar clientes")
         } finally {
             setLoading(false)
         }
@@ -157,7 +157,7 @@ export default function AdminClientsPage() {
             })
             setClientOrders(orders)
         } catch (error) {
-            console.error("Erro ao carregar encomendas do cliente:", error)
+            console.error("Ups! Problema ao carregar encomendas do cliente:", error)
             setClientOrders([])
         } finally {
             setLoadingOrders(false)

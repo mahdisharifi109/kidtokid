@@ -9,7 +9,7 @@ import {
   onAuthStateChanged,
   type User,
 } from "firebase/auth"
-import { doc, setDoc, getDoc, serverTimestamp, onSnapshot, Timestamp } from "firebase/firestore"
+import { doc, setDoc, deleteDoc, getDoc, serverTimestamp, onSnapshot, Timestamp } from "firebase/firestore"
 import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage"
 import { auth, db, storage } from "@/src/lib/firebase"
 import { customPasswordResetWithTimeout } from "@/src/lib/cloudFunctions"
@@ -229,6 +229,24 @@ export const updateUserData = async (
     }
     if (Object.keys(authUpdate).length > 0) {
       await updateProfile(auth.currentUser, authUpdate)
+    }
+
+    // Sincronizar também na coleção 'newsletter' para aparecer na tab de admin
+    if (data.newsletter !== undefined && auth.currentUser.email) {
+      const email = auth.currentUser.email
+      if (data.newsletter) {
+        await setDoc(doc(db, "newsletter", email), {
+          email,
+          subscribedAt: Timestamp.now(),
+          active: true,
+        }, { merge: true })
+      } else {
+        try {
+          await deleteDoc(doc(db, "newsletter", email))
+        } catch (err) {
+          console.warn("Erro ao remover subscrição da newsletter:", err)
+        }
+      }
     }
   }
 }

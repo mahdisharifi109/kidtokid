@@ -67,7 +67,7 @@ export default function CategoryPage() {
       lastDocRef.current = result.lastDoc
       setHasMore(result.hasMore)
     } catch (error) {
-      console.error("Erro ao carregar produtos:", error)
+      console.error("Ups! Problema ao carregar produtos:", error)
       if (reset) setProducts([])
     } finally {
       setIsLoading(false)

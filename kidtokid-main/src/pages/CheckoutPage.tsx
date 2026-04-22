@@ -59,7 +59,7 @@ export default function CheckoutPage() {
 
     useEffect(() => {
         if (!isLoading && !isAuthenticated) {
-            toast.error("Inicia sessão para continuar")
+            toast.error("Entra na tua conta para continuar")
             navigate('/entrar?redirect=/checkout')
         }
     }, [isAuthenticated, isLoading, navigate])
@@ -106,7 +106,7 @@ export default function CheckoutPage() {
                 setCouponApplied(false)
             }
         } catch {
-            setCouponError('Erro ao validar cupão')
+            setCouponError('Ups! Problema ao validar cupão')
         } finally {
             setIsValidatingCoupon(false)
         }
@@ -174,8 +174,8 @@ export default function CheckoutPage() {
                     clearCart()
                     navigate(`/sucesso?order=${order.orderNumber}`)
                 } catch (paymentError: unknown) {
-                    console.error('Erro ao iniciar pagamento Stripe:', paymentError)
-                    toast.error('Erro ao redirecionar para pagamento', { 
+                    console.error('Ups! Problema ao iniciar pagamento Stripe:', paymentError)
+                    toast.error('Ups! Problema ao redirecionar para pagamento', { 
                         description: 'A encomenda foi criada. Podes tentar pagar depois na tua conta.' 
                     })
                     setOrderCompleted(true)
@@ -189,10 +189,10 @@ export default function CheckoutPage() {
             }
 
         } catch (error: unknown) {
-            console.error('Erro ao criar encomenda:', error)
+            console.error('Ups! Problema ao criar encomenda:', error)
             const err = error as { details?: string; message?: string }
             const errorMessage = err?.details || err?.message || 'Tenta novamente.'
-            toast.error("Erro ao processar encomenda", { description: errorMessage })
+            toast.error("Ups! Problema ao processar encomenda", { description: errorMessage })
         } finally {
             setIsProcessing(false)
         }
@@ -248,7 +248,7 @@ export default function CheckoutPage() {
                                     <div key={item.product.id} className="p-3 flex gap-3">
                                         <div className="relative shrink-0">
                                             <img 
-                                                src={(item.product.images && item.product.images[0]) || item.product.imageUrl || '/placeholder.svg'} 
+                                                src={(item.product.images && item.product.images[0]) || '/placeholder.svg'} 
                                                 alt={item.product.title}
                                                 className="w-16 h-16 object-cover rounded"
                                             />

@@ -3,6 +3,12 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Ajuste Responsivo Suave (Scroll Horizontal Protegido) */
+body {
+  overflow-x: hidden;
+  width: 100%;
+}
+
 :root {
   --background: oklch(0.995 0.002 90);
   --foreground: oklch(0.18 0.015 250);

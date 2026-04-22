@@ -110,7 +110,7 @@ export async function getStoreSettings(): Promise<StoreSettings> {
         lastFetch = now
         return cachedSettings
     } catch (error) {
-        console.error("Erro ao carregar definições:", error)
+        console.error("Ups! Problema ao carregar definições:", error)
         return defaultSettings
     }
 }
@@ -131,7 +131,7 @@ export function subscribeToSettings(callback: (settings: StoreSettings) => void)
             callback(defaultSettings)
         }
     }, (error) => {
-        console.error("Erro ao subscrever definições:", error)
+        console.error("Ups! Problema ao subscrever definições:", error)
         callback(defaultSettings)
     })
 }

@@ -5,12 +5,12 @@ import {
   setDoc,
   updateDoc,
   deleteDoc,
-  query,
-  where,
   Timestamp,
   increment,
 } from "firebase/firestore"
 import { db } from "@/src/lib/firebase"
+
+import { getFunctions, httpsCallable } from "firebase/functions"
 
 // Types
 
@@ -115,7 +115,6 @@ export async function validateCoupon(
   }
 
   try {
-    const { getFunctions, httpsCallable } = await import("firebase/functions")
     const functions = getFunctions(undefined, "europe-west1")
     const validateFn = httpsCallable<
       { code: string; orderTotal: number },
@@ -126,7 +125,7 @@ export async function validateCoupon(
   } catch (error: unknown) {
     const err = error as { code?: string; message?: string }
     console.error("Coupon validation error:", err)
-    return { valid: false, error: "Erro ao validar cupão. Tente novamente." }
+    return { valid: false, error: "Ups! Problema ao validar cupão. Tenta novamente." }
   }
 }
 

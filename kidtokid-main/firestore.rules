@@ -88,7 +88,11 @@ service cloud.firestore {
       match /addresses/{addressId} {
         allow read, write: if isOwner(userId);
       }
-    }
+      // Sub-coleção: notificações do utilizador
+      match /notifications/{notificationId} {
+        allow read, write: if isOwner(userId);
+        allow create, update, delete: if isStaff();
+      }    }
     
     // ENCOMENDAS
     match /orders/{orderId} {
@@ -155,13 +159,13 @@ service cloud.firestore {
                        request.resource.data.email.size() <= 254 &&
                        request.resource.data.email.matches('^[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}$') &&
                        request.resource.data.keys().size() <= 3;
-      allow read, delete: if isAdmin();
-      allow update: if false;
+      allow update, delete: if isStaff() || (isAuthenticated() && request.auth.token.email.lower() == emailId.lower());
+      allow read: if isStaff();
     }
 
     // PROMOS LOG — Histórico de promoções enviadas
     match /promos_log/{logId} {
-      allow read: if isAdmin();
+      allow read, delete: if isStaff();
       allow write: if false; // Apenas Cloud Functions
     }
     

@@ -56,7 +56,7 @@ export function ProductReviews({ productId, productName }: ProductReviewsProps) 
             setReviews(reviewsData)
             setStats(statsData)
         } catch (error) {
-            console.error("Erro ao carregar avaliações:", error)
+            console.error("Ups! Problema ao carregar avaliações:", error)
         } finally {
             setIsLoading(false)
         }
@@ -81,7 +81,7 @@ export function ProductReviews({ productId, productName }: ProductReviewsProps) 
     const handleSubmitReview = async (e: React.FormEvent) => {
         e.preventDefault()
         if (!isAuthenticated) {
-            toast.error("Inicia sessão para deixar uma avaliação")
+            toast.error("Entra na tua conta para deixar uma avaliação")
             return
         }
 
@@ -106,7 +106,7 @@ export function ProductReviews({ productId, productName }: ProductReviewsProps) 
             setUserHasReviewed(true)
             loadReviews()
         } catch (error: unknown) {
-            toast.error(error instanceof Error ? error.message : "Erro ao publicar avaliação")
+            toast.error(error instanceof Error ? error.message : "Ups! Problema ao publicar avaliação")
         } finally {
             setSubmitting(false)
         }
@@ -114,7 +114,7 @@ export function ProductReviews({ productId, productName }: ProductReviewsProps) 
 
     const handleMarkHelpful = async (reviewId: string) => {
         if (!isAuthenticated) {
-            toast.error("Inicia sessão para votar")
+            toast.error("Entra na tua conta para votar")
             return
         }
         try {
@@ -124,7 +124,7 @@ export function ProductReviews({ productId, productName }: ProductReviewsProps) 
             ))
             toast.success("Voto registado!")
         } catch (error: unknown) {
-            toast.error(error instanceof Error ? error.message : "Erro ao votar")
+            toast.error(error instanceof Error ? error.message : "Ups! Problema ao votar")
         }
     }
 

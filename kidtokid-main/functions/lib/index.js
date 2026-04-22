@@ -37,7 +37,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.removePurchasedProductAndImage = exports.sendPromoNewsletter = exports.onNewsletterSubscribe = exports.refundOrder = exports.onNewReview = exports.onNewContact = exports.onOrderUpdate = exports.stripeWebhook = exports.createStripeCheckoutSession = exports.onNewOrder = exports.createSecureOrder = exports.customPasswordReset = exports.validateCouponCode = exports.setAdminClaims = exports.onUserCreated = void 0;
-const functions = __importStar(require("firebase-functions"));
+const functions = __importStar(require("firebase-functions/v1"));
 const firestore_1 = require("firebase-functions/v2/firestore");
 const admin = __importStar(require("firebase-admin"));
 const nodemailer = __importStar(require("nodemailer"));
@@ -1365,7 +1365,7 @@ exports.onNewsletterSubscribe = functions
         const transporter = getTransporter();
         const storeName = "Kid to Kid Braga";
         await transporter.sendMail({
-            from: `"${storeName}" <${process.env.EMAIL_USER || "noreply@kidtokid.pt"}>`,
+            from: `"${storeName}" <${process.env.EMAIL_USER}>`,
             to: email,
             subject: `Bem-vindo à Newsletter ${storeName}! 🎉`,
             html: `
@@ -1506,7 +1506,7 @@ exports.sendPromoNewsletter = functions
     for (let i = 0; i < subscribers.length; i += batchSize) {
         const batch = subscribers.slice(i, i + batchSize);
         const results = await Promise.allSettled(batch.map((subscriberEmail) => transporter.sendMail({
-            from: `"${storeName}" <${process.env.EMAIL_USER || "noreply@kidtokid.pt"}>`,
+            from: `"${storeName}" <${process.env.EMAIL_USER}>`,
             to: subscriberEmail,
             subject: data.subject,
             html: htmlTemplate,

@@ -212,14 +212,14 @@ export default function AdminOrdersPage() {
             setLastDoc(snapshot.docs[snapshot.docs.length - 1] || null)
             setHasMore(snapshot.docs.length === ORDERS_PER_PAGE)
         } catch (error: unknown) {
-            console.error("Erro ao carregar encomendas:", error)
+            console.error("Ups! Problema ao carregar encomendas:", error)
             const errorCode = (error as { code?: string })?.code || ""
             if (errorCode === "permission-denied" || errorCode === "PERMISSION_DENIED") {
                 toast.error("Sem permissão para ver encomendas. Faz logout e login novamente.")
             } else if (errorCode === "failed-precondition") {
                 toast.error("Índice do Firestore em falta. Verifica a consola Firebase.")
             } else {
-                toast.error("Erro ao carregar encomendas. Tenta novamente.")
+                toast.error("Ups! Problema ao carregar encomendas. Tenta novamente.")
             }
         } finally {
             setLoading(false)
@@ -246,8 +246,8 @@ export default function AdminOrdersPage() {
             
             toast.success(`Estado atualizado para "${getOrderStatusText(newStatus)}"`)
         } catch (error) {
-            console.error("Erro ao atualizar estado:", error)
-            toast.error("Erro ao atualizar estado")
+            console.error("Ups! Problema ao atualizar estado:", error)
+            toast.error("Ups! Problema ao atualizar estado")
         } finally {
             setUpdatingOrderId(null)
         }

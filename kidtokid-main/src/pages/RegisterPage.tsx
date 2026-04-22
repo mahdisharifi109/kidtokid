@@ -78,7 +78,7 @@ export default function RegisterPage() {
       toast.success("Conta criada com sucesso!")
       navigate("/")
     } else {
-      toast.error(result.error || "Não foi possível criar a conta")
+      toast.error(result.error || "Infelizmente não conseguimos criar a conta")
     }
   }
 
@@ -91,7 +91,7 @@ export default function RegisterPage() {
       toast.success("Bem-vindo!")
       navigate("/")
     } else {
-      toast.error(result.error || "Não foi possível registar com Google")
+      toast.error(result.error || "Infelizmente não conseguimos registar com Google")
     }
   }
 

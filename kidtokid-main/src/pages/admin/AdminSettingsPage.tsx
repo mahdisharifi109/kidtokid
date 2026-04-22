@@ -49,8 +49,8 @@ export default function AdminSettingsPage() {
                 setSettings({ ...defaultSettings, ...docSnap.data() as StoreSettings })
             }
         } catch (error) {
-            console.error("Erro ao carregar definições:", error)
-            toast.error("Erro ao carregar definições")
+            console.error("Ups! Problema ao carregar definições:", error)
+            toast.error("Ups! Problema ao carregar definições")
         } finally {
             setLoading(false)
         }
@@ -65,8 +65,8 @@ export default function AdminSettingsPage() {
             })
             toast.success("Definições guardadas com sucesso!")
         } catch (error) {
-            console.error("Erro ao guardar:", error)
-            toast.error("Erro ao guardar definições")
+            console.error("Ups! Problema ao guardar:", error)
+            toast.error("Ups! Problema ao guardar definições")
         } finally {
             setSaving(false)
         }

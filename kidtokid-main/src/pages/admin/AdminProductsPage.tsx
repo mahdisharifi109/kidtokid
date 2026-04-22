@@ -50,8 +50,8 @@ export default function AdminProductsPage() {
             })) as IProduct[]
             setProducts(productsData)
         } catch (error) {
-            console.error("Erro ao carregar produtos:", error)
-            toast.error("Erro ao carregar produtos")
+            console.error("Ups! Problema ao carregar produtos:", error)
+            toast.error("Ups! Problema ao carregar produtos")
         } finally {
             setLoading(false)
         }
@@ -110,8 +110,8 @@ export default function AdminProductsPage() {
             setProducts(prev => prev.filter(p => p.id !== productId))
             toast.success("Produto e imagens eliminados")
         } catch (error) {
-            console.error("Erro ao eliminar:", error)
-            toast.error("Erro ao eliminar produto")
+            console.error("Ups! Problema ao eliminar:", error)
+            toast.error("Ups! Problema ao eliminar produto")
         } finally {
             setDeletingId(null)
         }
@@ -126,7 +126,7 @@ export default function AdminProductsPage() {
             ))
             toast.success(newStock > 0 ? "Produto disponível" : "Produto esgotado")
         } catch {
-            toast.error("Erro ao atualizar stock")
+            toast.error("Ups! Problema ao atualizar stock")
         }
     }
 

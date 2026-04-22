@@ -1,4 +1,4 @@
-import * as functions from "firebase-functions";
+import * as functions from "firebase-functions/v1";
 import { onDocumentWritten } from "firebase-functions/v2/firestore";
 import * as admin from "firebase-admin";
 import * as nodemailer from "nodemailer";
@@ -1561,7 +1561,7 @@ export const onNewsletterSubscribe = functions
       const storeName = "Kid to Kid Braga";
 
       await transporter.sendMail({
-        from: `"${storeName}" <${process.env.EMAIL_USER || "noreply@kidtokid.pt"}>`,
+        from: `"${storeName}" <${process.env.EMAIL_USER}>`,
         to: email,
         subject: `Bem-vindo à Newsletter ${storeName}! 🎉`,
         html: `
@@ -1738,7 +1738,7 @@ export const sendPromoNewsletter = functions
       const results = await Promise.allSettled(
         batch.map((subscriberEmail) =>
           transporter.sendMail({
-            from: `"${storeName}" <${process.env.EMAIL_USER || "noreply@kidtokid.pt"}>`,
+            from: `"${storeName}" <${process.env.EMAIL_USER}>`,
             to: subscriberEmail,
             subject: data.subject,
             html: htmlTemplate,

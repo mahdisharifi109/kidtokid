@@ -59,7 +59,7 @@ function ContactForm() {
         e.preventDefault()
 
         if (!formData.email || !formData.message) {
-            toast.error("Por favor preencha o email e a mensagem")
+            toast.error("Por favor, preenche o email e a mensagem")
             return
         }
 
@@ -69,7 +69,7 @@ function ContactForm() {
         }
 
         if (formData.message.length > 2000) {
-            toast.error("A mensagem não pode exceder 2000 caracteres")
+            toast.error("A mensagem não pode ultrapassar 2000 caracteres")
             return
         }
 
@@ -83,13 +83,13 @@ function ContactForm() {
                 createdAt: Timestamp.now()
             })
             toast.success("Mensagem enviada com sucesso!", {
-                description: "Responderemos o mais breve possível."
+                description: "Vamos responder o mais breve possível."
             })
             setSent(true)
             setFormData({ name: "", email: "", subject: "", message: "" })
         } catch (error) {
-            console.error("Erro ao enviar mensagem:", error)
-            toast.error("Erro ao enviar mensagem. Tente novamente.")
+            console.error("Ups! Problema ao enviar mensagem:", error)
+            toast.error("Ups! Problema ao enviar mensagem. Tenta novamente.")
         } finally {
             setSending(false)
         }
@@ -183,7 +183,7 @@ export default function HelpPage() {
     const faqs = [
         {
             question: "Como posso vender artigos à Kid to Kid?",
-            answer: "Traga os artigos à nossa loja em Braga. A equipa analisa cada peça e faz-lhe uma proposta na hora. Aceitamos roupa, calçado, brinquedos e artigos de puericultura em bom estado. O horário de compras termina uma hora antes do fecho."
+            answer: "Traz os artigos à nossa loja em Braga. A equipa analisa cada peça e faz-lhe uma proposta na hora. Aceitamos roupa, calçado, brinquedos e artigos de puericultura em bom estado. O horário de compras termina uma hora antes do fecho."
         },
         {
             question: "Que tipo de artigos aceitam?",
@@ -191,7 +191,7 @@ export default function HelpPage() {
         },
         {
             question: "Como funciona a entrega ao domicílio?",
-            answer: "Enviamos para todo o Portugal Continental. Portes grátis em compras acima de 50€ — abaixo são 4,50€. A encomenda chega normalmente em 2 a 5 dias úteis através dos CTT."
+            answer: "Enviamos com todo o carinho para todo o Portugal Continental. Portes grátis em compras acima de 50€ — abaixo são 4,50€. A encomenda chega normalmente em 2 a 5 dias úteis através dos CTT."
         },
         {
             question: "Posso devolver um artigo?",
@@ -338,7 +338,7 @@ export default function HelpPage() {
                         </p>
                         <div className="flex gap-4 text-sm text-gray-500 dark:text-gray-400">
                             <div>
-                                <span className="text-blue-600 font-medium">1.</span> Traga os artigos
+                                <span className="text-blue-600 font-medium">1.</span> Traz os artigos
                             </div>
                             <div>
                                 <span className="text-blue-600 font-medium">2.</span> Avaliação
@@ -362,7 +362,7 @@ export default function HelpPage() {
                             </div>
                             <div className="flex justify-between">
                                 <span className="text-gray-500 dark:text-gray-400">Domingo</span>
-                                <span className="text-red-500">Fechado</span>
+                                <span className="text-gray-700 dark:text-gray-300">Fechado</span>
                             </div>
                         </div>
                     </section>

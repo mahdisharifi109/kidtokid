@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 import type { User } from "firebase/auth"
 import {
@@ -103,7 +104,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             }
           }
         } catch (error) {
-          console.error("Erro ao carregar dados do utilizador:", error)
+          console.error("Ups! Problema ao carregar dados do utilizador:", error)
           setIsAdmin(false)
         }
       } else {
@@ -163,7 +164,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       await firebaseLogout()
     } catch (error) {
-      console.error("Erro ao fazer logout:", error)
+      console.error("Ups! Problema ao fazer logout:", error)
     }
   }
 
@@ -196,8 +197,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUserData(newData)
       return { success: true }
     } catch (error: unknown) {
-      console.error("Erro ao atualizar perfil:", error)
-      return { success: false, error: "Erro ao atualizar os dados. Tenta novamente." }
+      console.error("Ups! Problema ao atualizar perfil:", error)
+      return { success: false, error: "Ups! Problema ao atualizar os dados. Tenta novamente." }
     }
   }
 
@@ -207,7 +208,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const data = await getUserData(user.uid)
       setUserData(data)
     } catch (error) {
-      console.error("Erro ao recarregar dados:", error)
+      console.error("Ups! Problema ao recarregar dados:", error)
     }
   }
 
@@ -221,7 +222,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUserData(data)
       return { success: true, url }
     } catch (error: unknown) {
-      const msg = error instanceof Error ? error.message : "Erro ao carregar foto"
+      const msg = error instanceof Error ? error.message : "Ups! Problema ao carregar foto"
       return { success: false, error: msg }
     }
   }
@@ -236,7 +237,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUserData(data)
       return { success: true }
     } catch {
-      return { success: false, error: "Erro ao remover foto" }
+      return { success: false, error: "Ups! Problema ao remover foto" }
     }
   }
 
@@ -245,7 +246,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       await user.getIdToken(true)
     } catch (error) {
-      console.error("Erro ao forçar refresh do token:", error)
+      console.error("Ups! Problema ao forçar refresh do token:", error)
     }
   }
 

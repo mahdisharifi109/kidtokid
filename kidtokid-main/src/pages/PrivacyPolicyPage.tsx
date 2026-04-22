@@ -39,7 +39,7 @@ export default function PrivacyPolicyPage() {
             <div className="text-gray-600 dark:text-gray-400 leading-relaxed space-y-3">
               <p>
                 Cuidar dos teus dados é tão importante para nós como cuidar dos artigos que vendemos.
-                Só usamos aquilo que é necessário para lhe dar o melhor serviço, com total transparência.
+                Só usamos aquilo que é necessário para te dar o melhor serviço, com total transparência.
               </p>
               <p>
                 Quando os teus dados são tratados por parceiros nossos, exigimos-lhes exatamente o mesmo
@@ -53,7 +53,7 @@ export default function PrivacyPolicyPage() {
             <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">Quem cuida dos teus dados?</h2>
             <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
               A <strong className="text-gray-900 dark:text-gray-100">Kid to Kid Braga</strong>, com morada na Rua do Raio, 9, 4710-926 Braga.
-              Para qualquer questão, contacte-nos:{" "}
+              Para qualquer questão, fala connosco:{" "}
               <a href="mailto:braga@kidtokid.pt" className="text-blue-600 hover:underline">
                 braga@kidtokid.pt
               </a>
@@ -114,7 +114,7 @@ export default function PrivacyPolicyPage() {
                 De resto, assim que tudo estiver tratado, apagamos os teus dados.
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                Em caso de dúvida, contacte-nos:{" "}
+                Em caso de dúvida, fala connosco:{" "}
                 <a href="mailto:braga@kidtokid.pt" className="text-blue-600 hover:underline">
                   braga@kidtokid.pt
                 </a>

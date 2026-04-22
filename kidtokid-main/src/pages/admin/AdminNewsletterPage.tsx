@@ -30,9 +30,11 @@ import {
   orderBy,
   limit,
   where,
+  writeBatch,
 } from "firebase/firestore"
 import { db } from "@/src/lib/firebase"
 import { sendPromoNewsletterWithTimeout } from "@/src/lib/cloudFunctions"
+import { sendNewsletterNotification, resetPromosLog } from "@/src/services/notificationService"
 import type { IProduct } from "@/src/types"
 
 interface Subscriber {
@@ -63,6 +65,8 @@ interface DiscountProduct {
   selected: boolean
 }
 
+import { AdminNewsletterSender } from "@/src/components/admin/AdminNewsletterSender"
+
 export default function AdminNewsletterPage() {
   // Subscribers
   const [subscribers, setSubscribers] = useState<Subscriber[]>([])
@@ -87,12 +91,42 @@ export default function AdminNewsletterPage() {
   const [loadingLogs, setLoadingLogs] = useState(true)
 
   // Tab
-  const [activeTab, setActiveTab] = useState<"subscribers" | "compose" | "history">("compose")
+  const [activeTab, setActiveTab] = useState<"compose" | "inapp" | "subscribers" | "history">("compose")
 
   // Load subscribers
   const loadSubscribers = useCallback(async () => {
     setLoadingSubscribers(true)
     try {
+      // 1. Sincronizar utilizadores que têm newsletter=true (caso existam utilizadores antigos não sincronizados)
+      try {
+        const usersSnap = await getDocs(query(collection(db, "users"), where("newsletter", "==", true)))
+        const existingNewsletterSnap = await getDocs(collection(db, "newsletter"))
+        const existingEmails = new Set(existingNewsletterSnap.docs.map(d => d.id.toLowerCase()))
+        
+        const batch = writeBatch(db)
+        let addedCount = 0
+        
+        for (const userDoc of usersSnap.docs) {
+          const userData = userDoc.data()
+          if (userData.email && !existingEmails.has(userData.email.toLowerCase())) {
+            batch.set(doc(db, "newsletter", userData.email), {
+              email: userData.email,
+              subscribedAt: userData.createdAt || new Date(),
+              active: true,
+            }, { merge: true })
+            addedCount++
+          }
+        }
+        
+        if (addedCount > 0) {
+          await batch.commit()
+          // console.log(`Sincronizados ${addedCount} utilizadores para a coleção de newsletter`)
+        }
+      } catch (syncError) {
+        console.error("Failed to sync users to newsletter collection:", syncError)
+      }
+
+      // 2. Carregar a lista atualizada
       const snap = await getDocs(collection(db, "newsletter"))
       const subs: Subscriber[] = snap.docs.map((d) => {
         const data = d.data()
@@ -109,7 +143,7 @@ export default function AdminNewsletterPage() {
       setSubscribers(subs)
     } catch (error) {
       console.error("Failed to load subscribers:", error)
-      toast.error("Erro ao carregar subscritores")
+      toast.error("Ups! Problema ao carregar subscritores")
     } finally {
       setLoadingSubscribers(false)
     }
@@ -177,7 +211,7 @@ export default function AdminNewsletterPage() {
       setDiscountProducts(products)
     } catch (error) {
       console.error("Failed to load products:", error)
-      toast.error("Erro ao carregar produtos")
+      toast.error("Ups! Problema ao carregar produtos")
     } finally {
       setLoadingProducts(false)
     }
@@ -197,7 +231,7 @@ export default function AdminNewsletterPage() {
       toast.success("Subscritor removido")
     } catch (error) {
       console.error("Error deleting subscriber:", error)
-      toast.error("Erro ao remover subscritor")
+      toast.error("Ups! Problema ao remover subscritor")
     }
   }
 
@@ -227,7 +261,7 @@ export default function AdminNewsletterPage() {
         name: p.title,
         originalPrice: p.originalPrice,
         promoPrice: p.price,
-        imageUrl: (p.images && p.images[0]) || p.imageUrl || "",
+        imageUrl: (p.images && p.images[0]) || "",
         link: `https://kidtokid.pt/produto/${p.id}`,
       }))
 
@@ -254,7 +288,22 @@ export default function AdminNewsletterPage() {
       const data = result.data as { success: boolean; sent: number; failed: number; total: number }
 
       if (data.success) {
-        toast.success(`Email enviado com sucesso! ${data.sent}/${data.total} entregues`)
+        // Também enviar notificação in-app para utilizadores com newsletter ativa
+        try {
+          const inAppResult = await sendNewsletterNotification(
+            headline,
+            message.substring(0, 200),
+            ctaUrl || undefined
+          )
+          toast.success(
+            `Email enviado: ${data.sent}/${data.total} entregues · Notificação in-app: ${inAppResult.count} utilizadores`
+          )
+        } catch (inAppError) {
+          console.warn("In-app notification failed (email was sent):", inAppError)
+          toast.success(`Email enviado com sucesso! ${data.sent}/${data.total} entregues`)
+          toast.warning("A notificação in-app não foi enviada. Usa a tab 'In-App' para enviar manualmente.")
+        }
+
         // Reset form
         setSubject("")
         setHeadline("")
@@ -266,7 +315,7 @@ export default function AdminNewsletterPage() {
     } catch (error: unknown) {
       const err = error as { message?: string }
       console.error("Failed to send promo:", error)
-      toast.error(err.message || "Erro ao enviar email promocional")
+      toast.error(err.message || "Ups! Problema ao enviar email promocional")
     } finally {
       setSending(false)
     }
@@ -278,11 +327,28 @@ export default function AdminNewsletterPage() {
 
   const activeSubscribers = subscribers.filter((s) => s.active).length
 
+  // Reset newsletter
+  const [resetting, setResetting] = useState(false)
+  const handleReset = async () => {
+    if (!confirm("Tens a certeza que queres apagar o histórico de promoções?\n\nA base de dados de subscritores continuará intacta. Esta ação é irreversível!")) return
+    setResetting(true)
+    try {
+      const deletedLogs = await resetPromosLog()
+      toast.success(`Reset completo! ${deletedLogs} registos de histórico de promos apagados.`)
+      loadPromoLogs()
+    } catch (error) {
+      console.error("Reset failed:", error)
+      toast.error("Ups! Problema ao limpar histórico")
+    } finally {
+      setResetting(false)
+    }
+  }
+
   return (
     <AdminLayout title="Newsletter" subtitle="Gerir subscritores e enviar promoções">
       <div className="space-y-6">
         {/* Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <div className="bg-white dark:bg-gray-900 rounded-lg border p-4 flex items-center gap-3">
             <Users className="h-5 w-5 text-gray-400 dark:text-gray-500" />
             <div>
@@ -303,6 +369,19 @@ export default function AdminNewsletterPage() {
               <p className="text-sm text-gray-500 dark:text-gray-400">Promoções Enviadas</p>
               <p className="text-xl font-bold text-gray-900 dark:text-gray-100">{promoLogs.length}</p>
             </div>
+          </div>
+          <div className="bg-white dark:bg-gray-900 rounded-lg border p-4 flex items-center justify-center">
+            <button
+              onClick={handleReset}
+              disabled={resetting || promoLogs.length === 0}
+              className="text-xs text-red-500 hover:text-red-600 disabled:text-gray-300 disabled:cursor-not-allowed font-medium flex items-center gap-1.5 transition-colors"
+            >
+              {resetting ? (
+                <><Loader2 className="h-3.5 w-3.5 animate-spin" /> A limpar...</>
+              ) : (
+                <><Trash2 className="h-3.5 w-3.5" /> Limpar Histórico</>
+              )}
+            </button>
           </div>
         </div>
 
@@ -332,6 +411,17 @@ export default function AdminNewsletterPage() {
               Subscritores ({subscribers.length})
             </button>
             <button
+              onClick={() => setActiveTab("inapp")}
+              className={`flex-1 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                activeTab === "inapp"
+                  ? "border-k2k-blue text-k2k-blue bg-blue-50/50"
+                  : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+              }`}
+            >
+              <Megaphone className="h-4 w-4 inline-block mr-1.5 -mt-0.5" />
+              In-App
+            </button>
+            <button
               onClick={() => setActiveTab("history")}
               className={`flex-1 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === "history"
@@ -345,6 +435,10 @@ export default function AdminNewsletterPage() {
           </div>
 
           <div className="p-6">
+            {activeTab === "inapp" && (
+                <AdminNewsletterSender />
+            )}
+
             {/* ===================== COMPOSE TAB ===================== */}
             {activeTab === "compose" && (
               <div className="space-y-6">
@@ -474,9 +568,9 @@ export default function AdminNewsletterPage() {
                             checked={p.selected}
                             onCheckedChange={() => toggleProduct(p.id)}
                           />
-                          {((p.images && p.images[0]) || p.imageUrl) && (
+                          {(p.images && p.images[0]) && (
                             <img
-                              src={(p.images && p.images[0]) || p.imageUrl}
+                              src={p.images[0]}
                               alt={p.title}
                               className="w-10 h-10 rounded object-cover"
                             />

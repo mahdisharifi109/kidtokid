@@ -108,7 +108,7 @@ export default function AdminDashboardPage() {
                 allOrders: orders
             })
         } catch (error) {
-            console.error("Erro ao carregar estatísticas:", error)
+            console.error("Ups! Problema ao carregar estatísticas:", error)
         } finally {
             setLoading(false)
         }

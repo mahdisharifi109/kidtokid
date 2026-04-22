@@ -56,8 +56,14 @@ export function OptimizedImage({
           height={height}
           loading={priority ? "eager" : "lazy"}
           decoding="async"
+          referrerPolicy="no-referrer"
           onLoad={() => setIsLoaded(true)}
-          onError={() => onError?.()}
+          onError={() => {
+            onError?.()
+            setIsLoaded(true)
+            // Optional fallback if it fails completely
+            // e.currentTarget.src = "/placeholder.svg?height=300&width=300"
+          }}
           className={cn(
             "h-full w-full object-cover transition-opacity duration-500",
             isLoaded ? "opacity-100" : "opacity-0",

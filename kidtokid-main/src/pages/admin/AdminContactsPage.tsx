@@ -57,8 +57,8 @@ export default function AdminContactsPage() {
             const snapshot = await getDocs(q)
             setContacts(snapshot.docs.map(convertToContact))
         } catch (error) {
-            console.error("Erro ao carregar mensagens:", error)
-            toast.error("Erro ao carregar mensagens")
+            console.error("Ups! Problema ao carregar mensagens:", error)
+            toast.error("Ups! Problema ao carregar mensagens")
         } finally {
             setLoading(false)
         }
@@ -74,7 +74,7 @@ export default function AdminContactsPage() {
                 setSelected(prev => prev ? { ...prev, read: !prev.read } : null)
             }
         } catch {
-            toast.error("Erro ao atualizar")
+            toast.error("Ups! Problema ao atualizar")
         }
     }
 
@@ -86,7 +86,7 @@ export default function AdminContactsPage() {
             if (selected?.id === id) setSelected(null)
             toast.success("Mensagem apagada")
         } catch {
-            toast.error("Erro ao apagar")
+            toast.error("Ups! Problema ao apagar")
         }
     }
 

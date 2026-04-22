@@ -5,11 +5,13 @@ import { Facebook, Instagram, Phone, MapPin, Clock, Send } from "lucide-react"
 import { Link } from "react-router-dom"
 import { getStoreSettings, type StoreSettings, defaultSettings } from "@/src/services/settingsService"
 import { doc, setDoc, Timestamp } from "firebase/firestore"
+import { useStoreStatus } from "@/src/hooks/useStoreStatus"
 import { db } from "@/src/lib/firebase"
 import { toast } from "sonner"
 
 export function Footer() {
   const [settings, setSettings] = useState<StoreSettings>(defaultSettings)
+  const { isOpen } = useStoreStatus(settings.weekdayHours, settings.saturdayHours, settings.sundayHours)
   const [newsletterEmail, setNewsletterEmail] = useState("")
   const [isSubscribing, setIsSubscribing] = useState(false)
 
@@ -96,10 +98,32 @@ export function Footer() {
                   {settings.storePhone}
                 </a>
               </li>
-              <li className="flex items-start gap-2 justify-center sm:justify-start">
-                <Clock className="h-4 w-4 shrink-0 mt-0.5" />
-                <span>Seg-Sex: {settings.weekdayHours}<br />Sáb: {settings.saturdayHours}<br />Dom: {settings.sundayHours}</span>
-              </li>
+              <li className="flex items-start gap-3 justify-center sm:justify-start">
+                  <Clock className="h-4 w-4 shrink-0 mt-1" />
+                  <div className="flex flex-col gap-1 text-left w-full">
+                    <div className="flex items-center gap-2 mb-1 justify-between">
+                      <span className="font-medium text-sm">Horário</span>
+                      <div className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium w-fit ${isOpen ? "bg-green-500/10 text-green-500" : "bg-red-500/10 text-red-500"}`}>
+                        <span className={`w-1 h-1 rounded-full mr-1 ${isOpen ? "bg-green-500 animate-pulse" : "bg-red-500"}`}></span>
+                        {isOpen ? "Aberto" : "Fechado"}
+                      </div>
+                    </div>
+                    <div className="space-y-0.5 text-xs text-muted-foreground w-full">
+                      <div className="flex justify-between w-full">
+                         <span>Segunda a Sexta</span>
+                         <span className="text-gray-700 dark:text-gray-300">{settings.weekdayHours}</span>
+                      </div>
+                      <div className="flex justify-between w-full">
+                         <span>Sábado</span>
+                         <span className="text-gray-700 dark:text-gray-300">{settings.saturdayHours}</span>
+                      </div>
+                      <div className="flex justify-between w-full">
+                         <span>Domingo</span>
+                         <span className="text-gray-700 dark:text-gray-300">{settings.sundayHours}</span>
+                      </div>
+                    </div>
+                  </div>
+                </li>
             </ul>
           </div>
 
@@ -156,9 +180,10 @@ export function Footer() {
               <button
                 type="submit"
                 disabled={isSubscribing}
-                className="shrink-0 rounded-lg bg-blue-600 px-3 py-2 text-white hover:bg-blue-700 transition-colors disabled:opacity-50"
+                className="shrink-0 flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 transition-colors disabled:opacity-50 font-medium"
                 aria-label="Subscrever"
               >
+                <span>Subscrever</span>
                 <Send className="h-4 w-4" />
               </button>
             </form>

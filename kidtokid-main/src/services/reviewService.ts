@@ -291,7 +291,7 @@ export const deleteReview = async (reviewId: string): Promise<void> => {
 
 export const markReviewHelpful = async (reviewId: string): Promise<void> => {
     const user = auth.currentUser
-    if (!user) throw new Error("Inicia sessão para votar")
+    if (!user) throw new Error("Entra na tua conta para votar")
 
     const reviewRef = doc(db, "reviews", reviewId)
     const voteRef = doc(db, "reviewVotes", `${reviewId}_${user.uid}`)
@@ -327,7 +327,7 @@ export const markReviewHelpful = async (reviewId: string): Promise<void> => {
 
 export const reportReview = async (reviewId: string, reason: string): Promise<void> => {
     const user = auth.currentUser
-    if (!user) throw new Error("Inicia sessão para reportar")
+    if (!user) throw new Error("Entra na tua conta para reportar")
 
     // Use deterministic ID to prevent duplicate reports from same user
     const reportRef = doc(db, "reviewReports", `${reviewId}_${user.uid}`)
@@ -379,7 +379,7 @@ const updateProductRating = async (productId: string): Promise<void> => {
             reviewCount: stats.totalReviews
         })
     } catch (error) {
-        console.error("Erro ao atualizar rating do produto:", error)
+        console.error("Ups! Problema ao atualizar rating do produto:", error)
     }
 }
 

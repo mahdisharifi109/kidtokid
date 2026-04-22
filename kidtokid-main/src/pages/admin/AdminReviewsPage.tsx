@@ -87,8 +87,8 @@ export default function AdminReviewsPage() {
                 }
             }))
         } catch (error) {
-            console.error("Erro ao carregar avaliações:", error)
-            toast.error("Erro ao carregar avaliações")
+            console.error("Ups! Problema ao carregar avaliações:", error)
+            toast.error("Ups! Problema ao carregar avaliações")
         } finally {
             setLoading(false)
         }
@@ -107,7 +107,7 @@ export default function AdminReviewsPage() {
             setReports(prev => prev.filter(r => r.reviewId !== reviewId))
             toast.success("Avaliação apagada")
         } catch {
-            toast.error("Erro ao apagar")
+            toast.error("Ups! Problema ao apagar")
         }
     }
 
@@ -121,7 +121,7 @@ export default function AdminReviewsPage() {
             setReports(prev => prev.filter(r => r.reviewId !== reviewId))
             toast.success("Denúncia dispensada")
         } catch {
-            toast.error("Erro ao dispensar")
+            toast.error("Ups! Problema ao dispensar")
         }
     }
 

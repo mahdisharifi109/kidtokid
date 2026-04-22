@@ -194,7 +194,7 @@ export default function AboutPage() {
                     </div>
                     <div className="flex justify-between gap-8">
                       <span className="text-gray-500 dark:text-gray-400">Domingo</span>
-                      <span className="text-red-500">Fechado</span>
+                      <span className="text-gray-700 dark:text-gray-300">Fechado</span>
                     </div>
                   </div>
                   <p className="mt-2 text-xs text-gray-400 dark:text-gray-500">

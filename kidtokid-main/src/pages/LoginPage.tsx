@@ -41,7 +41,7 @@ export default function LoginPage() {
     e.preventDefault()
     
     if (!formData.email || !formData.password) {
-      toast.error("Por favor preencha todos os campos")
+      toast.error("Por favor, preenche todos os campos")
       return
     }
 
@@ -72,7 +72,7 @@ export default function LoginPage() {
       toast.success("Bem-vindo!")
       navigate(redirectTo)
     } else {
-      toast.error(result.error || "Não foi possível entrar com Google")
+      toast.error(result.error || "Infelizmente não conseguimos entrar com Google")
     }
   }
 

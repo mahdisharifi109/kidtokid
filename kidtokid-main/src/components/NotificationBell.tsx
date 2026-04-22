@@ -1,11 +1,16 @@
 import { useState, useEffect, useRef, useCallback } from "react"
-import { Bell, Package, Star, MessageSquare, Check } from "lucide-react"
+import { Bell, Package, Star, MessageSquare, Check, Megaphone } from "lucide-react"
 import { useNavigate } from "react-router-dom"
+import { useAuth } from "@/src/contexts/AuthContext"
 import {
     subscribeToAdminNotifications,
+    subscribeToUserNotifications,
     markNotificationRead,
     markAllNotificationsRead,
+    markUserNotificationRead,
+    markAllUserNotificationsRead,
     type AdminNotification,
+    type UserNotification,
 } from "@/src/services/notificationService"
 
 interface NotificationBellProps {
@@ -13,16 +18,24 @@ interface NotificationBellProps {
 }
 
 export function NotificationBell({ isAdmin }: NotificationBellProps) {
-    const [notifications, setNotifications] = useState<AdminNotification[]>([])
+    const { user } = useAuth()
+    const [adminNotifications, setAdminNotifications] = useState<AdminNotification[]>([])
+    const [userNotifications, setUserNotifications] = useState<UserNotification[]>([])
     const [isOpen, setIsOpen] = useState(false)
     const dropdownRef = useRef<HTMLDivElement>(null)
     const navigate = useNavigate()
 
     useEffect(() => {
         if (!isAdmin) return
-        const unsub = subscribeToAdminNotifications(setNotifications)
+        const unsub = subscribeToAdminNotifications(setAdminNotifications)
         return unsub
     }, [isAdmin])
+
+    useEffect(() => {
+        if (!user) return
+        const unsub = subscribeToUserNotifications(user.uid, setUserNotifications)
+        return unsub
+    }, [user])
 
     // close dropdown when clicking outside
     useEffect(() => {
@@ -37,44 +50,67 @@ export function NotificationBell({ isAdmin }: NotificationBellProps) {
         return () => document.removeEventListener("mousedown", handleClickOutside)
     }, [isOpen])
 
+    const notifications = isAdmin ? adminNotifications : userNotifications
     const unreadCount = notifications.filter((n) => !n.read).length
 
     const handleClick = useCallback(
-        async (notif: AdminNotification) => {
+        async (notif: AdminNotification | UserNotification) => {
             if (!notif.read) {
-                await markNotificationRead(notif)
-                setNotifications((prev) =>
-                    prev.map((n) => (n.id === notif.id ? { ...n, read: true } : n))
-                )
+                if (isAdmin) {
+                    await markNotificationRead(notif as AdminNotification)
+                    setAdminNotifications((prev) =>
+                        prev.map((n) => (n.id === notif.id ? { ...n, read: true } : n))
+                    )
+                } else if (user) {
+                    await markUserNotificationRead(user.uid, notif.id)
+                    setUserNotifications((prev) =>
+                        prev.map((n) => (n.id === notif.id ? { ...n, read: true } : n))
+                    )
+                }
             }
             setIsOpen(false)
             if (notif.link) navigate(notif.link)
+            if ('actionLink' in notif && notif.actionLink) navigate(notif.actionLink)
         },
-        [navigate]
+        [isAdmin, user, navigate]
     )
 
     const handleMarkAllRead = useCallback(async () => {
-        await markAllNotificationsRead(notifications)
-        setNotifications((prev) => prev.map((n) => ({ ...n, read: true })))
-    }, [notifications])
+        if (isAdmin) {
+            await markAllNotificationsRead(adminNotifications)
+            setAdminNotifications((prev) => prev.map((n) => ({ ...n, read: true })))
+        } else if (user) {
+            await markAllUserNotificationsRead(user.uid, userNotifications)
+            setUserNotifications((prev) => prev.map((n) => ({ ...n, read: true })))
+        }
+    }, [isAdmin, user, adminNotifications, userNotifications])
 
-    if (!isAdmin) return null
+    // Mostrar sino para todos os utilizadores autenticados (admin vê sempre)
+    if (!isAdmin && !user) return null
 
     const iconForType = (type: string) => {
         switch (type) {
             case "new_order":
                 return <Package className="h-4 w-4 text-blue-500" />
+            case "order_update":
+                return <Package className="h-4 w-4 text-green-500" />
             case "new_review":
                 return <Star className="h-4 w-4 text-yellow-500" />
             case "new_contact":
                 return <MessageSquare className="h-4 w-4 text-green-500" />
+            case "newsletter":
+            case "promo":
+                return <Megaphone className="h-4 w-4 text-indigo-500" />
+            case "new_subscriber":
+                return <Bell className="h-4 w-4 text-pink-500" />
             default:
                 return <Bell className="h-4 w-4 text-gray-400 dark:text-gray-500" />
         }
     }
 
     const timeAgo = (date: Date) => {
-        const diff = Date.now() - date.getTime()
+        const now = new Date()
+        const diff = now.getTime() - date.getTime()
         const mins = Math.floor(diff / 60000)
         if (mins < 1) return "agora"
         if (mins < 60) return `${mins}m`
@@ -144,6 +180,20 @@ export function NotificationBell({ isAdmin }: NotificationBellProps) {
                             ))
                         )}
                     </div>
+
+                    {notifications.length > 0 && (
+                        <div className="px-4 py-2.5 border-t border-gray-100 dark:border-gray-700 text-center">
+                            <button
+                                onClick={() => {
+                                    setIsOpen(false)
+                                    navigate(isAdmin ? "/admin/encomendas" : "/notificacoes")
+                                }}
+                                className="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400 font-medium"
+                            >
+                                Ver todas as notificações →
+                            </button>
+                        </div>
+                    )}
                 </div>
             )}
         </div>

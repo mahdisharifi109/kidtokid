@@ -29,7 +29,7 @@ export default function HomePage() {
         setLastDoc(result.lastDoc)
         setHasMore(result.products.length === PAGE_SIZE)
       } catch (error) {
-        console.error("Erro ao carregar produtos:", error)
+        console.error("Ups! Problema ao carregar produtos:", error)
       } finally {
         setIsLoading(false)
       }
@@ -46,7 +46,7 @@ export default function HomePage() {
       setLastDoc(result.lastDoc)
       setHasMore(result.products.length === PAGE_SIZE)
     } catch (error) {
-      console.error("Erro ao carregar mais produtos:", error)
+      console.error("Ups! Problema ao carregar mais produtos:", error)
     } finally {
       setIsLoadingMore(false)
     }

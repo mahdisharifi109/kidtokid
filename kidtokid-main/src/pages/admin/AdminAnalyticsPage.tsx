@@ -87,7 +87,7 @@ export default function AdminAnalyticsPage() {
                 totalNewsletter: newsletterCount.data().count,
             })
         } catch (error) {
-            console.error("Erro ao carregar analytics:", error)
+            console.error("Ups! Problema ao carregar analytics:", error)
         } finally {
             setLoading(false)
         }

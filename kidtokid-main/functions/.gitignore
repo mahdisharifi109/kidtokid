@@ -1,0 +1,10 @@
+# Ignorar as chaves secretas do Google/Stripe
+.env
+.env.local
+
+# Dependências
+node_modules/
+
+# Builds e outputs
+lib/
+*.log

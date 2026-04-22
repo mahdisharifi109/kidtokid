@@ -169,8 +169,8 @@ export default function AdminSeedPage() {
       toast.success(`${sampleProducts.length} produtos adicionados com sucesso!`)
       loadProducts()
     } catch (error) {
-      console.error("Erro ao adicionar produtos:", error)
-      toast.error("Erro ao adicionar produtos")
+      console.error("Ups! Problema ao adicionar produtos:", error)
+      toast.error("Ups! Problema ao adicionar produtos")
     } finally {
       setIsLoading(false)
     }
@@ -181,7 +181,7 @@ export default function AdminSeedPage() {
       const allProducts = await getAllProducts()
       setProducts(allProducts)
     } catch (error) {
-      console.error("Erro ao carregar produtos:", error)
+      console.error("Ups! Problema ao carregar produtos:", error)
     }
   }
 
@@ -196,8 +196,8 @@ export default function AdminSeedPage() {
       toast.success("Todos os produtos foram apagados")
       setProducts([])
     } catch (error) {
-      console.error("Erro ao apagar produtos:", error)
-      toast.error("Erro ao apagar produtos")
+      console.error("Ups! Problema ao apagar produtos:", error)
+      toast.error("Ups! Problema ao apagar produtos")
     } finally {
       setIsLoading(false)
     }

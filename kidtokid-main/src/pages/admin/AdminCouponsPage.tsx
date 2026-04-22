@@ -53,8 +53,8 @@ export default function AdminCouponsPage() {
       const data = await getAllCoupons()
       setCoupons(data)
     } catch (error) {
-      console.error("Erro ao carregar cupões:", error)
-      toast.error("Erro ao carregar cupões")
+      console.error("Ups! Problema ao carregar cupões:", error)
+      toast.error("Ups! Problema ao carregar cupões")
     } finally {
       setLoading(false)
     }
@@ -107,8 +107,8 @@ export default function AdminCouponsPage() {
       setShowForm(false)
       loadCoupons()
     } catch (error) {
-      console.error("Erro ao criar cupão:", error)
-      toast.error("Erro ao criar cupão")
+      console.error("Ups! Problema ao criar cupão:", error)
+      toast.error("Ups! Problema ao criar cupão")
     } finally {
       setSaving(false)
     }
@@ -122,7 +122,7 @@ export default function AdminCouponsPage() {
       )
       toast.success(coupon.isActive ? "Cupão desativado" : "Cupão ativado")
     } catch {
-      toast.error("Erro ao atualizar cupão")
+      toast.error("Ups! Problema ao atualizar cupão")
     }
   }
 
@@ -133,7 +133,7 @@ export default function AdminCouponsPage() {
       setCoupons((prev) => prev.filter((c) => c.id !== coupon.id))
       toast.success("Cupão eliminado")
     } catch {
-      toast.error("Erro ao eliminar cupão")
+      toast.error("Ups! Problema ao eliminar cupão")
     }
   }
 

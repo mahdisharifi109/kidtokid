@@ -46,7 +46,7 @@ export default function ProductPage() {
           setRelatedProducts(related.filter(p => p.id !== id).slice(0, 4))
         }
       } catch (error) {
-        console.error("Erro ao carregar produto:", error)
+        console.error("Ups! Problema ao carregar produto:", error)
       } finally {
         setIsLoading(false)
       }
@@ -109,8 +109,7 @@ export default function ProductPage() {
               <img
                 src={product.images[selectedImage] || "/placeholder.svg?height=600&width=600&query=kids clothing"}
                 alt={product.title}
-                className="h-full w-full object-cover"
-              />
+                className="h-full w-full object-cover"                  referrerPolicy="no-referrer"              />
             </div>
             {product.images.length > 1 && (
               <div className="grid grid-cols-4 gap-1.5 sm:gap-2">
@@ -124,8 +123,7 @@ export default function ProductPage() {
                     <img
                       src={img || "/placeholder.svg"}
                       alt={`${product.title} ${idx + 1}`}
-                      className="h-full w-full object-cover"
-                    />
+                      className="h-full w-full object-cover"                        referrerPolicy="no-referrer"                    />
                   </button>
                 ))}
               </div>

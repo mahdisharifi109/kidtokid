@@ -57,7 +57,7 @@ export default function OrderSuccessPage() {
                         setOrder(orderData)
                     }
                 } catch (error) {
-                    console.error('Erro ao carregar encomenda:', error)
+                    console.error('Ups! Problema ao carregar encomenda:', error)
                 }
             }
             setLoading(false)
