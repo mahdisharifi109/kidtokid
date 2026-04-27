@@ -25,9 +25,11 @@ import {
     doc,
     updateDoc,
     where,
-    Timestamp,
     startAfter,
-    DocumentSnapshot
+    DocumentSnapshot,
+    writeBatch,
+    increment,
+    serverTimestamp
 } from "firebase/firestore"
 import { db } from "@/src/lib/firebase"
 import { toast } from "sonner"
@@ -233,10 +235,45 @@ export default function AdminOrdersPage() {
     const updateOrderStatus = useCallback(async (orderId: string, newStatus: OrderStatus) => {
         setUpdatingOrderId(orderId)
         try {
-            await updateDoc(doc(db, "orders", orderId), {
+            const orderToUpdate = orders.find(o => o.id === orderId)
+            if (!orderToUpdate) throw new Error("Order not found")
+
+            // Restrict logical flow: if cancelling/refunding from an active state, restore stock
+            const wasActive = !["cancelled", "refunded"].includes(orderToUpdate.status)
+            const isCancelling = ["cancelled", "refunded"].includes(newStatus)
+            const isRestoringStock = isCancelling && wasActive
+
+            const updates: Record<string, any> = {
                 status: newStatus,
-                updatedAt: Timestamp.now()
-            })
+                updatedAt: serverTimestamp()
+            }
+            
+            // Add chronological state timestamps
+            if (newStatus === "paid") {
+                updates.paymentStatus = "paid"
+                updates.paidAt = serverTimestamp()
+            } else if (newStatus === "shipped") {
+                updates.shippedAt = serverTimestamp()
+            } else if (newStatus === "delivered") {
+                updates.deliveredAt = serverTimestamp()
+            }
+
+            if (isRestoringStock && orderToUpdate.items && orderToUpdate.items.length > 0) {
+                const batch = writeBatch(db)
+                const orderRef = doc(db, "orders", orderId)
+                batch.update(orderRef, updates)
+
+                orderToUpdate.items.forEach(item => {
+                    const productRef = doc(db, "products", item.productId)
+                    batch.update(productRef, {
+                        stock: increment(item.quantity)
+                    })
+                })
+
+                await batch.commit()
+            } else {
+                await updateDoc(doc(db, "orders", orderId), updates)
+            }
             
             setOrders(prev => prev.map(order => 
                 order.id === orderId 
@@ -251,7 +288,7 @@ export default function AdminOrdersPage() {
         } finally {
             setUpdatingOrderId(null)
         }
-    }, [])
+    }, [orders])
 
     const filteredOrders = useMemo(() => orders.filter(order => {
         if (!searchQuery) return true

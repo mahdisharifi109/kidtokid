@@ -43,7 +43,8 @@ export async function initiateStripePayment(
   // Prefer Stripe's hosted URL (redirect) — always available from Checkout Sessions
   if (url) {
     window.location.href = url
-    return
+    // Block execution so React Router doesn't interrupt the transition
+    return new Promise(() => {})
   }
 
   // Fallback: if for some reason URL is missing, throw a clear error

@@ -4,7 +4,7 @@ import { createContext, useContext, useState, useEffect, useCallback, type React
 import type { IProduct, ICartItem } from "@/src/types"
 import { toast } from "sonner"
 import { getProductById } from "@/src/services/productService"
-import { doc, setDoc, onSnapshot } from "firebase/firestore"
+import { doc, setDoc, getDoc } from "firebase/firestore"
 import { db } from "@/src/lib/firebase"
 import { useAuth } from "@/src/contexts/AuthContext"
 import { validateCartFromStorage } from "@/src/lib/validators"
@@ -80,77 +80,66 @@ export function CartProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!user || !user.uid) return
     
-    let unsubscribe: (() => void) | undefined
+    let isMounted = true
     
-    const setupListener = async () => {
+    const fetchCart = async () => {
       try {
         const cartRef = doc(db, 'carts', user.uid)
-        unsubscribe = onSnapshot(
-          cartRef,
-          (snapshot) => {
-            if (!snapshot.exists()) {
-              // console.debug removed
-              return
-            }
-            
-            const data = snapshot.data() as { items?: unknown[] } | undefined
-            if (!data?.items) return
-            
-            const remoteItems = data.items as Array<{
-              productId: string
-              quantity: number
-              product?: Record<string, unknown>
-            }>
-            
-            // Use setItems callback to access latest state (avoids stale closure)
-            setItems((currentItems) => {
-              // Merge: keep local additions but update quantities from Firestore
-              const mergedItems = currentItems.map(item => {
-                const remoteItem = remoteItems.find(r => r.productId === item.product.id)
-                return remoteItem ? { ...item, quantity: remoteItem.quantity } : item
-              })
-              
-              // Add items that are in Firestore but not locally
-              const localProductIds = new Set(currentItems.map(item => item.product.id))
-              for (const remoteItem of remoteItems) {
-                if (!localProductIds.has(remoteItem.productId) && remoteItem.product) {
-                  const productData = remoteItem.product as Record<string, unknown>
-                  // Validate product has required fields before adding
-                  if (
-                    typeof productData.id === 'string' &&
-                    typeof productData.title === 'string' &&
-                    typeof productData.price === 'number' &&
-                    productData.price > 0
-                  ) {
-                    const product = productData as unknown as IProduct
-                    mergedItems.push({
-                      product,
-                      quantity: remoteItem.quantity,
-                    })
-                  }
-                }
+        const snapshot = await getDoc(cartRef)
+        
+        if (!snapshot.exists() || !isMounted) {
+          return
+        }
+        
+        const data = snapshot.data() as { items?: unknown[] } | undefined
+        if (!data?.items) return
+        
+        const remoteItems = data.items as Array<{
+          productId: string
+          quantity: number
+          product?: Record<string, unknown>
+        }>
+        
+        // Use setItems callback to access latest state (avoids stale closure)
+        setItems((currentItems) => {
+          // Merge: keep local additions but update quantities from Firestore
+          const mergedItems = currentItems.map(item => {
+            const remoteItem = remoteItems.find(r => r.productId === item.product.id)
+            return remoteItem ? { ...item, quantity: remoteItem.quantity } : item
+          })
+          
+          // Add items that are in Firestore but not locally
+          const localProductIds = new Set(currentItems.map(item => item.product.id))
+          for (const remoteItem of remoteItems) {
+            if (!localProductIds.has(remoteItem.productId) && remoteItem.product) {
+              const productData = remoteItem.product as Record<string, unknown>
+              // Validate product has required fields before adding
+              if (
+                typeof productData.id === 'string' &&
+                typeof productData.title === 'string' &&
+                typeof productData.price === 'number' &&
+                productData.price > 0
+              ) {
+                const product = productData as unknown as IProduct
+                mergedItems.push({
+                  product,
+                  quantity: remoteItem.quantity,
+                })
               }
-              
-              // console.debug removed
-              return mergedItems
-            })
-          },
-          (error) => {
-            // Fail silently on listener setup error
-            console.warn('[Cart] Failed to setup Firestore listener:', error)
+            }
           }
-        )
+          
+          return mergedItems
+        })
       } catch (error) {
-        console.warn('[Cart] Failed to setup cart sync:', error)
+        console.warn('[Cart] Failed to fetch cart from Firestore:', error)
       }
     }
     
-    setupListener()
+    fetchCart()
     
     return () => {
-      if (unsubscribe) {
-        unsubscribe()
-      }
+      isMounted = false
     }
   }, [user])
 

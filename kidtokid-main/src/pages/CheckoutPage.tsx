@@ -167,24 +167,26 @@ export default function CheckoutPage() {
             const result = await createSecureOrderWithTimeout(orderData, 30_000)
             const order = result.data as { orderId: string; orderNumber: string; total: number }
 
+            // Clear the cart since the order was successfully created in the system
+            clearCart()
+
             if (formData.paymentMethod === 'card') {
                 try {
                     setOrderCompleted(true)
                     await initiateStripePayment(order.orderId, order.orderNumber)
-                    clearCart()
-                    navigate(`/sucesso?order=${order.orderNumber}`)
+                    // The browser will redirect to Stripe. Block further execution.
+                    return new Promise(() => {})
                 } catch (paymentError: unknown) {
                     console.error('Ups! Problema ao iniciar pagamento Stripe:', paymentError)
                     toast.error('Ups! Problema ao redirecionar para pagamento', { 
-                        description: 'A encomenda foi criada. Podes tentar pagar depois na tua conta.' 
+                        description: `Encomenda #${order.orderNumber} criada mas pagamento pendente. Vai à tua conta para tentar novamente.`,
+                        duration: 10000
                     })
-                    setOrderCompleted(true)
-                    clearCart()
-                    navigate(`/sucesso?order=${order.orderNumber}`)
+                    // Navigate to account page orders tab so user can retry
+                    navigate(`/minha-conta?tab=encomendas`)
                 }
             } else {
                 setOrderCompleted(true)
-                clearCart()
                 navigate(`/sucesso?order=${order.orderNumber}`)
             }
 

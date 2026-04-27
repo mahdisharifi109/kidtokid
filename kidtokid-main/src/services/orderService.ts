@@ -3,11 +3,12 @@ import {
   doc,
   getDoc,
   getDocs,
-  updateDoc,
   query,
   where,
   orderBy,
   serverTimestamp,
+  writeBatch,
+  increment,
   type DocumentData,
 } from "firebase/firestore"
 import { db, auth } from "@/src/lib/firebase"
@@ -233,10 +234,26 @@ export async function cancelOrder(orderId: string): Promise<void> {
     )
   }
 
-  await updateDoc(docRef, {
+  const batch = writeBatch(db)
+
+  batch.update(docRef, {
     status: "cancelled",
     updatedAt: serverTimestamp(),
   })
+
+  // Restore stock when order is cancelled
+  if (order.items && order.items.length > 0) {
+    for (const item of order.items) {
+      if (item.productId) {
+        const productRef = doc(db, "products", item.productId)
+        batch.update(productRef, {
+          stock: increment(item.quantity)
+        })
+      }
+    }
+  }
+
+  await batch.commit()
 }
 
 // Status translation

@@ -138,25 +138,28 @@ export default function CartPage() {
                   )}
                 >
                   <div className="flex gap-4">
-                    {/* Image */}
-                    <Link to={`/produto/${item.product.id}`} className="shrink-0 w-20 h-20 sm:w-24 sm:h-24 rounded-lg overflow-hidden bg-gray-50 dark:bg-gray-800">
-                      <img
-                        src={(item.product.images && item.product.images[0]) || "/placeholder.svg"}
-                        alt={item.product.title}
-                        className="h-full w-full object-cover"
-                      />
-                    </Link>
+                      {/* Image */}
+                      <Link to={`/produto/${item.product.id}`} className="shrink-0 w-20 h-20 sm:w-24 sm:h-24 rounded-lg overflow-hidden bg-gray-50 dark:bg-gray-800 relative flex items-center justify-center">
+                        <img
+                          src={item.product.images?.[0] || "/placeholder.svg"}
+                          alt={item.product.title}
+                          className="h-full w-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.src = "/placeholder.svg"
+                          }}
+                        />
+                      </Link>
 
-                    {/* Content */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex justify-between items-start gap-2">
-                        <div className="min-w-0">
-                          <p className="text-xs text-gray-400 dark:text-gray-500 uppercase tracking-wide">{item.product.brand}</p>
-                          <Link to={`/produto/${item.product.id}`}>
-                            <h3 className="font-medium text-gray-900 dark:text-gray-100 text-sm sm:text-base truncate hover:text-blue-600 transition-colors">
-                              {item.product.title}
-                            </h3>
-                          </Link>
+                      {/* Content */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex justify-between items-start gap-2">
+                          <div className="min-w-0">
+                            <p className="text-xs text-gray-400 dark:text-gray-500 uppercase tracking-wide">{item.product.brand}</p>
+                            <Link to={`/produto/${item.product.id}`}>
+                              <h3 className="font-medium text-gray-900 dark:text-gray-100 text-sm sm:text-base leading-tight mt-0.5 mb-1 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors truncate">
+                                {item.product.title}
+                              </h3>
+                            </Link>
                           <div className="flex items-center gap-2 mt-1 text-xs text-gray-500 dark:text-gray-400">
                             <span>{item.product.size}</span>
                             <span>·</span>

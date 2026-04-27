@@ -938,7 +938,7 @@ export const createStripeCheckoutSession = functions.region("europe-west1").http
       discounts.push({ coupon: coupon.id });
     }
 
-    // Create the Stripe Checkout Session
+    // Create the Stripe Checkout Session (expires in 30 minutes)
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       mode: "payment",
@@ -953,6 +953,7 @@ export const createStripeCheckoutSession = functions.region("europe-west1").http
       success_url: successUrl,
       cancel_url: cancelUrl,
       locale: "pt",
+      expires_at: Math.floor(Date.now() / 1000) + 30 * 60, // 30 minutes
     });
 
     // Save session ID on the order for reference
@@ -1144,6 +1145,33 @@ export const stripeWebhook = functions.region("europe-west1").https.onRequest(
       }
     }
 
+    // Handle expired checkout sessions — cancel order & restore stock
+    if (event.type === "checkout.session.expired") {
+      const session = event.data.object as Stripe.Checkout.Session;
+
+      let orderId = session.metadata?.orderId || null;
+      if (!orderId) {
+        orderId = await findOrderIdByStripeSessionId(session.id);
+      }
+
+      if (orderId) {
+        const orderRef = db.collection("orders").doc(orderId);
+        const orderDoc = await orderRef.get();
+
+        if (orderDoc.exists && orderDoc.data()?.paymentStatus === "pending") {
+          // Cancel the order (onOrderUpdate trigger will restore stock)
+          await orderRef.update({
+            status: "cancelled",
+            paymentStatus: "failed",
+            stripeLastWebhookEventId: event.id,
+            paymentErrorMessage: "Sessão de pagamento expirou. O stock foi restaurado.",
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+          });
+          functions.logger.info(`Order ${orderId} cancelled — Stripe checkout session expired.`);
+        }
+      }
+    }
+
     await markStripeWebhookEventDone(event.id);
 
     res.status(200).json({ received: true });
@@ -1307,7 +1335,7 @@ export const onOrderUpdate = functions.region("europe-west1").firestore
             ${trackingHtml}
 
             <div style="background: #F8F9FA; border-radius: 16px; padding: 20px; margin-bottom: 16px;">
-              <h3 style="margin: 0 0 12px; color: #333;">Resumo da Encomenda</h3>
+              <h3 style="margin: 0 0 12px; color: #333;">Fatura / Resumo da Encomenda</h3>
               <table style="width: 100%; border-collapse: collapse;">
                 <thead>
                   <tr>
@@ -1320,7 +1348,13 @@ export const onOrderUpdate = functions.region("europe-west1").firestore
                   ${itemsList || "<tr><td colspan='3'>Sem itens</td></tr>"}
                 </tbody>
               </table>
-              <p style="margin: 12px 0 4px; font-size: 18px; color: #333;"><strong>Total: €${after.total?.toFixed(2) || "0.00"}</strong></p>
+              <div style="border-top: 1px solid #ddd; margin-top: 12px; padding-top: 12px;">
+                <p style="margin: 4px 0; color: #555; font-size: 14px;">Subtotal: <span style="float: right;">€${after.subtotal?.toFixed(2) || "0.00"}</span></p>
+                <p style="margin: 4px 0; color: #555; font-size: 14px;">Envio: <span style="float: right;">${(after.shippingCost || 0) === 0 ? "Grátis" : "€" + (after.shippingCost || 0).toFixed(2)}</span></p>
+                ${(after.protectionFee || 0) > 0 ? `<p style="margin: 4px 0; color: #555; font-size: 14px;">Proteção: <span style="float: right;">€${(after.protectionFee || 0).toFixed(2)}</span></p>` : ""}
+                ${(after.discount || 0) > 0 ? `<p style="margin: 4px 0; color: #16a34a; font-size: 14px;">Desconto: <span style="float: right;">-€${(after.discount || 0).toFixed(2)}</span></p>` : ""}
+                <p style="margin: 12px 0 0; font-size: 18px; color: #333; border-top: 2px solid #333; padding-top: 8px;"><strong>Total: €${after.total?.toFixed(2) || "0.00"}</strong></p>
+              </div>
             </div>
 
             <div style="text-align: center; margin-top: 24px;">
@@ -1891,5 +1925,54 @@ function extractStoragePath(urlOrPath: string): string {
   }
 }
 
+// ======================================
+// 🕐 CLEANUP EXPIRED PENDING ORDERS
+// ======================================
+// Runs every hour — cancels card-payment orders stuck in "pending" for over 1 hour
+// This is a safety net; the primary mechanism is the checkout.session.expired webhook
+export const cleanupExpiredOrders = functions.region("europe-west1").pubsub
+  .schedule("every 60 minutes")
+  .timeZone("Europe/Lisbon")
+  .onRun(async () => {
+    const oneHourAgo = admin.firestore.Timestamp.fromDate(
+      new Date(Date.now() - 60 * 60 * 1000)
+    );
 
+    // Find pending card orders older than 1 hour
+    const expiredOrders = await db
+      .collection("orders")
+      .where("paymentStatus", "==", "pending")
+      .where("paymentMethod", "==", "card")
+      .where("createdAt", "<", oneHourAgo)
+      .get();
 
+    if (expiredOrders.empty) {
+      functions.logger.info("No expired pending orders found.");
+      return null;
+    }
+
+    functions.logger.info(`Found ${expiredOrders.size} expired pending orders to cancel.`);
+
+    for (const orderDoc of expiredOrders.docs) {
+      const order = orderDoc.data();
+      // Skip if already cancelled/paid
+      if (order.status === "cancelled" || order.status === "paid" || order.paymentStatus === "paid") {
+        continue;
+      }
+
+      try {
+        // Cancel the order (onOrderUpdate trigger restores stock)
+        await orderDoc.ref.update({
+          status: "cancelled",
+          paymentStatus: "failed",
+          paymentErrorMessage: "Encomenda cancelada automaticamente — pagamento não recebido dentro do prazo.",
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+        functions.logger.info(`Auto-cancelled expired order ${orderDoc.id} (${order.orderNumber})`);
+      } catch (error) {
+        functions.logger.error(`Failed to cancel expired order ${orderDoc.id}:`, error);
+      }
+    }
+
+    return null;
+  });

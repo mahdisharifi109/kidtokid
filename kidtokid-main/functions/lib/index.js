@@ -36,7 +36,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.removePurchasedProductAndImage = exports.sendPromoNewsletter = exports.onNewsletterSubscribe = exports.refundOrder = exports.onNewReview = exports.onNewContact = exports.onOrderUpdate = exports.stripeWebhook = exports.createStripeCheckoutSession = exports.onNewOrder = exports.createSecureOrder = exports.customPasswordReset = exports.validateCouponCode = exports.setAdminClaims = exports.onUserCreated = void 0;
+exports.cleanupExpiredOrders = exports.removePurchasedProductAndImage = exports.sendPromoNewsletter = exports.onNewsletterSubscribe = exports.refundOrder = exports.onNewReview = exports.onNewContact = exports.onOrderUpdate = exports.stripeWebhook = exports.createStripeCheckoutSession = exports.onNewOrder = exports.createSecureOrder = exports.customPasswordReset = exports.validateCouponCode = exports.setAdminClaims = exports.onUserCreated = void 0;
 const functions = __importStar(require("firebase-functions/v1"));
 const firestore_1 = require("firebase-functions/v2/firestore");
 const admin = __importStar(require("firebase-admin"));
@@ -808,7 +808,7 @@ exports.createStripeCheckoutSession = functions.region("europe-west1").https.onC
         });
         discounts.push({ coupon: coupon.id });
     }
-    // Create the Stripe Checkout Session
+    // Create the Stripe Checkout Session (expires in 30 minutes)
     const session = await stripe.checkout.sessions.create({
         payment_method_types: ["card"],
         mode: "payment",
@@ -823,6 +823,7 @@ exports.createStripeCheckoutSession = functions.region("europe-west1").https.onC
         success_url: successUrl,
         cancel_url: cancelUrl,
         locale: "pt",
+        expires_at: Math.floor(Date.now() / 1000) + 30 * 60, // 30 minutes
     });
     // Save session ID on the order for reference
     await db.collection("orders").doc(orderId).update({
@@ -880,7 +881,7 @@ async function markStripeWebhookEventDone(eventId) {
 // Handles Stripe webhooks to confirm payments
 // Configure via functions/.env: STRIPE_WEBHOOK_SECRET=whsec_...
 exports.stripeWebhook = functions.region("europe-west1").https.onRequest(async (req, res) => {
-    var _a, _b, _c, _d, _e;
+    var _a, _b, _c, _d, _e, _f, _g;
     if (req.method !== "POST") {
         res.status(405).send("Method Not Allowed");
         return;
@@ -983,6 +984,29 @@ exports.stripeWebhook = functions.region("europe-west1").https.onRequest(async (
             }
         }
     }
+    // Handle expired checkout sessions — cancel order & restore stock
+    if (event.type === "checkout.session.expired") {
+        const session = event.data.object;
+        let orderId = ((_f = session.metadata) === null || _f === void 0 ? void 0 : _f.orderId) || null;
+        if (!orderId) {
+            orderId = await findOrderIdByStripeSessionId(session.id);
+        }
+        if (orderId) {
+            const orderRef = db.collection("orders").doc(orderId);
+            const orderDoc = await orderRef.get();
+            if (orderDoc.exists && ((_g = orderDoc.data()) === null || _g === void 0 ? void 0 : _g.paymentStatus) === "pending") {
+                // Cancel the order (onOrderUpdate trigger will restore stock)
+                await orderRef.update({
+                    status: "cancelled",
+                    paymentStatus: "failed",
+                    stripeLastWebhookEventId: event.id,
+                    paymentErrorMessage: "Sessão de pagamento expirou. O stock foi restaurado.",
+                    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+                });
+                functions.logger.info(`Order ${orderId} cancelled — Stripe checkout session expired.`);
+            }
+        }
+    }
     await markStripeWebhookEventDone(event.id);
     res.status(200).json({ received: true });
 });
@@ -993,7 +1017,7 @@ exports.stripeWebhook = functions.region("europe-west1").https.onRequest(async (
 exports.onOrderUpdate = functions.region("europe-west1").firestore
     .document("orders/{orderId}")
     .onUpdate(async (change, context) => {
-    var _a, _b, _c, _d;
+    var _a, _b, _c, _d, _e;
     const before = change.before.data();
     const after = change.after.data();
     const orderId = context.params.orderId;
@@ -1137,7 +1161,7 @@ exports.onOrderUpdate = functions.region("europe-west1").firestore
             ${trackingHtml}
 
             <div style="background: #F8F9FA; border-radius: 16px; padding: 20px; margin-bottom: 16px;">
-              <h3 style="margin: 0 0 12px; color: #333;">Resumo da Encomenda</h3>
+              <h3 style="margin: 0 0 12px; color: #333;">Fatura / Resumo da Encomenda</h3>
               <table style="width: 100%; border-collapse: collapse;">
                 <thead>
                   <tr>
@@ -1150,7 +1174,13 @@ exports.onOrderUpdate = functions.region("europe-west1").firestore
                   ${itemsList || "<tr><td colspan='3'>Sem itens</td></tr>"}
                 </tbody>
               </table>
-              <p style="margin: 12px 0 4px; font-size: 18px; color: #333;"><strong>Total: €${((_b = after.total) === null || _b === void 0 ? void 0 : _b.toFixed(2)) || "0.00"}</strong></p>
+              <div style="border-top: 1px solid #ddd; margin-top: 12px; padding-top: 12px;">
+                <p style="margin: 4px 0; color: #555; font-size: 14px;">Subtotal: <span style="float: right;">€${((_b = after.subtotal) === null || _b === void 0 ? void 0 : _b.toFixed(2)) || "0.00"}</span></p>
+                <p style="margin: 4px 0; color: #555; font-size: 14px;">Envio: <span style="float: right;">${(after.shippingCost || 0) === 0 ? "Grátis" : "€" + (after.shippingCost || 0).toFixed(2)}</span></p>
+                ${(after.protectionFee || 0) > 0 ? `<p style="margin: 4px 0; color: #555; font-size: 14px;">Proteção: <span style="float: right;">€${(after.protectionFee || 0).toFixed(2)}</span></p>` : ""}
+                ${(after.discount || 0) > 0 ? `<p style="margin: 4px 0; color: #16a34a; font-size: 14px;">Desconto: <span style="float: right;">-€${(after.discount || 0).toFixed(2)}</span></p>` : ""}
+                <p style="margin: 12px 0 0; font-size: 18px; color: #333; border-top: 2px solid #333; padding-top: 8px;"><strong>Total: €${((_c = after.total) === null || _c === void 0 ? void 0 : _c.toFixed(2)) || "0.00"}</strong></p>
+              </div>
             </div>
 
             <div style="text-align: center; margin-top: 24px;">
@@ -1180,9 +1210,9 @@ exports.onOrderUpdate = functions.region("europe-west1").firestore
               <h1 style="color: ${config.color}; font-size: 22px;">${config.emoji} ${config.subject}</h1>
               <div style="background: #F8F9FA; border-radius: 16px; padding: 20px; margin: 16px 0;">
                 <p style="margin: 4px 0; color: #555;"><strong>Encomenda:</strong> #${escapeHtml(orderNumber)}</p>
-                <p style="margin: 4px 0; color: #555;"><strong>Cliente:</strong> ${escapeHtml(((_c = after.shippingAddress) === null || _c === void 0 ? void 0 : _c.name) || "N/A")}</p>
+                <p style="margin: 4px 0; color: #555;"><strong>Cliente:</strong> ${escapeHtml(((_d = after.shippingAddress) === null || _d === void 0 ? void 0 : _d.name) || "N/A")}</p>
                 <p style="margin: 4px 0; color: #555;"><strong>Email:</strong> ${escapeHtml(customerEmail)}</p>
-                <p style="margin: 4px 0; color: #555;"><strong>Total:</strong> €${((_d = after.total) === null || _d === void 0 ? void 0 : _d.toFixed(2)) || "0.00"}</p>
+                <p style="margin: 4px 0; color: #555;"><strong>Total:</strong> €${((_e = after.total) === null || _e === void 0 ? void 0 : _e.toFixed(2)) || "0.00"}</p>
                 <p style="margin: 4px 0; color: #555;"><strong>Estado anterior:</strong> ${escapeHtml(before.status)}</p>
                 <p style="margin: 4px 0; color: #555;"><strong>Novo estado:</strong> ${escapeHtml(newStatus)}</p>
               </div>
@@ -1648,4 +1678,48 @@ function extractStoragePath(urlOrPath) {
         return "";
     }
 }
+// ======================================
+// 🕐 CLEANUP EXPIRED PENDING ORDERS
+// ======================================
+// Runs every hour — cancels card-payment orders stuck in "pending" for over 1 hour
+// This is a safety net; the primary mechanism is the checkout.session.expired webhook
+exports.cleanupExpiredOrders = functions.region("europe-west1").pubsub
+    .schedule("every 60 minutes")
+    .timeZone("Europe/Lisbon")
+    .onRun(async () => {
+    const oneHourAgo = admin.firestore.Timestamp.fromDate(new Date(Date.now() - 60 * 60 * 1000));
+    // Find pending card orders older than 1 hour
+    const expiredOrders = await db
+        .collection("orders")
+        .where("paymentStatus", "==", "pending")
+        .where("paymentMethod", "==", "card")
+        .where("createdAt", "<", oneHourAgo)
+        .get();
+    if (expiredOrders.empty) {
+        functions.logger.info("No expired pending orders found.");
+        return null;
+    }
+    functions.logger.info(`Found ${expiredOrders.size} expired pending orders to cancel.`);
+    for (const orderDoc of expiredOrders.docs) {
+        const order = orderDoc.data();
+        // Skip if already cancelled/paid
+        if (order.status === "cancelled" || order.status === "paid" || order.paymentStatus === "paid") {
+            continue;
+        }
+        try {
+            // Cancel the order (onOrderUpdate trigger restores stock)
+            await orderDoc.ref.update({
+                status: "cancelled",
+                paymentStatus: "failed",
+                paymentErrorMessage: "Encomenda cancelada automaticamente — pagamento não recebido dentro do prazo.",
+                updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+            });
+            functions.logger.info(`Auto-cancelled expired order ${orderDoc.id} (${order.orderNumber})`);
+        }
+        catch (error) {
+            functions.logger.error(`Failed to cancel expired order ${orderDoc.id}:`, error);
+        }
+    }
+    return null;
+});
 //# sourceMappingURL=index.js.map
