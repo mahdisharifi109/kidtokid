@@ -1,3 +1,18 @@
+/**
+ * FICHEIRO: couponService.ts
+ * FUNÇÃO: Gestão de cupões — CRUD para admin + validação para clientes via Cloud Function.
+ * PROBLEMA: Nenhum bug de segurança. Cupões têm dois caminhos de acesso distintos:
+ *           1. Admin: CRUD direto no Firestore (protegido por rules — só admin pode ler/escrever)
+ *           2. Cliente: validação via Cloud Function "validateCouponCode" (clientes não leem coleção "coupons")
+ * PRIORIDADE: ALTA
+ *
+ * SEGURANÇA:
+ * - Firestore rules: "allow read: if isAdmin()" na coleção "coupons" — clientes NÃO podem enumerar cupões
+ * - validateCoupon() chama Cloud Function server-side que valida: datas, limites de uso, valor mínimo
+ * - incrementCouponUsage() é redundante — o createSecureOrder já incrementa atomicamente dentro da Transaction
+ * - A Cloud Function createSecureOrder faz dupla validação do cupão antes de aplicar desconto
+ */
+
 import {
   collection,
   doc,

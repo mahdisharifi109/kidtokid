@@ -1,6 +1,17 @@
 /**
- * Cloud Functions wrapper with timeout and error handling
- * Centralizes all httpsCallable calls with configurable timeout
+ * FICHEIRO: cloudFunctions.ts
+ * FUNÇÃO: Wrapper centralizado para chamadas a Cloud Functions com timeout configurável.
+ * PROBLEMA: Nenhum. Todas as chamadas passam por httpsCallable com autenticação automática do Firebase SDK.
+ * PRIORIDADE: ALTA
+ *
+ * PADRÃO:
+ * - callCloudFunction() envolve httpsCallable com Promise.race contra um timeout (default 30s)
+ * - Região: europe-west1 (hardcoded — tem de ser consistente com functions/src/index.ts)
+ * - Funções expostas: createSecureOrder, setAdminClaims, sendPromoNewsletter, customPasswordReset
+ *
+ * SEGURANÇA:
+ * - O Firebase SDK anexa automaticamente o token de autenticação do utilizador em cada chamada
+ * - A Cloud Function valida context.auth server-side — o frontend não pode falsificar autenticação
  */
 
 import { getFunctions, httpsCallable, HttpsCallableResult } from "firebase/functions"

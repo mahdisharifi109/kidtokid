@@ -1,3 +1,24 @@
+/**
+ * FICHEIRO: orderService.ts
+ * FUNÇÃO: Serviço de encomendas — leitura, cancelamento e tipos do modelo Order.
+ * PROBLEMA: Nenhum bug de segurança. Este serviço é read-only + cancelamento de pendentes.
+ *           A criação de encomendas NÃO está aqui — é feita exclusivamente pela Cloud Function "createSecureOrder".
+ * PRIORIDADE: ALTA
+ *
+ * MODELO DE ESTADOS (Order Status Machine):
+ *   pending → paid → processing → shipped → delivered
+ *                                         → ready_pickup → delivered
+ *   pending → cancelled (auto: sessão Stripe expirada, ou manual pelo utilizador)
+ *   paid → refunded (via Cloud Function "refundOrder" ou admin)
+ *
+ * SEGURANÇA:
+ * - getUserOrders() filtra por userId do utilizador autenticado (Firestore rules reforçam isto)
+ * - getOrderById() verifica ownership antes de retornar dados
+ * - cancelOrder() só permite cancelar encomendas com status "pending" (pagas requerem reembolso via admin)
+ * - cancelOrder() restaura stock via batch write (Firestore rules permitem esta operação ao owner)
+ * - Firestore rules: "allow create: if false" — encomendas SÓ podem ser criadas via Cloud Function
+ */
+
 import {
   collection,
   doc,

@@ -1,3 +1,62 @@
+/**
+ * FICHEIRO: functions/src/index.ts
+ * FUNÇÃO: Backend completo do KidToKid — todas as Cloud Functions (Firebase Functions v1/v2).
+ * PROBLEMA: Nenhum bug de segurança no fluxo de pagamento. O sistema implementa corretamente:
+ *           - Criação de encomendas com status "pending" (nunca "paid" diretamente)
+ *           - Webhook Stripe com verificação de assinatura (Stripe-Signature)
+ *           - Deduplicação de eventos webhook via coleção "stripe_webhook_events"
+ *           - Auto-cancelamento de sessões expiradas + scheduled cleanup horário
+ *           - Restauração de stock idempotente (flag _stockRestored)
+ * PRIORIDADE: CRÍTICA (toda a lógica de negócio server-side)
+ *
+ * FUNÇÕES EXPORTADAS (15):
+ *
+ * AUTH:
+ * - onUserCreated: Auto-set admin claims + welcome email (Auth trigger)
+ * - setAdminClaims: Callable — admin self-claim para emails na whitelist
+ *
+ * ENCOMENDAS:
+ * - createSecureOrder: Callable — criação atómica com validação de preços, stock e cupões
+ * - onNewOrder: Firestore trigger — envia emails ao admin e cliente
+ * - onOrderUpdate: Firestore trigger — emails de status + restauração de stock em cancelamento
+ *
+ * STRIPE:
+ * - createStripeCheckoutSession: Callable — cria sessão Stripe para encomenda existente
+ * - stripeWebhook: HTTP — recebe webhooks Stripe (completed, failed, expired, refunded)
+ * - refundOrder: Callable — reembolso Stripe automático com restauração de stock
+ *
+ * EMAIL:
+ * - customPasswordReset: Callable — password reset via SMTP branded
+ * - onNewContact: Firestore trigger — notifica admin de mensagens de contacto
+ * - onNewReview: Firestore trigger — notifica admin de novas avaliações
+ *
+ * NEWSLETTER:
+ * - onNewsletterSubscribe: Firestore trigger — email de boas-vindas
+ * - sendPromoNewsletter: Callable — envio em bulk de promoções (admin only)
+ *
+ * CUPÕES:
+ * - validateCouponCode: Callable — validação server-side sem expor coleção "coupons"
+ *
+ * AUTOMAÇÃO:
+ * - removePurchasedProductAndImage: Firestore trigger (v2) — remove produto e imagens após pagamento
+ * - cleanupExpiredOrders: Scheduled (hourly) — cancela orders pendentes com >1h
+ *
+ * SEGURANÇA:
+ * - Todas as funções callable verificam context.auth
+ * - Admin verificado por custom claims (token.admin === true) ou whitelist ADMIN_EMAILS
+ * - Webhook Stripe verifica assinatura com STRIPE_WEBHOOK_SECRET
+ * - Rate limiting: máx 5 encomendas/hora por utilizador
+ * - Input sanitization: escapeHtml() em todos os templates de email
+ * - Stock decrementado em Transaction atómica (previne race conditions)
+ *
+ * VARIÁVEIS DE AMBIENTE (functions/.env):
+ * - STRIPE_SECRET: Chave secreta Stripe
+ * - STRIPE_WEBHOOK_SECRET: Secret para verificação de webhook (whsec_...)
+ * - EMAIL_USER: Email Gmail para SMTP
+ * - EMAIL_PASS: App password Gmail
+ * - ADMIN_EMAIL: Email do administrador para notificações
+ */
+
 import * as functions from "firebase-functions/v1";
 import { onDocumentWritten } from "firebase-functions/v2/firestore";
 import * as admin from "firebase-admin";

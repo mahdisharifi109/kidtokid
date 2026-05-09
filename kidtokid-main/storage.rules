@@ -1,10 +1,30 @@
+// FICHEIRO: storage.rules
+// FUNÇÃO: Regras de segurança do Cloud Storage — controla uploads/downloads de ficheiros.
+// PROBLEMA: Nenhum bug de segurança. Admin verificado por custom claims + fallback de email whitelist.
+//           Nota: o fallback por email (linha 22) é redundante se custom claims estiverem configurados,
+//           mas serve como segurança adicional caso os claims falhem.
+// PRIORIDADE: ALTA
+//
+// PATHS E PERMISSÕES:
+// - /products/*: read público, write staff (imagens de produtos, max 5MB)
+// - /categories/*: read público, write staff
+// - /users/{uid}/avatar/*: read público, write próprio (max 2MB)
+// - /banners/*, /sliders/*: read público, write staff
+// - /contacts/*: create autenticado (imagem/PDF, max 5MB), read staff
+// - /orders/*: read/write staff only (documentos internos)
+// - /temp/{uid}/*: read/write próprio (max 10MB)
+// - /backups/*: read/write bloqueado (acesso apenas via Admin SDK)
+//
+// VALIDAÇÃO DE FICHEIROS:
+// - isValidImage(): content-type image/*, max 5MB
+// - isValidDocument(): content-type application/pdf, max 10MB
+
 rules_version = '2';
 
 // ===========================================
 // 🗄️ STORAGE SECURITY RULES - KID TO KID
 // ===========================================
 // Última atualização: Janeiro 2026
-
 service firebase.storage {
   match /b/{bucket}/o {
     

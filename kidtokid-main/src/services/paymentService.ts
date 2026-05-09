@@ -1,9 +1,23 @@
 /**
- * Serviço de Pagamentos — Kid to Kid
+ * FICHEIRO: paymentService.ts
+ * FUNÇÃO: Serviço de pagamentos — inicia sessões Stripe Checkout via Cloud Function.
+ * PROBLEMA: Nenhum. O antigo confirmPayment (que escrevia diretamente no Firestore) foi removido e agora
+ *           lança erro se chamado. Pagamentos só são confirmados pelo webhook Stripe server-side.
+ * PRIORIDADE: CRÍTICA (integração Stripe)
  *
- * Integração com Stripe Checkout para pagamentos com cartão.
- * A sessão Stripe é criada via Cloud Function (createStripeCheckoutSession)
- * para manter as chaves seguras no servidor.
+ * ARQUITETURA DE SEGURANÇA:
+ * - As chaves Stripe (secret key) NUNCA estão no frontend
+ * - A sessão Stripe é criada via Cloud Function "createStripeCheckoutSession" (server-side)
+ * - O frontend apenas recebe o URL de redirect e redireciona o browser
+ * - Confirmação de pagamento: APENAS via webhook Stripe → Cloud Function "stripeWebhook"
+ * - confirmPayment() está @deprecated e lança erro — prevenção contra uso acidental
+ *
+ * FLUXO:
+ * 1. Frontend chama initiateStripePayment(orderId, orderNumber)
+ * 2. Cloud Function cria sessão Stripe com line items do pedido
+ * 3. Frontend redireciona para session.url (Stripe Checkout hosted page)
+ * 4. Após pagamento: Stripe envia webhook → Cloud Function marca order como "paid"
+ * 5. Se abandonar: sessão expira (30 min) → webhook marca order como "cancelled"
  */
 
 import { getFunctions, httpsCallable } from "firebase/functions"

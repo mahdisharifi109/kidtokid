@@ -1,3 +1,23 @@
+/**
+ * FICHEIRO: OrderSuccessPage.tsx
+ * FUNÇÃO: Página de sucesso após submissão de encomenda. Mostra resumo, fatura, e instruções de pagamento.
+ * PROBLEMA: (CORRIGIDO) Antes mostrava "Encomenda Confirmada" para TODOS os estados, incluindo pagamentos pendentes.
+ *           Agora mostra títulos condicionais: "Pagamento Confirmado" (pago), "Encomenda Registada" (pendente),
+ *           ou "Encomenda Confirmada" (pagamento na loja). Confetti só dispara para encomendas pagas/loja.
+ * PRIORIDADE: MÉDIA
+ *
+ * DISPLAY CONDICIONAL:
+ * - isPaid (paymentStatus === 'paid'): Ícone verde ✅, título "Pagamento Confirmado", confetti
+ * - isShopPayment (paymentMethod === 'shop'): Ícone verde ✅, título "Encomenda Confirmada", confetti
+ * - isPending (pagamento por cartão não concluído): Ícone amarelo ⏳, título "Encomenda Registada", sem confetti
+ * - Botão "Pagar Agora" aparece apenas para encomendas pendentes com cartão (retry payment)
+ *
+ * SEGURANÇA:
+ * - Esta página é read-only — não modifica nenhum dado
+ * - Verifica ownership (order.userId === user.uid) antes de mostrar dados
+ * - O estado de pagamento vem do Firestore (atualizado pelo webhook Stripe, não pelo frontend)
+ */
+
 import { useEffect, useState } from "react"
 import { Link, useSearchParams } from "react-router-dom"
 import { Button } from "@/components/ui/button"
@@ -38,9 +58,13 @@ export default function OrderSuccessPage() {
 
     const isPaid = order?.paymentStatus === 'paid'
     const isPending = order?.paymentStatus === 'pending'
+    const isShopPayment = order?.paymentMethod === 'shop'
+    // Show celebration only when payment is confirmed or for shop (pay-at-store) orders
+    const showCelebration = isPaid || isShopPayment
 
-    // Confetti effect on mount
+    // Confetti effect — only for paid or shop-payment orders
     useEffect(() => {
+        if (!showCelebration) return
         const timer = setTimeout(() => {
             try {
                 confetti({
@@ -54,7 +78,7 @@ export default function OrderSuccessPage() {
             }
         }, 300)
         return () => clearTimeout(timer)
-    }, [])
+    }, [showCelebration])
 
     useEffect(() => {
         const fetchOrder = async () => {
@@ -134,23 +158,43 @@ export default function OrderSuccessPage() {
                     <div className="text-center mb-8 no-print">
                         <div className="mb-6 flex justify-center">
                             <div className="relative">
-                                <div className="h-28 w-28 rounded-full bg-green-100 flex items-center justify-center animate-in zoom-in duration-500 shadow-lg shadow-green-100">
-                                    <CheckCircle2 className="h-14 w-14 text-green-500" />
+                                <div className={`h-28 w-28 rounded-full flex items-center justify-center animate-in zoom-in duration-500 shadow-lg ${
+                                    showCelebration 
+                                        ? 'bg-green-100 shadow-green-100' 
+                                        : 'bg-yellow-100 shadow-yellow-100'
+                                }`}>
+                                    {showCelebration ? (
+                                        <CheckCircle2 className="h-14 w-14 text-green-500" />
+                                    ) : (
+                                        <Clock className="h-14 w-14 text-yellow-500" />
+                                    )}
                                 </div>
                                 <div className="absolute -bottom-1 -right-1 h-9 w-9 rounded-full bg-k2k-pink flex items-center justify-center animate-bounce shadow-lg">
                                     <Heart className="h-5 w-5 text-white fill-white" />
                                 </div>
-                                <div className="absolute -top-1 -left-1 h-7 w-7 rounded-full bg-k2k-blue flex items-center justify-center animate-pulse">
-                                    <Sparkles className="h-4 w-4 text-white" />
-                                </div>
+                                {showCelebration && (
+                                    <div className="absolute -top-1 -left-1 h-7 w-7 rounded-full bg-k2k-blue flex items-center justify-center animate-pulse">
+                                        <Sparkles className="h-4 w-4 text-white" />
+                                    </div>
+                                )}
                             </div>
                         </div>
 
                         <h1 className="mb-2 text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100">
-                            Encomenda Confirmada
+                            {isPaid
+                                ? 'Pagamento Confirmado'
+                                : isShopPayment
+                                    ? 'Encomenda Confirmada'
+                                    : 'Encomenda Registada'
+                            }
                         </h1>
                         <p className="text-gray-600 dark:text-gray-400 max-w-sm mx-auto">
-                            Obrigado pela tua compra! Preparámos tudo com muito carinho para ti.
+                            {isPaid
+                                ? 'Obrigado pela tua compra! Preparámos tudo com muito carinho para ti.'
+                                : isShopPayment
+                                    ? 'Obrigado! Podes efetuar o pagamento quando levantares na loja.'
+                                    : 'A tua encomenda foi registada e aguarda confirmação do pagamento.'
+                            }
                         </p>
                     </div>
 

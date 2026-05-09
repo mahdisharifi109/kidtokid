@@ -1,3 +1,21 @@
+/**
+ * FICHEIRO: App.tsx
+ * PAP (Prova de Aptidão Profissional) - Kid to Kid
+ * 
+ * FUNÇÃO DESTE FICHEIRO:
+ * Este é o "coração" no que toca a navegação (Routing) da aplicação no Frontend.
+ * Define quais as páginas (componentes) que são apresentadas para cada URL (ex: "/carrinho" ou "/admin").
+ * 
+ * CONCEITOS IMPORTANTES A EXPLICAR NA DEFESA:
+ * 1. "Lazy Loading" (React.lazy): As páginas não são carregadas todas de uma vez quando o site abre.
+ *    Isto melhora drasticamente a velocidade do site porque só carrega código do "Admin", por exemplo, 
+ *    se o utilizador for realmente para a página de Admin.
+ * 2. Routing (React Router DOM): Mapeia o caminho no browser para o componente correto no ecrã.
+ * 3. Rotas Protegidas (Guards): Componentes como <ProtectedRoute> impedem que alguém sem conta ("guest") 
+ *    entre no carrinho de compras. O <AdminRoute> impede o acesso ao painel de controlo.
+ * 4. Estado da Loja (Maintenance Mode): Verifica se a loja está ativa antes de deixar clientes entrar.
+ */
+
 import { Routes, Route } from 'react-router-dom'
 import { lazy, Suspense, useEffect, useState } from 'react'
 import { Loader2, Wrench } from 'lucide-react'

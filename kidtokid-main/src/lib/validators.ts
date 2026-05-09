@@ -1,6 +1,19 @@
 /**
- * Centralized validation functions and type guards
- * Usado em CartContext, formulários, e serviços
+ * FICHEIRO: validators.ts
+ * FUNÇÃO: Funções de validação centralizadas — email, telefone, código postal, carrinho, e type guards.
+ * PROBLEMA: Nenhum. Estas validações são para UX no frontend. O servidor (Cloud Functions) replica
+ *           as mesmas validações de forma independente — nunca confia nos dados do cliente.
+ * PRIORIDADE: MÉDIA
+ *
+ * USO:
+ * - validateEmail/Phone/PostalCode: usados no CheckoutPage para feedback imediato ao utilizador
+ * - validateCartItem/validateCartFromStorage: protegem contra dados corrompidos no localStorage
+ * - isFirebaseError: type guard para tratamento de erros Firebase em catch blocks
+ *
+ * VALIDAÇÃO SERVER-SIDE CORRESPONDENTE:
+ * - Email: validado em createSecureOrder (Cloud Function) via shippingAddress.email
+ * - Telefone: regex /^(9[1236]\d{7}|2\d{8})$/ em createSecureOrder (linha 412 do index.ts)
+ * - Código postal: validado no CheckoutPage antes de enviar ao servidor
  */
 
 import type { ICartItem } from "@/src/types"

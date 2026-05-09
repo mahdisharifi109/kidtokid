@@ -1,3 +1,26 @@
+/**
+ * FICHEIRO: CheckoutPage.tsx
+ * FUNÇÃO: Página de checkout — formulário de dados, seleção de envio/pagamento, e submissão da encomenda.
+ * PROBLEMA: Nenhum bug de segurança. A criação de encomendas é delegada à Cloud Function "createSecureOrder"
+ *           que valida preços, stock e cupões server-side. O frontend nunca manipula preços nem estado de pagamento.
+ * PRIORIDADE: CRÍTICA (fluxo de compra principal)
+ *
+ * FLUXO DE CHECKOUT:
+ * 1. Utilizador preenche dados pessoais, morada, método de envio e pagamento
+ * 2. Ao clicar "Pagar", chama createSecureOrder (Cloud Function) que:
+ *    - Valida todos os produtos e preços server-side
+ *    - Decrementa stock atomicamente (Firestore Transaction)
+ *    - Cria a encomenda com status="pending", paymentStatus="pending"
+ * 3. Se pagamento por cartão: cria sessão Stripe e redireciona o utilizador
+ * 4. Se pagamento na loja: redireciona para página de sucesso
+ *
+ * SEGURANÇA:
+ * - Preços são SEMPRE calculados no servidor (Cloud Function), nunca confiando no frontend
+ * - Cupões são validados server-side via Cloud Function "validateCouponCode"
+ * - Stock é decrementado dentro de uma Transaction atómica (previne race conditions)
+ * - A encomenda NUNCA é marcada como "paid" pelo frontend — só o webhook Stripe pode fazer isso
+ */
+
 import { useState, useEffect } from "react"
 import { useNavigate, Link } from "react-router-dom"
 import { useCart } from "@/src/contexts/CartContext"
@@ -167,12 +190,11 @@ export default function CheckoutPage() {
             const result = await createSecureOrderWithTimeout(orderData, 30_000)
             const order = result.data as { orderId: string; orderNumber: string; total: number }
 
-            // Clear the cart since the order was successfully created in the system
-            clearCart()
-
             if (formData.paymentMethod === 'card') {
                 try {
                     setOrderCompleted(true)
+                    // Clear cart just before Stripe redirect — stock is already reserved server-side
+                    clearCart()
                     await initiateStripePayment(order.orderId, order.orderNumber)
                     // The browser will redirect to Stripe. Block further execution.
                     return new Promise(() => {})
@@ -186,6 +208,8 @@ export default function CheckoutPage() {
                     navigate(`/minha-conta?tab=encomendas`)
                 }
             } else {
+                // Shop payment — order confirmed, clear cart and show success
+                clearCart()
                 setOrderCompleted(true)
                 navigate(`/sucesso?order=${order.orderNumber}`)
             }

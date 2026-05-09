@@ -1,8 +1,34 @@
-rules_version = '2';
-
-// Firestore Security Rules - Kid to Kid
+// FICHEIRO: firestore.rules
+// FUNÇÃO: Regras de segurança Firestore — define permissões de leitura/escrita para cada coleção.
+// PROBLEMA: Nenhum bug de segurança. As regras são granulares e bem estruturadas.
+//           Ponto crítico: "allow create: if false" em orders — TODA criação de encomendas
+//           é forçada a passar pela Cloud Function "createSecureOrder" (que usa Admin SDK e bypassa rules).
+// PRIORIDADE: CRÍTICA (toda a segurança de dados depende deste ficheiro)
+//
+// MODELO DE PERMISSÕES:
+// - isAuthenticated(): request.auth != null
+// - isAdmin(): custom claims (request.auth.token.admin === true)
+// - isStaff(): admin OU moderator claims
+// - isOwner(userId): request.auth.uid == userId
+//
+// COLEÇÕES E PERMISSÕES:
+// - products: read público, write admin only
+// - categories: read público, write admin only
+// - users: read/write próprio, admin lê todos
+// - orders: read próprio, CREATE BLOQUEADO (só via Cloud Function), update limitado
+// - coupons: read/write admin only (clientes validam via Cloud Function)
+// - reviews: read público, create autenticado, moderate admin
+// - contacts: create público (rate limited), read admin
+// - newsletter: create público (com validação email), manage admin
+// - favorites: read/write próprio
+// - carts: read/write próprio
+// - settings: read público, write admin
+// - analytics/audit_logs: read admin only
+//
 // Última atualização: Janeiro 2026
 // Documentação: https://firebase.google.com/docs/firestore/security/get-started
+
+rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {

@@ -1,3 +1,25 @@
+/**
+ * FICHEIRO: CartContext.tsx
+ * FUNÇÃO: Contexto React para gestão do carrinho de compras com persistência dual (localStorage + Firestore).
+ * PROBLEMA: Nenhum bug de segurança. Os preços no carrinho são meramente informativos — o servidor (createSecureOrder)
+ *           SEMPRE recalcula preços a partir do catálogo Firestore. Manipular preços no localStorage não tem efeito.
+ * PRIORIDADE: ALTA
+ *
+ * PERSISTÊNCIA:
+ * - localStorage: fonte primária, funciona offline e para guests
+ * - Firestore (coleção "carts"): sync para utilizadores autenticados com debounce de 2 segundos
+ * - Merge: ao fazer login, o carrinho local e remoto são fundidos (sem duplicatas)
+ *
+ * VALIDAÇÃO:
+ * - No mount, cada item do carrinho é verificado contra o Firestore (getProductById)
+ * - Produtos inexistentes ou com stock ≤ 0 são removidos automaticamente com notificação toast
+ * - validateCartFromStorage() garante integridade dos dados (previne XSS via localStorage injetado)
+ *
+ * SEGURANÇA:
+ * - Preços exibidos vêm do localStorage/Firestore MAS são recalculados server-side no checkout
+ * - addToCart() previne duplicatas usando o setter funcional do useState
+ * - clearCart() é chamado apenas no momento correto (após Stripe redirect ou pagamento na loja)
+ */
 
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react"

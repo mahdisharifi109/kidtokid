@@ -1,3 +1,20 @@
+/**
+ * FICHEIRO: AuthContext.tsx
+ * PAP (Prova de Aptidão Profissional) - Kid to Kid
+ * 
+ * FUNÇÃO DESTE FICHEIRO:
+ * Este ficheiro usa a "Context API" do React. Ele cria um estado global de Autenticação.
+ * Isto significa que em vez de ter que perguntar "o utilizador está logado?" em cada componente da loja,
+ * este Context guarda essa informação e distribui-a por toda a aplicação (Header, Produtos, etc).
+ * 
+ * CONCEITOS IMPORTANTES A EXPLICAR NA DEFESA:
+ * 1. Context API (createContext): Permite partilhar dados (user, isAdmin, etc.) com todos os componentes da árvore.
+ * 2. useEffect e "onAuthChange": Assim que a App inicia, "esuta" as mudanças do Firebase. Se o Firebase disser 
+ *    "olha, o token expirou" ou "este mail fez login", o Context atualiza sozinho e avisa todos os ecrãs.
+ * 3. Separação Lógica: Este ficheiro não fala DIRETAMENTE com o Firebase (para guardar dados), ele usa funções 
+ *    do `authService.ts` para manter a arquitetura limpa (Clean Architecture).
+ */
+
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 import type { User } from "firebase/auth"

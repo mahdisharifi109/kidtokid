@@ -1,3 +1,21 @@
+/**
+ * FICHEIRO: productService.ts
+ * PAP (Prova de Aptidão Profissional) - Kid to Kid
+ * 
+ * FUNÇÃO DESTE FICHEIRO:
+ * Este é um "Service" focado puramente nos dados empresariais (Produtos).
+ * Contém todas as operações CRUD (Create, Read, Update, Delete) relacionadas com produtos na base de dados Firestore.
+ * 
+ * CONCEITOS IMPORTANTES A EXPLICAR NA DEFESA:
+ * 1. Padrão Service (Service Pattern): Isto separa a interface gráfica (React) da Base de Dados (Firebase).
+ *    Se um dia quiseres mudar o Firebase para MySQL/Supabase, SÓ precisas de mudar o código AQUI neste ficheiro. 
+ *    As páginas React da Loja (HomePage, ProductPage) nem notam a diferença.
+ * 2. Firestore Queries: Usa funções como "query()", "where()", e "orderBy()" para filtrar os dados DIRETAMENTE na base de dados,
+ *    poupando a rede e tornando a aplicação muito mais rápida.
+ * 3. Sanitização com TypeScript: A função 'convertToProduct' atua como um escudo. Recebe dados brutos (e possivelmente incompletos)
+ *    do NoSQL e garante que a app React tem sempre a estrutura exata definida por 'IProduct', evitando ecrãs em branco "undefined is not an object".
+ */
+
 import {
   collection,
   doc,
